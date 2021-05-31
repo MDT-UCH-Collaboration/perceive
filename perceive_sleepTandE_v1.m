@@ -48,6 +48,11 @@ json2load = jsonFiles{indx};
 
 js = jsondecode(fileread(json2load));
 
+% Tzoffset
+tzOFF = js.ProgrammerUtcOffset;
+tzOffs = strsplit(tzOFF,':');
+tzOffsN = str2double(tzOffs{1});
+
 switch inPS.stagE
     case 1 % Events
         infoFields = {'PatientEvents','EventSummary'};
@@ -62,26 +67,25 @@ switch inPS.stagE
         
         lfpDayNames = fieldnames(lfpDAys);
         
-        monthS = zeros(144,length(lfpDayNames),'int8');
-        dayS = zeros(144,length(lfpDayNames),'int8');
+        monthS = zeros(144,length(lfpDayNames));
+        dayS = zeros(144,length(lfpDayNames));
         hourS = nan(144,length(lfpDayNames));
         minuteS = nan(144,length(lfpDayNames));
         actDAYtm = NaT(144,length(lfpDayNames));
-        LFPall = zeros(144,length(lfpDayNames),'int8');
-        stimAll = zeros(144,length(lfpDayNames),'int8');
+        LFPall = zeros(144,length(lfpDayNames));
+        stimAll = zeros(144,length(lfpDayNames));
         
         for li = 1:length(lfpDayNames)
             
-            tLFP = tranpose(fliplr([lfpDAys.(lfpDayNames{li}).LFP]));
-            tstim_mA = tranpose(fliplr([lfpDAys.(lfpDayNames{li}).AmplitudeInMilliAmps]));
-            timeD = tranpose(fliplr({lfpDAys.(lfpDayNames{li}).DateTime}));
+            tLFP = transpose(fliplr([lfpDAys.(lfpDayNames{li}).LFP]));
+            tstim_mA = transpose(fliplr([lfpDAys.(lfpDayNames{li}).AmplitudeInMilliAmps]));
+            timeD = transpose(fliplr({lfpDAys.(lfpDayNames{li}).DateTime}));
             
-            [monthOI,dayOI,hourOI,minuteOI,actDayT] = getDT(timeD);
+            [monthOI,dayOI,hourOI,minuteOI,actDayT] = getDT(timeD , tzOffsN);
             
-            if length(monthOI) < 140
-                continue
-            else
-
+%             if length(monthOI) < 140
+%                 continue
+%             else
                 % convert minute column to floor round
                 minuteOIc = floor(minuteOI/10)*10;
                 % combine hour , minute , second 
@@ -90,18 +94,28 @@ switch inPS.stagE
                 % search for where to align times;
                 [alignIND] = alignTime(durFind);
                 
-                monthS(1:length(monthOI),li) = monthOI;
-                dayS(1:length(monthOI),li) = dayOI;
-                hourS(1:length(monthOI),li) = hourOI;
-                minuteS(1:length(monthOI),li) = minuteOI;
-                actDAYtm(1:length(monthOI),li) = actDayT;
-                LFPall(1:length(monthOI),li) = tLFP;
-                stimAll(1:length(monthOI),li) = tstim_mA;
+                monthS(alignIND,li) = monthOI;
+                dayS(alignIND,li) = dayOI;
+                hourS(alignIND,li) = hourOI;
+                minuteS(alignIND,li) = minuteOI;
+                actDAYtm(alignIND,li) = actDayT;
+                LFPall(alignIND,li) = tLFP;
+                stimAll(alignIND,li) = tstim_mA;
                 
-            end
+%             end
         end
         
         test = 1;
+        
+        % Fix outliers in LFP magnitude code
+        % Smooth or movemean?
+        
+        % Save out CSV file with timeline data
+        % Month, Day, Hour, Minute, LFP mag, stimMA, actDayTime
+        
+        
+        
+        
 end
 
 
@@ -111,23 +125,24 @@ end % End of Function
 
 
 
-function [monthOI,dayOI,hourOI,minuteOI,actDayT] = getDT(timeVEC)
+function [monthOI,dayOI,hourOI,minuteOI,actDayT] = getDT(timeVEC , tzOFFtm)
 
-monthOI = zeros(length(timeVEC),1,'int8');
-dayOI = zeros(length(timeVEC),1,'int8');
-hourOI = zeros(length(timeVEC),1,'int8');
-minuteOI = zeros(length(timeVEC),1,'int8');
+monthOI = zeros(length(timeVEC),1);
+dayOI = zeros(length(timeVEC),1);
+hourOI = zeros(length(timeVEC),1);
+minuteOI = zeros(length(timeVEC),1);
 actDayT = NaT(length(timeVEC),1);
 
 for ti = 1:length(timeVEC)
     
     tmpT = timeVEC{ti};
     tmpTT = datetime(replace(tmpT,{'T','Z'},{' ',''}));
-    actDayT(ti) = tmpTT;
-    monthOI(ti) = tmpTT.Month;
-    dayOI(ti) = tmpTT.Day;
-    hourOI(ti) = tmpTT.Hour;
-    minuteOI(ti) = tmpTT.Minute;
+
+    actDayT(ti) = tmpTT + hours(tzOFFtm);
+    monthOI(ti) = actDayT(ti).Month;
+    dayOI(ti) = actDayT(ti).Day;
+    hourOI(ti) = actDayT(ti).Hour;
+    minuteOI(ti) = actDayT(ti).Minute;
     
 end
 
@@ -149,14 +164,22 @@ pmBlock = linspace(PMblock1,PMblock2,36);
 % Start at 6 AM
 allBlock = [transpose(amBlock) ; transpose(pmBlock)];
 
-ismember(allBlock,t)
+% Search through inTIME and line up with allBlock indicies in alignIND
+% Check on the 143 and 50 file.
 
+alignIND = zeros(size(inTIME));
 for iT = 1:length(inTIME)
     
+    % Input time row
     tTime = inTIME(iT);
     
+    % Find where located in allBlock
+    tIND  = find(ismember(allBlock,tTime));
     
-    
+    % Store in alignIND
+    alignIND(iT) = tIND;
+
 end
+
 end
 
