@@ -83,26 +83,26 @@ switch inPS.stagE
             
             [monthOI,dayOI,hourOI,minuteOI,actDayT] = getDT(timeD , tzOffsN);
             
-%             if length(monthOI) < 140
-%                 continue
-%             else
-                % convert minute column to floor round
-                minuteOIc = floor(minuteOI/10)*10;
-                % combine hour , minute , second 
-                durFind = duration(hourOI,minuteOIc,zeros(length(minuteOIc),1));
-                
-                % search for where to align times;
-                [alignIND] = alignTime(durFind);
-                
-                monthS(alignIND,li) = monthOI;
-                dayS(alignIND,li) = dayOI;
-                hourS(alignIND,li) = hourOI;
-                minuteS(alignIND,li) = minuteOI;
-                actDAYtm(alignIND,li) = actDayT;
-                LFPall(alignIND,li) = tLFP;
-                stimAll(alignIND,li) = tstim_mA;
-                
-%             end
+            %             if length(monthOI) < 140
+            %                 continue
+            %             else
+            % convert minute column to floor round
+            minuteOIc = floor(minuteOI/10)*10;
+            % combine hour , minute , second
+            durFind = duration(hourOI,minuteOIc,zeros(length(minuteOIc),1));
+            
+            % search for where to align times;
+            [alignIND] = alignTime(durFind);
+            
+            monthS(alignIND,li) = monthOI;
+            dayS(alignIND,li) = dayOI;
+            hourS(alignIND,li) = hourOI;
+            minuteS(alignIND,li) = minuteOI;
+            actDAYtm(alignIND,li) = actDayT;
+            LFPall(alignIND,li) = tLFP;
+            stimAll(alignIND,li) = tstim_mA;
+            
+            %             end
         end
         
         test = 1;
@@ -112,6 +112,17 @@ switch inPS.stagE
         
         % Save out CSV file with timeline data
         % Month, Day, Hour, Minute, LFP mag, stimMA, actDayTime
+        LFPallf = LFPall;
+        LFPallf(LFPall > 7000) = 7000;
+        
+        % Fix outliers by removing and smooth
+        [LFPallfm] = fixOutSm(LFPallf);
+        
+        % Smooth
+        LFPallfSm = smoothdata(LFPallfm,1,'sgolay',6);
+        
+        % test
+        test = 1;
         
         
         
@@ -137,7 +148,7 @@ for ti = 1:length(timeVEC)
     
     tmpT = timeVEC{ti};
     tmpTT = datetime(replace(tmpT,{'T','Z'},{' ',''}));
-
+    
     actDayT(ti) = tmpTT + hours(tzOFFtm);
     monthOI(ti) = actDayT(ti).Month;
     dayOI(ti) = actDayT(ti).Day;
@@ -178,7 +189,50 @@ for iT = 1:length(inTIME)
     
     % Store in alignIND
     alignIND(iT) = tIND;
+    
+end
 
+end
+
+
+function [outSmooth] = fixOutSm(inUNvec)
+
+
+outSmooth = inUNvec;
+for si = 1:size(inUNvec,2)
+    
+    tmpVEC = inUNvec(:,si);
+    tmpVECz = tmpVEC(tmpVEC ~= 0);
+    
+    tmpM = mean(tmpVECz);
+    tmpS = std(tmpVECz);
+    
+    tmpTH = tmpM + (tmpS*2);
+    
+    abovEInd = find(tmpVEC > tmpTH);
+    allNUMS = 1:144;
+    remAbov = ~ismember(allNUMS,abovEInd);
+    
+    %     plot(tmpVEC);
+    %     hold on
+    
+    for ai = 1:length(abovEInd)
+        tmpAi = abovEInd(ai);
+        bef = tmpAi - 6:tmpAi - 1;
+        befD = bef(remAbov(bef));
+        
+        aft = tmpAi + 1:tmpAi + 6;
+        aftD = aft(remAbov(aft));
+        
+        menBlk = mean(tmpVEC([befD , aftD]));
+        tmpVEC(tmpAi) = menBlk;
+    end
+    outSmooth(:,si) = tmpVEC;
+%     plot(tmpVEC);
+%     pause
+%     close all
+    
+    
 end
 
 end

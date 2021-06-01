@@ -1,9 +1,9 @@
-function perceive_sleepTandE_v1(inPS)
+function perceive_sleepTandE_v2(inPS)
 % Github https://github.com/MDT-UCH-Collaboration
 
 arguments
     inPS.userPC (1,1) string = "JATwork"
-    inPS.subID (1,:) char = '001' % IN USE for CASE NUMBER
+    inPS.subID (1,1) double = 1 % IN USE for CASE NUMBER
     inPS.postN (1,1) double = 1
     inPS.userDIR (1,1) string = "NA"
     inPS.seluDIR (1,1) logical = true
@@ -18,7 +18,9 @@ end
 % The script generates BIDS inspired subject and session folders with the
 
 %% TODO:
-% ADD
+% 1. Remove less than zero from final LFP output
+% 2. Figure what to output in CSV - long view (vs wide view)
+% 
 
 if inPS.seluDIR && strcmp(inPS.userDIR,"NA")
     [fileDIR] = uigetdir();
@@ -32,9 +34,6 @@ else
     saveLOC = inPS.saveDIR;
 end
 sessionFields = {'SessionDate','SessionEndDate','PatientInformation'};
-
-
-
 
 cd(fileDIR)
 initDir = dir('*.json');
@@ -82,35 +81,46 @@ switch inPS.stagE
             timeD = transpose(fliplr({lfpDAys.(lfpDayNames{li}).DateTime}));
             
             [monthOI,dayOI,hourOI,minuteOI,actDayT] = getDT(timeD , tzOffsN);
+
+            % convert minute column to floor round
+            minuteOIc = floor(minuteOI/10)*10;
+            % combine hour , minute , second
+            durFind = duration(hourOI,minuteOIc,zeros(length(minuteOIc),1));
             
-%             if length(monthOI) < 140
-%                 continue
-%             else
-                % convert minute column to floor round
-                minuteOIc = floor(minuteOI/10)*10;
-                % combine hour , minute , second 
-                durFind = duration(hourOI,minuteOIc,zeros(length(minuteOIc),1));
-                
-                % search for where to align times;
-                [alignIND] = alignTime(durFind);
-                
-                monthS(alignIND,li) = monthOI;
-                dayS(alignIND,li) = dayOI;
-                hourS(alignIND,li) = hourOI;
-                minuteS(alignIND,li) = minuteOI;
-                actDAYtm(alignIND,li) = actDayT;
-                LFPall(alignIND,li) = tLFP;
-                stimAll(alignIND,li) = tstim_mA;
-                
-%             end
+            % search for where to align times;
+            [alignIND] = alignTime(durFind);
+            
+            monthS(alignIND,li) = monthOI;
+            dayS(alignIND,li) = dayOI;
+            hourS(alignIND,li) = hourOI;
+            minuteS(alignIND,li) = minuteOI;
+            actDAYtm(alignIND,li) = actDayT;
+            LFPall(alignIND,li) = tLFP;
+            stimAll(alignIND,li) = tstim_mA;
+
         end
+
+        % Save out CSV file with timeline data
+        % Month, Day, Hour, Minute, LFP mag, stimMA, actDayTime
+        LFPallf = LFPall;
+        LFPallf(LFPall > 7000) = 7000;
         
-        test = 1;
+        % Fix outliers by removing and smooth
+        [LFPallfm] = fixOutSm(LFPallf);
         
-        % Fix outliers in LFP magnitude code
-        % Smooth or movemean?
+        % Smooth
+        LFPallfSm = smoothdata(LFPallfm,1,'sgolay',6);
+        
+        % OutTable
+        outTable = table(actDAYtm,monthS,dayS,hourS,minuteS,LFPallfSm,stimAll,...
+            'VariableNames',{'FullDate','Month','Day','Hour','Minute',...
+            'LFP_Mag','Stim_mA'});
         
         
+        cd(saveLOC)
+        fileNAME = ['SPPD',num2str(inPS.subID),'_TimeLine.csv'];
+        writetable(outTable,fileNAME);
+
         
 end
 
@@ -133,7 +143,7 @@ for ti = 1:length(timeVEC)
     
     tmpT = timeVEC{ti};
     tmpTT = datetime(replace(tmpT,{'T','Z'},{' ',''}));
-
+    
     actDayT(ti) = tmpTT + hours(tzOFFtm);
     monthOI(ti) = actDayT(ti).Month;
     dayOI(ti) = actDayT(ti).Day;
@@ -174,7 +184,43 @@ for iT = 1:length(inTIME)
     
     % Store in alignIND
     alignIND(iT) = tIND;
+    
+end
 
+end
+
+
+function [outSmooth] = fixOutSm(inUNvec)
+
+
+outSmooth = inUNvec;
+for si = 1:size(inUNvec,2)
+    
+    tmpVEC = inUNvec(:,si);
+    tmpVECz = tmpVEC(tmpVEC ~= 0);
+    
+    tmpM = mean(tmpVECz);
+    tmpS = std(tmpVECz);
+    
+    tmpTH = tmpM + (tmpS*2);
+    
+    abovEInd = find(tmpVEC > tmpTH);
+    allNUMS = 1:144;
+    remAbov = ~ismember(allNUMS,abovEInd);
+
+    for ai = 1:length(abovEInd)
+        tmpAi = abovEInd(ai);
+        bef = tmpAi - 6:tmpAi - 1;
+        befD = bef(remAbov(bef));
+        
+        aft = tmpAi + 1:tmpAi + 6;
+        aftD = aft(remAbov(aft));
+        
+        menBlk = mean(tmpVEC([befD , aftD]));
+        tmpVEC(tmpAi) = menBlk;
+    end
+    outSmooth(:,si) = tmpVEC;
+  
 end
 
 end
