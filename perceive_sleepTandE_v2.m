@@ -111,12 +111,21 @@ switch inPS.stagE
         % Smooth
         LFPallfSm = smoothdata(LFPallfm,1,'sgolay',6);
         
+        % Tall Table
+        actDAYcol = reshape(actDAYtm,numel(actDAYtm),1);
+        monCOL = reshape(monthS,numel(monthS),1); 
+        dayCOL = reshape(dayS,numel(dayS),1);
+        hourCOL = reshape(hourS,numel(hourS),1);
+        minCOL = reshape(minuteS,numel(minuteS),1);
+%         minMapCOL = reshape(actDAYtm,numel(actDAYtm),1);
+        LFPaCOL = reshape(LFPallfSm,numel(LFPallfSm),1);
+        stimCOL = reshape(stimAll,numel(stimAll),1);
+        
         % OutTable
-        outTable = table(actDAYtm,monthS,dayS,hourS,minuteS,LFPallfSm,stimAll,...
+        outTable = table(actDAYcol,monCOL,dayCOL,hourCOL,minCOL,LFPaCOL,stimCOL,...
             'VariableNames',{'FullDate','Month','Day','Hour','Minute',...
             'LFP_Mag','Stim_mA'});
-        
-        
+
         cd(saveLOC)
         fileNAME = ['SPPD',num2str(inPS.subID),'_TimeLine.csv'];
         writetable(outTable,fileNAME);
@@ -224,4 +233,5 @@ for si = 1:size(inUNvec,2)
 end
 
 end
+
 
