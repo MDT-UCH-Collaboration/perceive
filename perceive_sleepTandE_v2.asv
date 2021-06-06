@@ -18,8 +18,7 @@ end
 % The script generates BIDS inspired subject and session folders with the
 
 %% TODO:
-% 1. Remove less than zero from final LFP output
-% 2. Figure what to output in CSV - long view (vs wide view)
+% 1. Fix Event time
 %
 
 if inPS.seluDIR && strcmp(inPS.userDIR,"NA")
@@ -96,11 +95,27 @@ switch inPS.stagE
                 continue
             end
             
-            outEVENTS.(uniEVENTS{tIND}).DateTime{inCount,1} = tmpDat.DateTime;
+            [monthOI,dayOI,hourOI,minuteOI,actTIMEDay] = getDT({tmpDat.DateTime} , tzOffsN);
+            
+            outEVENTS.(uniEVENTS{tIND}).DateTime{inCount,1} = actTIMEDay;
+
+            outEVENTS.(uniEVENTS{tIND}).Month(inCount,1) = monthOI;
+            outEVENTS.(uniEVENTS{tIND}).Day(inCount,1) = dayOI;
+            outEVENTS.(uniEVENTS{tIND}).Hour(inCount,1) = hourOI;
+            outEVENTS.(uniEVENTS{tIND}).Minute(inCount,1) = minuteOI;
             
             lfpDAT = tmpDat.LfpFrequencySnapshotEvents.HemisphereLocationDef_Left;
             
-            outEVENTS.(uniEVENTS{tIND}).FFTBinData(:,inCount) = lfpDAT.FFTBinData;
+            % Remove 0s
+            lfpDATz = lfpDAT.FFTBinData;
+            lfpDATzSM = smoothdata(lfpDATz,'sgolay',5);
+            
+            lfpDATzRM(lfpDAT.FFTBinData < 0) = 0;
+            % Smooth data
+            lfpDATzSM = smoothdata(lfpDATzRM,'sgolay',5);
+            
+            outEVENTS.(uniEVENTS{tIND}).FFTBinData(:,inCount) = lfpDATzSM;
+            
             outEVENTS.(uniEVENTS{tIND}).Frequency(:,inCount) = lfpDAT.Frequency;
             
             outEVENTS.(uniEVENTS{tIND}).count = inCount + 1;
@@ -121,16 +136,33 @@ switch inPS.stagE
         outTableE = table;
         for ci = 1:length(uniEVENTS)
             % Time
-            timeAll = cell(length(outEVENTS.(uniEVENTS{ci}).DateTime)*100,1);
+            timeAll = cell(100,length(outEVENTS.(uniEVENTS{ci}).DateTime));
+            monthOI = zeros(100,length(outEVENTS.(uniEVENTS{ci}).DateTime));
+            dayOI = zeros(100,length(outEVENTS.(uniEVENTS{ci}).DateTime));
+            hourOI = zeros(100,length(outEVENTS.(uniEVENTS{ci}).DateTime));
+            minuteOI = zeros(100,length(outEVENTS.(uniEVENTS{ci}).DateTime));
             for ti = 1:length(outEVENTS.(uniEVENTS{ci}).DateTime)
-               timeAll(1:100,ti) = repmat(outEVENTS.(uniEVENTS{ci}).DateTime(ti),100,1); 
+               timeAll(1:100,ti) = repmat(outEVENTS.(uniEVENTS{ci}).DateTime(ti),100,1);
+               monthOI(1:100,ti) = repmat(outEVENTS.(uniEVENTS{ci}).Month(ti),100,1); 
+               dayOI(1:100,ti) = repmat(outEVENTS.(uniEVENTS{ci}).Day(ti),100,1);
+               hourOI(1:100,ti) = repmat(outEVENTS.(uniEVENTS{ci}).Hour(ti),100,1);
+               minuteOI(1:100,ti) = repmat(outEVENTS.(uniEVENTS{ci}).Minute(ti),100,1);
             end
+            timeAll2 = timeAll(:);
+            monthOI2 = monthOI(:);
+            dayOI2 = dayOI(:);
+            hourOI2 = hourOI(:);
+            minuteOI2 = minuteOI(:);
             
-            outTableE.([outEVENTS.(uniEVENTS{ci}),'Time']) = timeAll;
+            outTableE.([uniEVENTS{ci},'Time']) = timeAll2;
+            outTableE.([uniEVENTS{ci},'_Month']) = monthOI2;
+            outTableE.([uniEVENTS{ci},'_Day']) = dayOI2;
+            outTableE.([uniEVENTS{ci},'_Hour']) = hourOI2;
+            outTableE.([uniEVENTS{ci},'_Minute']) = minuteOI2;
             % FFT
-            outTableE.([outEVENTS.(uniEVENTS{ci}),'FFT']) = outEVENTS.(uniEVENTS{ci}).FFTBinData(:);
+            outTableE.([uniEVENTS{ci},'FFT']) = outEVENTS.(uniEVENTS{ci}).FFTBinData(:);
             % Frequency
-            outTableE.([outEVENTS.(uniEVENTS{ci}),'Freq']) = outEVENTS.(uniEVENTS{ci}).Frequency(:);
+            outTableE.([uniEVENTS{ci},'Freq']) = outEVENTS.(uniEVENTS{ci}).Frequency(:);
         end
         
         cd(saveLOC)
