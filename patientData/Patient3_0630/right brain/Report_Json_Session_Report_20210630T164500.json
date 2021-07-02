@@ -1,0 +1,439 @@
+{
+	"AbnormalEnd": false,
+	"FullyReadForSession": true,
+	"FeatureInformationCode": "2X5f",
+	"SessionDate": "2021-06-30T19:46:53Z",
+	"SessionEndDate": "2021-06-30T19:47:17Z",
+	"ProgrammerTimezone": "Central Daylight Time",
+	"ProgrammerUtcOffset": "-05:00",
+	"ProgrammerLocale": "en_US",
+	"ProgrammerVersion": "3.0.1062",
+	"PatientInformation": {
+		"Initial": {
+			"PatientFirstName": "Joe",
+			"PatientLastName": "Gottfried",
+			"PatientGender": "PatientGenderDef.MALE",
+			"PatientId": "",
+			"ClinicianNotes": "",
+			"Diagnosis": "DiagnosisTypeDef.ParkinsonsDisease"
+		},
+		"Final": {
+			"PatientFirstName": "Joe",
+			"PatientLastName": "Gottfried",
+			"PatientGender": "PatientGenderDef.MALE",
+			"PatientId": "",
+			"ClinicianNotes": "",
+			"Diagnosis": "DiagnosisTypeDef.ParkinsonsDisease"
+		}
+	},
+	"DeviceInformation": {
+		"Initial": {
+			"Neurostimulator": "Percept PC",
+			"NeurostimulatorModel": "B35200",
+			"NeurostimulatorSerialNumber": "NPI708239H",
+			"NeurostimulatorLocation": "InsLocation.CHEST_RIGHT",
+			"ImplantDate": "2021-06-23T18:33:46Z",
+			"DeviceDateTime": "2021-06-30T19:41:28Z",
+			"OverdischargeCount": "0",
+			"ProductApplicationId": "42.01",
+			"ProductVersion": "07.05.05",
+			"DeviceApplicationId": "41.01",
+			"DeviceVersion": "07.05.00",
+			"CoreApplicationId": "40.01",
+			"CoreVersion": "07.05.00",
+			"AccumulatedTherapyOnTimeSinceImplant": 605757,
+			"AccumulatedTherapyOnTimeSinceFollowup": 40,
+			"DeviceName": "Left Therapy"
+		},
+		"Final": {
+			"Neurostimulator": "Percept PC",
+			"NeurostimulatorModel": "B35200",
+			"NeurostimulatorSerialNumber": "NPI708239H",
+			"NeurostimulatorLocation": "InsLocation.CHEST_RIGHT",
+			"ImplantDate": "2021-06-23T18:33:46Z",
+			"DeviceDateTime": "2021-06-30T19:42:02Z",
+			"OverdischargeCount": "0",
+			"ProductApplicationId": "42.01",
+			"ProductVersion": "07.05.05",
+			"DeviceApplicationId": "41.01",
+			"DeviceVersion": "07.05.00",
+			"CoreApplicationId": "40.01",
+			"CoreVersion": "07.05.00",
+			"AccumulatedTherapyOnTimeSinceImplant": 605757,
+			"AccumulatedTherapyOnTimeSinceFollowup": 40,
+			"DeviceName": "Left Therapy"
+		}
+	},
+	"BatteryInformation": {
+		"BatteryPercentage": 99,
+		"EstimatedBatteryLifeMonths": 89,
+		"TTEData": "0000004F00000C67",
+		"BatteryStatus": "DeviceStateDef.OK"
+	},
+	"LeadConfiguration": {
+		"Initial": [
+			{
+				"Hemisphere": "HemisphereLocationDef.Right",
+				"Model": "LeadModelDef.LEAD_3389",
+				"LeadLocation": "LeadLocationDef.Stn",
+				"ElectrodeNumber": "InsPort.ZERO_THREE",
+				"TipOffset": "TipOffsetDef.ZERO"
+			}
+		],
+		"Final": [
+			{
+				"Hemisphere": "HemisphereLocationDef.Right",
+				"Model": "LeadModelDef.LEAD_3389",
+				"LeadLocation": "LeadLocationDef.Stn",
+				"ElectrodeNumber": "InsPort.ZERO_THREE",
+				"TipOffset": "TipOffsetDef.ZERO"
+			}
+		]
+	},
+	"Stimulation": {
+		"InitialStimStatus": "StimStatusDef.ON",
+		"FinalStimStatus": "StimStatusDef.ON"
+	},
+	"Groups": {
+		"Initial": [
+			{
+				"GroupId": "GroupIdDef.GROUP_A",
+				"GroupName": "",
+				"ActiveGroup": true,
+				"Mode": "LimitModeDef.AdvanceEdit",
+				"AdjustableParameter": "LimitTypeDef.Amplitude",
+				"ProgramSettings": {
+					"AmplitudeControl": "AmplitudeTypeDef.CURRENT",
+					"RightHemisphere": {
+						"Programs": [
+							{
+								"ProgramId": "ProgramIdDef.FIRST_RIGHT",
+								"ElectrodeState": [
+									{
+										"Electrode": "ElectrodeDef.FourElectrodes_1",
+										"ElectrodeStateResult": "ElectrodeStateDef.Negative",
+										"ElectrodeAmplitudeInMilliAmps": 3.8,
+										"ElectrodeFractionOf64": -64
+									},
+									{
+										"Electrode": "ElectrodeDef.Case",
+										"ElectrodeStateResult": "ElectrodeStateDef.Positive"
+									}
+								],
+								"AmplitudeInMilliAmps": 3.8,
+								"PulseWidthInMicroSecond": 60,
+								"RateInHertz": 130,
+								"UpperLimitInMilliAmps": 3.8,
+								"LowerLimitInMilliAmps": 0.0
+							}
+						]
+					}
+				},
+				"GroupSettings": {
+					"SoftStartStop": {
+						"Enabled": true,
+						"DurationInSeconds": 4
+					},
+					"Cycling": {
+						"Enabled": false
+					}
+				}
+			}
+		],
+		"Final": [
+			{
+				"GroupId": "GroupIdDef.GROUP_A",
+				"GroupName": "",
+				"ActiveGroup": true,
+				"Mode": "LimitModeDef.AdvanceEdit",
+				"AdjustableParameter": "LimitTypeDef.Amplitude",
+				"ProgramSettings": {
+					"AmplitudeControl": "AmplitudeTypeDef.CURRENT",
+					"RightHemisphere": {
+						"Programs": [
+							{
+								"ProgramId": "ProgramIdDef.FIRST_RIGHT",
+								"ElectrodeState": [
+									{
+										"Electrode": "ElectrodeDef.FourElectrodes_1",
+										"ElectrodeStateResult": "ElectrodeStateDef.Negative",
+										"ElectrodeAmplitudeInMilliAmps": 3.8,
+										"ElectrodeFractionOf64": -64
+									},
+									{
+										"Electrode": "ElectrodeDef.Case",
+										"ElectrodeStateResult": "ElectrodeStateDef.Positive"
+									}
+								],
+								"AmplitudeInMilliAmps": 3.8,
+								"PulseWidthInMicroSecond": 60,
+								"RateInHertz": 130,
+								"UpperLimitInMilliAmps": 3.8,
+								"LowerLimitInMilliAmps": 0.0
+							}
+						]
+					}
+				},
+				"GroupSettings": {
+					"SoftStartStop": {
+						"Enabled": true,
+						"DurationInSeconds": 4
+					},
+					"Cycling": {
+						"Enabled": false
+					}
+				}
+			}
+		]
+	},
+	"BatteryReminder": {
+		"Enabled": false
+	},
+	"MostRecentInSessionSignalCheck": [],
+	"Impedance": [
+		{
+			"Hemisphere": [
+				{}
+			]
+		}
+	],
+	"GroupHistory": [
+		{
+			"SessionDate": "2021-06-30T19:18:24Z",
+			"Groups": [
+				{
+					"GroupId": "GroupIdDef.GROUP_A",
+					"ActiveGroup": true,
+					"ProgramSettings": {
+						"AmplitudeControl": "AmplitudeTypeDef.CURRENT",
+						"RightHemisphere": {
+							"Programs": [
+								{
+									"ProgramId": "ProgramIdDef.FIRST_RIGHT",
+									"ElectrodeState": [
+										{
+											"Electrode": "ElectrodeDef.FourElectrodes_1",
+											"ElectrodeStateResult": "ElectrodeStateDef.Negative"
+										},
+										{
+											"Electrode": "ElectrodeDef.Case",
+											"ElectrodeStateResult": "ElectrodeStateDef.Positive"
+										}
+									],
+									"AmplitudeInMilliAmps": 3.8,
+									"PulseWidthInMicroSecond": 60,
+									"RateInHertz": 130
+								}
+							]
+						}
+					},
+					"GroupSettings": {
+						"SoftStartStop": {
+							"Enabled": true,
+							"DurationInSeconds": 4
+						},
+						"Cycling": {
+							"Enabled": false
+						}
+					}
+				},
+				{
+					"GroupId": "GroupIdDef.GROUP_B"
+				},
+				{
+					"GroupId": "GroupIdDef.GROUP_C"
+				},
+				{
+					"GroupId": "GroupIdDef.GROUP_D"
+				}
+			]
+		},
+		{
+			"SessionDate": "2021-06-23T18:58:41Z",
+			"Groups": [
+				{
+					"GroupId": "GroupIdDef.GROUP_A",
+					"ActiveGroup": true,
+					"ProgramSettings": {
+						"AmplitudeControl": "AmplitudeTypeDef.CURRENT",
+						"RightHemisphere": {
+							"Programs": [
+								{
+									"ProgramId": "ProgramIdDef.FIRST_RIGHT",
+									"ElectrodeState": [
+										{
+											"Electrode": "ElectrodeDef.FourElectrodes_1",
+											"ElectrodeStateResult": "ElectrodeStateDef.Negative"
+										},
+										{
+											"Electrode": "ElectrodeDef.Case",
+											"ElectrodeStateResult": "ElectrodeStateDef.Positive"
+										}
+									],
+									"AmplitudeInMilliAmps": 3.8,
+									"PulseWidthInMicroSecond": 60,
+									"RateInHertz": 130
+								}
+							]
+						}
+					},
+					"GroupSettings": {
+						"SoftStartStop": {
+							"Enabled": true,
+							"DurationInSeconds": 4
+						},
+						"Cycling": {
+							"Enabled": false
+						}
+					}
+				},
+				{
+					"GroupId": "GroupIdDef.GROUP_B"
+				},
+				{
+					"GroupId": "GroupIdDef.GROUP_C"
+				},
+				{
+					"GroupId": "GroupIdDef.GROUP_D"
+				}
+			]
+		}
+	],
+	"DiagnosticData": {
+		"EventLogs": [
+			{
+				"DateTime": "2021-06-23T18:30:43Z",
+				"SessionType": "SessionStateDef.SessionStart"
+			},
+			{
+				"DateTime": "2021-06-23T18:33:17Z",
+				"ParameterTrendId": "ParameterTrendIdDef.ActiveGroup",
+				"NewGroupId": "GroupIdDef.GROUP_A",
+				"OldGroupId": "GroupIdDef.GROUP_A"
+			},
+			{
+				"DateTime": "2021-06-23T18:34:07Z",
+				"ParameterTrendId": "ParameterTrendIdDef.TherapyStatus",
+				"TherapyStatus": "TherapyChangeStatusDef.ON"
+			},
+			{
+				"DateTime": "2021-06-23T18:35:17Z",
+				"SessionType": "SessionStateDef.SessionEnd"
+			},
+			{
+				"DateTime": "2021-06-23T18:58:40Z",
+				"SessionType": "SessionStateDef.SessionStart"
+			},
+			{
+				"DateTime": "2021-06-23T18:59:57Z",
+				"ParameterTrendId": "ParameterTrendIdDef.TherapyStatus",
+				"TherapyStatus": "TherapyChangeStatusDef.OFF"
+			},
+			{
+				"DateTime": "2021-06-23T19:00:04Z",
+				"SessionType": "SessionStateDef.SessionEnd"
+			},
+			{
+				"DateTime": "2021-06-23T19:40:16Z",
+				"SessionType": "SessionStateDef.SessionStart"
+			},
+			{
+				"DateTime": "2021-06-23T19:42:54Z",
+				"ParameterTrendId": "ParameterTrendIdDef.LeadIntegrityPerformed"
+			},
+			{
+				"DateTime": "2021-06-23T19:43:03Z",
+				"ParameterTrendId": "ParameterTrendIdDef.LeadIntegrityPerformed"
+			},
+			{
+				"DateTime": "2021-06-23T19:48:36Z",
+				"ParameterTrendId": "ParameterTrendIdDef.TherapyStatus",
+				"TherapyStatus": "TherapyChangeStatusDef.ON"
+			},
+			{
+				"DateTime": "2021-06-23T19:52:50Z",
+				"SessionType": "SessionStateDef.SessionEnd"
+			},
+			{
+				"DateTime": "2021-06-30T19:18:23Z",
+				"SessionType": "SessionStateDef.SessionStart"
+			},
+			{
+				"DateTime": "2021-06-30T19:20:31Z",
+				"ParameterTrendId": "ParameterTrendIdDef.LeadIntegrityPerformed"
+			},
+			{
+				"DateTime": "2021-06-30T19:20:33Z",
+				"ParameterTrendId": "ParameterTrendIdDef.LeadIntegrityPerformed"
+			},
+			{
+				"DateTime": "2021-06-30T19:20:49Z",
+				"ParameterTrendId": "ParameterTrendIdDef.TherapyStatus",
+				"TherapyStatus": "TherapyChangeStatusDef.OFF"
+			},
+			{
+				"DateTime": "2021-06-30T19:21:32Z",
+				"ParameterTrendId": "ParameterTrendIdDef.TherapyStatus",
+				"TherapyStatus": "TherapyChangeStatusDef.ON"
+			},
+			{
+				"DateTime": "2021-06-30T19:22:15Z",
+				"ParameterTrendId": "ParameterTrendIdDef.TherapyStatus",
+				"TherapyStatus": "TherapyChangeStatusDef.OFF"
+			},
+			{
+				"DateTime": "2021-06-30T19:22:57Z",
+				"ParameterTrendId": "ParameterTrendIdDef.TherapyStatus",
+				"TherapyStatus": "TherapyChangeStatusDef.ON"
+			},
+			{
+				"DateTime": "2021-06-30T19:23:13Z",
+				"ParameterTrendId": "ParameterTrendIdDef.TherapyStatus",
+				"TherapyStatus": "TherapyChangeStatusDef.OFF"
+			},
+			{
+				"DateTime": "2021-06-30T19:23:56Z",
+				"ParameterTrendId": "ParameterTrendIdDef.TherapyStatus",
+				"TherapyStatus": "TherapyChangeStatusDef.ON"
+			},
+			{
+				"DateTime": "2021-06-30T19:24:22Z",
+				"ParameterTrendId": "ParameterTrendIdDef.TherapyStatus",
+				"TherapyStatus": "TherapyChangeStatusDef.OFF"
+			},
+			{
+				"DateTime": "2021-06-30T19:25:04Z",
+				"ParameterTrendId": "ParameterTrendIdDef.TherapyStatus",
+				"TherapyStatus": "TherapyChangeStatusDef.ON"
+			},
+			{
+				"DateTime": "2021-06-30T19:37:25Z",
+				"SessionType": "SessionStateDef.SessionEnd"
+			},
+			{
+				"DateTime": "2021-06-30T19:38:33Z",
+				"SessionType": "SessionStateDef.SessionStart"
+			},
+			{
+				"DateTime": "2021-06-30T19:39:14Z",
+				"SessionType": "SessionStateDef.SessionEnd"
+			},
+			{
+				"DateTime": "2021-06-30T19:39:44Z",
+				"SessionType": "SessionStateDef.SessionStart"
+			},
+			{
+				"DateTime": "2021-06-30T19:40:10Z",
+				"SessionType": "SessionStateDef.SessionEnd"
+			},
+			{
+				"DateTime": "2021-06-30T19:40:35Z",
+				"SessionType": "SessionStateDef.SessionStart"
+			},
+			{
+				"DateTime": "2021-06-30T19:40:54Z",
+				"SessionType": "SessionStateDef.SessionEnd"
+			}
+		]
+	}
+}
