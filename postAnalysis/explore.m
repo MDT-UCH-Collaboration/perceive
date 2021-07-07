@@ -55,8 +55,10 @@ data.t1.lfp = lfp;
 plot(f, p); 
 title("freq vs pwr"); 
 xlabel("freq (Hz)");
-ylabel("pwr");
+ylabel("pwr"); 
 
+spec = spectrogram(data.t1.timeDomain); 
+plot(spec)
 %% 
 %making time lmoa
 figure; 
