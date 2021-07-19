@@ -1,11 +1,12 @@
+%% Change directory to the folder that contains the Patient CSV files
 cd('I:\01_Coding_Datasets\PERCEPT MDT colab\BrainSense Survey Stats')
 
-%%
+%% Read in the CSV files for each patient
 p1 = readtable('brainSenseSurvey_P1.csv');
 p2 = readtable('brainSenseSurvey_P2.csv');
 p3 = readtable('brainSenseSurvey_P3.csv');
 
-%%
+%% Compute the stats for each patient and create plots
 close all
 
 [p1stats] = processTABLE(p1, 1);
@@ -21,10 +22,10 @@ close all
 function [newTab] = transformTAB(oldTab)
 
 oldTab.side = string(oldTab.side);
-
+% Convert 'Side' from 1 = left and 2 = right [hemisphere]
 oldTab.side(ismember(oldTab.side,"1"),:) = "L";
 oldTab.side(ismember(oldTab.side,"2"),:) = "R";
-
+% Transform power to absolute log 10 power
 oldTab.betapwr = abs(log10(oldTab.betapwr));
 
 
@@ -43,6 +44,7 @@ figure;
 
 pLabel = ['P' , num2str(pNUM)];
 
+% Extract hemisphere and trial run number 
 left_R1 = newTab.betapwr(contains(newTab.side,"L") & ismember(newTab.run, 1),:);
 left_R2 = newTab.betapwr(contains(newTab.side,"L") & ismember(newTab.run, 2),:);
 left_R3 = newTab.betapwr(contains(newTab.side,"L") & ismember(newTab.run, 3),:);
@@ -50,23 +52,28 @@ right_R1 = newTab.betapwr(contains(newTab.side,"R") & ismember(newTab.run, 1),:)
 right_R2 = newTab.betapwr(contains(newTab.side,"R") & ismember(newTab.run, 2),:);
 right_R3 = newTab.betapwr(contains(newTab.side,"R") & ismember(newTab.run, 3),:);
 
+% Downsample from 250 Hz to 25 Hz
 left_1 = downsample(left_R1,10);
 left_2 = downsample(left_R2,10);
 left_3 = downsample(left_R3,10);
-
+% Downsample from 250 Hz to 25 Hz
 right_1 = downsample(right_R1,10);
 right_2 = downsample(right_R2,10);
 right_3 = downsample(right_R3,10);
 
+% Run kolmogorov smirnov 2 distribution test
+% example name - LEFT hemisphere run 1 vs run 2 [LEFT_r12]
 [~,LEFT_r12,~] = kstest2(left_1,left_2);
 [~,LEFT_r13,~] = kstest2(left_1,left_3);
 [~,LEFT_r23,~] = kstest2(left_2,left_3);
-
+% Run Kolgomorov-Smirnov 2 distribution test
 [~,RIGHT_r12,~] = kstest2(right_1,right_2);
 [~,RIGHT_r13,~] = kstest2(right_1,right_3);
 [~,RIGHT_r23,~] = kstest2(right_2,right_3);
 
 t = tiledlayout(3,2);
+% Plot Kernal Density using probability distribution function (default for
+% function)
 [f_L1,xi_L1,~] = ksdensity(left_1);
 [f_L2,xi_L2,~] = ksdensity(left_2);
 [f_L3,xi_L3,~] = ksdensity(left_3);
