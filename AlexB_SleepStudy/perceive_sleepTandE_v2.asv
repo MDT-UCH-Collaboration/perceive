@@ -14,6 +14,8 @@ arguments
     inPS.studY (1,:) char = '20-2508'
     inPS.pltCl (1,1) logical = 0
     inPS.tabLOC (1,1) string = "NA"
+    inPS.overSAT (1,1) logical = 1
+    inPS.jsonDAT (1,1) string = "NA"
 end
 
 %% OUTPUT
@@ -47,6 +49,9 @@ patTable = dataTABLE(inPS.subID,:);
 sessionFields = {'SessionDate','SessionEndDate','PatientInformation'};
 
 cd(fileDIR)
+
+if isnaninPS.jsonDAT
+
 initDir = dir('*.json');
 jsonFiles = {initDir.name};
 
@@ -183,6 +188,11 @@ switch inPS.stagE
         
     case 2 % Timeline
         infoFields = {'DiagnosticData'};
+
+        groupID = [js.Groups.Final.ActiveGroup];
+        activeGROUP = js.Groups.Final(groupID).ProgramSettings.SensingChannel;
+        activeSenseChan = activeGROUP.Channel;
+        activeSenseFreq = activeGROUP.SensingSetup.FrequencyInHertz;
         
         dataOfInterest = js.(infoFields{1});
 
@@ -192,7 +202,7 @@ switch inPS.stagE
             lfpDAys = dataOfInterest.LFPTrendLogs.HemisphereLocationDef_Right;
         end
         
-        lfpDayNames = fieldnames(lfpDAys);
+        lfpDayNamesPRE = fieldnames(lfpDAys);
 
         % CHECK FOR AND FIND START AND END DATES
         dstart = patTable.diaryStart;
@@ -201,14 +211,13 @@ switch inPS.stagE
         dend = patTable.diaryEnd;
         dendF = extractBefore(string(dend),6);
 
-        lfpDayProc = replace(extractAfter(extractBefore(lfpDayNames,'T'),6),'_','/');
+        lfpDayProc = replace(extractAfter(extractBefore(lfpDayNamesPRE,'T'),6),'_','/');
 
         dstartIND = find(contains(lfpDayProc,dstartF));
         dendIND = find(contains(lfpDayProc,dendF));
 
-
-
-        
+        lfpDayNames = lfpDayNamesPRE(dstartIND:dendIND);
+       
         monthS = zeros(144,length(lfpDayNames));
         dayS = zeros(144,length(lfpDayNames));
         hourS = nan(144,length(lfpDayNames));
@@ -248,8 +257,12 @@ switch inPS.stagE
         % Save out CSV file with timeline data
         % Month, Day, Hour, Minute, LFP mag, stimMA, actDayTime
         LFPallf = LFPall;
-        LFPallf(LFPall > 7000) = 7000;
-        
+        if inPS.overSAT
+            LFPallf(LFPall > 7000) = 7000;
+        else
+            LFPallf(LFPall > 80000) = 80000;
+        end
+
         % Fix outliers by removing and smooth
         [LFPallfm] = fixOutSm(LFPallf);
         
@@ -295,6 +308,8 @@ switch inPS.stagE
         outMAT.LFP = LFPaMAT;
         outMAT.Stim = stimAll;
         outMAT.TimeX = cellstr(datestr(timXax));
+        outMAT.senseChan = activeSenseChan;
+        outMAT.senseFreq = activeSenseFreq; 
         
         fileNAMEm = ['SPPD',num2str(inPS.subID),'_TimeLine.mat'];
         save(fileNAMEm,'outMAT');
@@ -388,6 +403,12 @@ for si = 1:size(inUNvec,2)
     
     for ai = 1:length(abovEInd)
         tmpAi = abovEInd(ai);
+        if tmpAi >= 138
+            tmpAi = 138;
+        end
+        if tmpAi < 7
+            tmpAi = 7;
+        end
         bef = tmpAi - 6:tmpAi - 1;
         befD = bef(remAbov(bef));
         

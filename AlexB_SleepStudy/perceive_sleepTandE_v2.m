@@ -14,6 +14,8 @@ arguments
     inPS.studY (1,:) char = '20-2508'
     inPS.pltCl (1,1) logical = 0
     inPS.tabLOC (1,1) string = "NA"
+    inPS.overSAT (1,1) logical = 1
+    inPS.jsonDAT (1,1) string = "NA"
 end
 
 %% OUTPUT
@@ -47,14 +49,20 @@ patTable = dataTABLE(inPS.subID,:);
 sessionFields = {'SessionDate','SessionEndDate','PatientInformation'};
 
 cd(fileDIR)
-initDir = dir('*.json');
-jsonFiles = {initDir.name};
 
-[indx,~] = listdlg('PromptString',{'Select a file.',...
-    'Only one file can be selected at a time.',''},...
-    'SelectionMode','single','ListString',jsonFiles);
+if strcmp(inPS.jsonDAT,"NA")
 
-json2load = jsonFiles{indx};
+    initDir = dir('*.json');
+    jsonFiles = {initDir.name};
+
+    [indx,~] = listdlg('PromptString',{'Select a file.',...
+        'Only one file can be selected at a time.',''},...
+        'SelectionMode','single','ListString',jsonFiles);
+
+    json2load = jsonFiles{indx};
+else
+    json2load = inPS.jsonDAT;
+end
 
 js = jsondecode(fileread(json2load));
 
@@ -183,6 +191,11 @@ switch inPS.stagE
         
     case 2 % Timeline
         infoFields = {'DiagnosticData'};
+
+        groupID = [js.Groups.Final.ActiveGroup];
+        activeGROUP = js.Groups.Final(groupID).ProgramSettings.SensingChannel;
+        activeSenseChan = activeGROUP.Channel;
+        activeSenseFreq = activeGROUP.SensingSetup.FrequencyInHertz;
         
         dataOfInterest = js.(infoFields{1});
 
@@ -247,8 +260,12 @@ switch inPS.stagE
         % Save out CSV file with timeline data
         % Month, Day, Hour, Minute, LFP mag, stimMA, actDayTime
         LFPallf = LFPall;
-        LFPallf(LFPall > 7000) = 7000;
-        
+        if inPS.overSAT
+            LFPallf(LFPall > 7000) = 7000;
+        else
+            LFPallf(LFPall > 80000) = 80000;
+        end
+
         % Fix outliers by removing and smooth
         [LFPallfm] = fixOutSm(LFPallf);
         
@@ -294,6 +311,8 @@ switch inPS.stagE
         outMAT.LFP = LFPaMAT;
         outMAT.Stim = stimAll;
         outMAT.TimeX = cellstr(datestr(timXax));
+        outMAT.senseChan = activeSenseChan;
+        outMAT.senseFreq = activeSenseFreq; 
         
         fileNAMEm = ['SPPD',num2str(inPS.subID),'_TimeLine.mat'];
         save(fileNAMEm,'outMAT');
@@ -389,6 +408,9 @@ for si = 1:size(inUNvec,2)
         tmpAi = abovEInd(ai);
         if tmpAi >= 138
             tmpAi = 138;
+        end
+        if tmpAi < 7
+            tmpAi = 7;
         end
         bef = tmpAi - 6:tmpAi - 1;
         befD = bef(remAbov(bef));
