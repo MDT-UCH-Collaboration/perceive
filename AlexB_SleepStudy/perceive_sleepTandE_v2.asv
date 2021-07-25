@@ -6,16 +6,18 @@ arguments
     inPS.subID (1,1) double = 1 % IN USE for CASE NUMBER
     inPS.postN (1,1) double = 1
     inPS.userDIR (1,1) string = "NA"
+    inPS.hemiS (1,1) string = "L"
     inPS.seluDIR (1,1) logical = true
     inPS.saveDIR (1,1) string = "NA"
     inPS.selsDIR (1,1) logical = true
     inPS.stagE (1,1) double = 1
     inPS.studY (1,:) char = '20-2508'
     inPS.pltCl (1,1) logical = 0
+    inPS.tabLOC (1,1) string = "NA"
 end
 
 %% OUTPUT
-% The script generates BIDS inspired subject and session folders with the
+% 
 
 %% TODO:
 % 1. Fix Event time
@@ -32,6 +34,16 @@ if inPS.selsDIR && strcmp(inPS.saveDIR,"NA")
 else
     saveLOC = inPS.saveDIR;
 end
+
+if strcmp(inPS.tabLOC,"NA")
+    [tabFname] = uigetfile();
+    dataTABLE = readtable(tabFname);
+else
+    dataTABLE = readtable(inPS.tabLOC);
+end
+
+patTable = dataTABLE(inPS.subID,:);
+
 sessionFields = {'SessionDate','SessionEndDate','PatientInformation'};
 
 cd(fileDIR)
@@ -105,16 +117,15 @@ switch inPS.stagE
             outEVENTS.(uniEVENTS{tIND}).Minute(inCount,1) = minuteOI;
             
             lfpDAT = tmpDat.LfpFrequencySnapshotEvents.HemisphereLocationDef_Left;
-            
-            % Remove 0s
+
+            % Smooth data
             lfpDATz = lfpDAT.FFTBinData;
             lfpDATzSM = smoothdata(lfpDATz,'sgolay',5);
+            % Remove 0s
+            lfpDATzRM = lfpDATzSM;
+            lfpDATzRM(lfpDATzSM < 0) = 0;
             
-            lfpDATzRM(lfpDAT.FFTBinData < 0) = 0;
-            % Smooth data
-            lfpDATzSM = smoothdata(lfpDATzRM,'sgolay',5);
-            
-            outEVENTS.(uniEVENTS{tIND}).FFTBinData(:,inCount) = lfpDATzSM;
+            outEVENTS.(uniEVENTS{tIND}).FFTBinData(:,inCount) = lfpDATzRM;
             
             outEVENTS.(uniEVENTS{tIND}).Frequency(:,inCount) = lfpDAT.Frequency;
             
@@ -174,10 +185,29 @@ switch inPS.stagE
         infoFields = {'DiagnosticData'};
         
         dataOfInterest = js.(infoFields{1});
-        
-        lfpDAys = dataOfInterest.LFPTrendLogs.HemisphereLocationDef_Left;
+
+        if contains(inPS.hemiS,"L")
+            lfpDAys = dataOfInterest.LFPTrendLogs.HemisphereLocationDef_Left;
+        else
+            lfpDAys = dataOfInterest.LFPTrendLogs.HemisphereLocationDef_Right;
+        end
         
         lfpDayNames = fieldnames(lfpDAys);
+
+        % CHECK FOR AND FIND START AND END DATES
+        dstart = patTable.diaryStart;
+        dstartF = extractBefore(string(dstart),6);
+
+        dend = patTable.diaryEnd;
+        dendF = extractBefore(string(dend),6);
+
+        lfpDayProc = replace(extractAfter(extractBefore(lfpDayNames,'T'),6),'_','/');
+
+        dstartIND = find(contains(lfpDayProc,dstartF));
+        dendIND = find(contains(lfpDayProc,dendF));
+
+
+
         
         monthS = zeros(144,length(lfpDayNames));
         dayS = zeros(144,length(lfpDayNames));

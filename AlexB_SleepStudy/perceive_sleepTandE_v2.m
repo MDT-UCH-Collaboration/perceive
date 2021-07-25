@@ -6,16 +6,18 @@ arguments
     inPS.subID (1,1) double = 1 % IN USE for CASE NUMBER
     inPS.postN (1,1) double = 1
     inPS.userDIR (1,1) string = "NA"
+    inPS.hemiS (1,1) string = "L"
     inPS.seluDIR (1,1) logical = true
     inPS.saveDIR (1,1) string = "NA"
     inPS.selsDIR (1,1) logical = true
     inPS.stagE (1,1) double = 1
     inPS.studY (1,:) char = '20-2508'
     inPS.pltCl (1,1) logical = 0
+    inPS.tabLOC (1,1) string = "NA"
 end
 
 %% OUTPUT
-% The script generates BIDS inspired subject and session folders with the
+% 
 
 %% TODO:
 % 1. Fix Event time
@@ -32,6 +34,16 @@ if inPS.selsDIR && strcmp(inPS.saveDIR,"NA")
 else
     saveLOC = inPS.saveDIR;
 end
+
+if strcmp(inPS.tabLOC,"NA")
+    [tabFname] = uigetfile();
+    dataTABLE = readtable(tabFname);
+else
+    dataTABLE = readtable(inPS.tabLOC);
+end
+
+patTable = dataTABLE(inPS.subID,:);
+
 sessionFields = {'SessionDate','SessionEndDate','PatientInformation'};
 
 cd(fileDIR)
@@ -173,11 +185,29 @@ switch inPS.stagE
         infoFields = {'DiagnosticData'};
         
         dataOfInterest = js.(infoFields{1});
+
+        if contains(inPS.hemiS,"L")
+            lfpDAys = dataOfInterest.LFPTrendLogs.HemisphereLocationDef_Left;
+        else
+            lfpDAys = dataOfInterest.LFPTrendLogs.HemisphereLocationDef_Right;
+        end
         
-        lfpDAys = dataOfInterest.LFPTrendLogs.HemisphereLocationDef_Left;
-        
-        lfpDayNames = fieldnames(lfpDAys);
-        
+        lfpDayNamesPRE = fieldnames(lfpDAys);
+
+        % CHECK FOR AND FIND START AND END DATES
+        dstart = patTable.diaryStart;
+        dstartF = extractBefore(string(dstart),6);
+
+        dend = patTable.diaryEnd;
+        dendF = extractBefore(string(dend),6);
+
+        lfpDayProc = replace(extractAfter(extractBefore(lfpDayNamesPRE,'T'),6),'_','/');
+
+        dstartIND = find(contains(lfpDayProc,dstartF));
+        dendIND = find(contains(lfpDayProc,dendF));
+
+        lfpDayNames = lfpDayNamesPRE(dstartIND:dendIND);
+       
         monthS = zeros(144,length(lfpDayNames));
         dayS = zeros(144,length(lfpDayNames));
         hourS = nan(144,length(lfpDayNames));
@@ -357,6 +387,9 @@ for si = 1:size(inUNvec,2)
     
     for ai = 1:length(abovEInd)
         tmpAi = abovEInd(ai);
+        if tmpAi >= 138
+            tmpAi = 138;
+        end
         bef = tmpAi - 6:tmpAi - 1;
         befD = bef(remAbov(bef));
         
