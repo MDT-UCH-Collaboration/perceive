@@ -1,6 +1,6 @@
 %
 
-load('SPPD5_TimeLine.mat')
+load('SPPD3_TimeLine.mat')
 
 nLFP = normalize(outMAT.LFP,'range');
 % Plot raw
