@@ -86,10 +86,10 @@ TDtime = TDtime/1000;
 
 data.t1.time = TDtime'; 
 
-plot(data.t1.time, data.t1.timeDomain, 'Marker', 'x', 'LineStyle', 'none')
+%plot(data.t1.time, data.t1.timeDomain, 'Marker', 'x', 'LineStyle', 'none')
 
 %% 
-%spectrogram? 
-y = diff(data.t1.time);
-yy = diff(y);
-pspectrum(data.t1.timeDomain, data.t1.time, 'spectrogram')
+% %spectrogram? 
+% y = diff(data.t1.time);
+% yy = diff(y);
+% pspectrum(data.t1.timeDomain, data.t1.time, 'spectrogram')
