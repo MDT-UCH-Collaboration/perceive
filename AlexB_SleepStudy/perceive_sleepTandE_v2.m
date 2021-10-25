@@ -28,7 +28,11 @@ end
 if inPS.seluDIR && strcmp(inPS.userDIR,"NA")
     [fileDIR] = uigetdir();
 else
-    fileDIR = inPS.userDIR;
+    if matches(inPS.hemiS,'L')
+        fileDIR = [char(inPS.userDIR) , filesep , 'Left'];
+    else
+        fileDIR = [char(inPS.userDIR) , filesep , 'Right'];
+    end
 end
 
 if inPS.selsDIR && strcmp(inPS.saveDIR,"NA")
@@ -298,7 +302,11 @@ switch inPS.stagE
         %         outTable.LFP_Mag(nanMin) = 0;
         
         cd(saveLOC)
-        fileNAME = ['SPPD',num2str(inPS.subID),'_TimeLine.csv'];
+        if matches(inPS.hemiS,'L')
+            fileNAME = ['SPPD',num2str(inPS.subID),'_L_TimeLine.csv'];
+        else
+            fileNAME = ['SPPD',num2str(inPS.subID),'_R_TimeLine.csv'];
+        end
         writetable(outTable,fileNAME);
         
         LFPaMAT = reshape(LFPaCOL,144,size(hourS,2));
@@ -314,7 +322,11 @@ switch inPS.stagE
         outMAT.senseChan = activeSenseChan;
         outMAT.senseFreq = activeSenseFreq; 
         
-        fileNAMEm = ['SPPD',num2str(inPS.subID),'_TimeLine.mat'];
+        if matches(inPS.hemiS,'L')
+            fileNAMEm = ['SPPD',num2str(inPS.subID),'_L_TimeLine.mat'];
+        else
+            fileNAMEm = ['SPPD',num2str(inPS.subID),'_R_TimeLine.mat'];
+        end
         save(fileNAMEm,'outMAT');
         
         
