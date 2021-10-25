@@ -1,9 +1,9 @@
 
-userDIRs = 'C:\Users\johna\Dropbox\Publications_Meta\InProgress\ABaumgartner_Percept2020\Data\SPPD';
+userDIRs = 'C:\Users\Admin\Dropbox\Publications_Meta\InProgress\ABaumgartner_Percept2020\Data\SPPD';
 userDIRe = '\JSON_LFP';
-saveDIRs = 'C:\Users\johna\Dropbox\Publications_Meta\InProgress\ABaumgartner_Percept2020\Data\SPPD';
+saveDIRs = 'C:\Users\Admin\Dropbox\Publications_Meta\InProgress\ABaumgartner_Percept2020\Data\SPPD';
 saveDIRe = '\MAT_data';
-tabLOC = "C:\Users\johna\Dropbox\Publications_Meta\InProgress\ABaumgartner_Percept2020\summarydataTab.csv";
+tabLOC = "C:\Users\Admin\Dropbox\Publications_Meta\InProgress\ABaumgartner_Percept2020\summarydataTab.csv";
 
 jsonNAMEs = {'Report_Json_Session_Report_20210521T115931[1].json',...
              'Report_Json_Session_Report_20210521T105436[1].json',...
