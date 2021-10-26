@@ -212,11 +212,16 @@ switch inPS.stagE
         dataOfInterest = js.(infoFields{1});
 
         cd(actLOC)
-        actTABLE = readtable(['SPPD',num2str(inPS.subID) ,'_ACT_EVENTS.mat']);
+        load(['SPPD',num2str(inPS.subID) ,'_ACT_DATA.mat'],'dataTable');
 
-        % rest table
-        restTable = contains(actTABLE)
-        % unique vars in 3 and 4
+        % First first row of non nan
+%         allNANs = cellfun(@(x) ~matches(x,'NaN'), dataTable.("White Light"), 'UniformOutput', true);
+        onWristData = cellfun(@(x) str2double(x), dataTable.("Off-Wrist Status"));
+        actTABLE = dataTable(~onWristData,:);
+
+        % Extract Unique dates
+        actDATES = unique(actTABLE.Date);
+        actDATES2 = sortrows(datetime(actDATES,'InputFormat','M/dd/yyyy'));
 
         if contains(inPS.hemiS,"L")
             lfpDAys = dataOfInterest.LFPTrendLogs.HemisphereLocationDef_Left;
@@ -226,19 +231,25 @@ switch inPS.stagE
         
         lfpDayNamesPRE = fieldnames(lfpDAys);
 
-        % CHECK FOR AND FIND START AND END DATES
-        dstart = patTable.diaryStart;
-        dstartF = extractBefore(string(dstart),6);
+        % CHECK FOR AND FIND START AND END DATES - WITH DIARY DATA
+        %%%%% FUTURE - MAKE AN input argument to switch between diary and
+        %%%%% actigraphy
+%         dstart = patTable.diaryStart;
+%         dstartF = extractBefore(string(dstart),6);
+% 
+%         dend = patTable.diaryEnd;
+%         dendF = extractBefore(string(dend),6);
 
-        dend = patTable.diaryEnd;
-        dendF = extractBefore(string(dend),6);
+        lfpDayProc = replace(extractAfter(extractBefore(lfpDayNamesPRE,'T'),'x'),'_','/');
+        lfpDayPro2 = datetime(lfpDayProc,'InputFormat','yyyy/MM/dd');
 
-        lfpDayProc = replace(extractAfter(extractBefore(lfpDayNamesPRE,'T'),6),'_','/');
+        actLFPdates = lfpDayPro2(ismember(lfpDayPro2,actDATES2));
+        lfpDayNames = lfpDayNamesPRE(ismember(lfpDayPro2,actDATES2));
 
-        dstartIND = find(contains(lfpDayProc,dstartF));
-        dendIND = find(contains(lfpDayProc,dendF));
+%         dstartIND = find(contains(lfpDayProc,dstartF));
+%         dendIND = find(contains(lfpDayProc,dendF));
 
-        lfpDayNames = lfpDayNamesPRE(dstartIND:dendIND);
+%         lfpDayNames = lfpDayNamesPRE(dstartIND:dendIND);
        
         monthS = zeros(144,length(lfpDayNames));
         dayS = zeros(144,length(lfpDayNames));
@@ -315,6 +326,13 @@ switch inPS.stagE
         
         %         nanMin = isnan(outTable.Minute);
         %         outTable.LFP_Mag(nanMin) = 0;
+
+        % Process Actigraphy
+
+        test = 1;
+        % Convert into 10 minute bins
+        actTABLE
+
         
         cd(saveLOC)
         if matches(inPS.hemiS,'L')

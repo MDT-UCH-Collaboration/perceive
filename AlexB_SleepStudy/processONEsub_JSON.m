@@ -4,6 +4,7 @@ userDIRe = '\JSON_LFP';
 saveDIRs = 'C:\Users\Admin\Dropbox\Publications_Meta\InProgress\ABaumgartner_Percept2020\Data\SPPD';
 saveDIRe = '\MAT_data';
 tabLOC = "C:\Users\Admin\Dropbox\Publications_Meta\InProgress\ABaumgartner_Percept2020\summarydataTab.csv";
+actDloc = 'C:\Users\Admin\Dropbox\Publications_Meta\InProgress\ABaumgartner_Percept2020\Data\SPPD';
 
 jsonNAMEs = {'Report_Json_Session_Report_20210521T115931[1].json',...
              'Report_Json_Session_Report_20210521T105436[1].json',...
@@ -27,8 +28,8 @@ for pi = 1:8
     userDIR = [userDIRs , num2str(patID(pi)) , userDIRe];
     jsoN = jsonNAMEs{pi};
 
-    perceive_sleepTandE_v2('overSAT',overSATi,'subID',patID(pi),...
-        'saveDIR',saveDIR,'stagE',2,'userDIR',actDIR,...
-        userDIR,'hemiS',hemiS(pi),"tabLOC",tabLOC,"jsonDAT",jsoN)
+    perceive_sleepTandE_v3('overSAT',overSATi,'subID',patID(pi),...
+        'saveDIR',saveDIR,'stagE',2,'userDIR',userDIR,...
+        "actDIR",actDloc,'hemiS',hemiS(pi),"tabLOC",tabLOC,"jsonDAT",jsoN)
 
 end
