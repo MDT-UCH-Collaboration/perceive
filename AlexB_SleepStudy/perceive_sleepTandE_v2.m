@@ -9,6 +9,7 @@ arguments
     inPS.hemiS (1,1) string = "L"
     inPS.seluDIR (1,1) logical = true
     inPS.saveDIR (1,1) string = "NA"
+    inPS.actDIR (1,1) string = "NA"
     inPS.selsDIR (1,1) logical = true
     inPS.stagE (1,1) double = 1
     inPS.studY (1,:) char = '20-2508'
@@ -33,6 +34,13 @@ else
     else
         fileDIR = [char(inPS.userDIR) , filesep , 'Right'];
     end
+end
+
+if inPS.actDIR && strcmp(inPS.actDIR, "NA")
+    [actLOC] = uigetdir();
+else
+    actLOC = [char(inPS.actDIR) , filesep , 'SPPD', num2str(inPS.subID),...
+        '\ACT_data\Summary'];
 end
 
 if inPS.selsDIR && strcmp(inPS.saveDIR,"NA")
@@ -202,6 +210,13 @@ switch inPS.stagE
         activeSenseFreq = activeGROUP.SensingSetup.FrequencyInHertz;
         
         dataOfInterest = js.(infoFields{1});
+
+        cd(actLOC)
+        actTABLE = readtable(['SPPD',num2str(inPS.subID) ,'_ACT_EVENTS.mat']);
+
+        % rest table
+        restTable = contains(actTABLE)
+        % unique vars in 3 and 4
 
         if contains(inPS.hemiS,"L")
             lfpDAys = dataOfInterest.LFPTrendLogs.HemisphereLocationDef_Left;
