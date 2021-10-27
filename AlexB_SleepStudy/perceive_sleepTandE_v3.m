@@ -1,4 +1,4 @@
-function [outMAT] = perceive_sleepTandE_v2(inPS)
+function [outMAT] = perceive_sleepTandE_v3(inPS)
 % Github https://github.com/MDT-UCH-Collaboration
 
 arguments
@@ -330,8 +330,46 @@ switch inPS.stagE
         % Process Actigraphy
         % Convert into 10 minute bins
         % Loop through date / hour / 10 min bins
+        lfpDateREF  = datetime(extractBefore(cellstr(datestr(actDAYcol)),' '));
+        uniMDate = unique(lfpDateREF);
 
-        actTABLE
+        for di = 1:length(uniMDate)
+            % Unique date
+            tmpDI = uniMDate(di);
+
+            % temp act table
+            dconvert = cellfun(@(x) replace(x,'/','-'),actTABLE.Date,"UniformOutput",false);
+            actDATEn = datetime(dconvert,'InputFormat','M-dd-uuuu');
+
+            % Logical date index - LFP
+            uniDATEind = ismember(lfpDateREF,tmpDI);
+
+            % Logical date index - actigraphy
+            actDATEind = ismember(actDATEn, tmpDI);
+            actDATEtab = actTABLE(actDATEind,:);
+
+            % Create HOUR:MIN index from LFP
+            % H:MM num2cell(hourCOL(uniDATEind)) num2cell(minCOL(uniDATEind))
+            minCOLnc = num2cell(minCOL);
+            % SUBTRACT 12 hours from LFP to get into 12 not 24 for ACT
+            hourCOLnc = num2cell(hourCOL);
+            minCOLtx = cellfun(@(x) num2str(x) , minCOLnc,'UniformOutput',false);
+            hourCOLtx  = cellfun(@(x) num2str(x) , hourCOLnc,'UniformOutput',false);
+            
+            for mmi = 1:length(minCOLtx) 
+                if length(minCOLtx{mmi}) == 1
+                    minCOLtx{mmi} = ['0',minCOLtx{mmi}];
+                end
+
+            end
+
+            hourMINlfp2 = cellfun(@(x,y) [x, ':', y],...
+                hourCOLtx(uniDATEind), minCOLtx(uniDATEind),'UniformOutput',false);
+            
+
+
+
+        end
 
         
         cd(saveLOC)
