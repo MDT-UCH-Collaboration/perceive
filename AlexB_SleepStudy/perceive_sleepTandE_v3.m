@@ -333,8 +333,20 @@ switch inPS.stagE
 
         % REMOVE NATs %%%%%%%%%%%%%%%%%%%%%%%%%% DEAL WITH NAT
 
-        lfpDateClean = actDAYcol(~isnat(actDAYcol));
-        lfpDateREF  = datetime(extractBefore(cellstr(datestr(lfpDateClean)),' '));
+        natLogic = isnat(actDAYcol);
+        natInd = find(natLogic);
+        lfpDateInter = actDAYcol;
+        for lli = 1:length(natInd)
+            tmpIND = natInd(lli);
+            preIND = tmpIND - 1;
+            lfpDateInter(tmpIND) = lfpDateInter(preIND) + minutes(10);
+        end
+
+%         lfpDateClean = actDAYcol(~isnat(actDAYcol));
+%         lfpDateREF = actDAYcol;
+        lfpDateREF = lfpDateInter;
+        lfpDateREF =...
+            datetime(extractBefore(cellstr(datestr(lfpDateREF)),' '));
         uniMDate = unique(lfpDateREF);
 
         for di = 1:length(uniMDate)

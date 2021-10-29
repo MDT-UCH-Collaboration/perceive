@@ -40,7 +40,8 @@ for pi = 1:length(patID)
     saveDIR = [saveDIRs , num2str(patID(pi)) , saveDIRe];
     userDIR = [userDIRs , num2str(patID(pi)) , userDIRe];
     jsoN = jsonNAMEs{pi};
-
+    
+%     dbstop if error
     perceive_sleepTandE_v3('overSAT',overSATi,'subID',patID(pi),...
         'saveDIR',saveDIR,'stagE',2,'userDIR',userDIR,...
         "actDIR",actDloc,'hemiS',hemiS(pi),"tabLOC",tabLOC,"jsonDAT",jsoN)
