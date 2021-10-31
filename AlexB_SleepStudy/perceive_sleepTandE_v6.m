@@ -311,7 +311,11 @@ switch inPS.stagE
         % REMOVE NATs %%%%%%%%%%%%%%%%%%%%%%%%%% DEAL WITH NAT
 %         [lfpDateInter] = natAssess(actDAYcol);
         % FILL 2 144 %%%%%%%%%%%%%%%%%%%%%%%%%% DEAL WITH NAT
-         [lfpDateInter] = fill144all(actDAYcol);
+        if any(isnat(actDAYcol))
+            [lfpDateInter] = fill144all(actDAYcol);
+        else
+            lfpDateInter =  actDAYcol;
+        end
 
         % OutTable
         outTable = table(actDAYcol,monCOL,dayCOL,hourCOL,minCOL,LFPaCOL,stimCOL,...
@@ -383,13 +387,18 @@ switch inPS.stagE
             hourTX12hr = hourCOLtx;
             %%%%% CODE TO CONVERT LFP from 24 to 12
 
-            hourMINlfp2 = cellfun(@(x,y) [x, ':', y],...
+            hourMINlfpnn = cellfun(@(x,y) [x, ':', y],...
                 hourTX12hr(uniDATEind), minCOLtx(uniDATEind),'UniformOutput',false);
 
             % EXPERIMENTAL !!!!!!!!!!!!!@@@@@@%%%%%
-            if length(hourMINlfp2) ~= 144
-                addLEN = 144 - length(hourMINlfp2);
-                hourMINlfp2 = [hourMINlfp2 ; repmat({'NaN:NaN'},addLEN,1)];
+            if length(hourMINlfpnn) < 144
+                addLEN = 144 - length(hourMINlfpnn);
+                hourMINlfp2 = [hourMINlfpnn ; repmat({'NaN:NaN'},addLEN,1)];
+            elseif length(hourMINlfpnn) > 144
+                hourMINlfp2 = unique(hourMINlfpnn);
+                if length(hourMINlfp2) ~= 144
+                    hourMINlfp2 = hourMINlfp2(~ismember(hourMINlfp2,'0:00'));
+                end
             end
 
             % CONVERT ACT TIME from 12 to 24
