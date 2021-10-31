@@ -321,7 +321,7 @@ switch inPS.stagE
 
 
         % REMOVE NATs %%%%%%%%%%%%%%%%%%%%%%%%%% DEAL WITH NAT
-        [outACT2LFPbins] = natAssess(actDAYcol)
+        [lfpDateInter] = natAssess(actDAYcol)
 
         % OutTable
         outTable = table(actDAYcol,monCOL,dayCOL,hourCOL,minCOL,LFPaCOL,stimCOL,...
@@ -337,14 +337,14 @@ switch inPS.stagE
 
 
 
-        natLogic = isnat(actDAYcol);
-        natInd = find(natLogic);
-        lfpDateInter = actDAYcol;
-        for lli = 1:length(natInd)
-            tmpIND = natInd(lli);
-            preIND = tmpIND - 1;
-            lfpDateInter(tmpIND) = lfpDateInter(preIND) + minutes(10);
-        end
+%         natLogic = isnat(actDAYcol);
+%         natInd = find(natLogic);
+%         lfpDateInter = actDAYcol;
+%         for lli = 1:length(natInd)
+%             tmpIND = natInd(lli);
+%             preIND = tmpIND - 1;
+%             lfpDateInter(tmpIND) = lfpDateInter(preIND) + minutes(10);
+%         end
 
 %         lfpDateClean = actDAYcol(~isnat(actDAYcol));
 %         lfpDateREF = actDAYcol;
@@ -716,7 +716,7 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-function [outACT2LFPbins] = natAssess(inACT2LFPbins)
+function [lfpDateInter] = natAssess(inACT2LFPbins)
 
 % FIRST TRY KEEPING intake less than 144
 
