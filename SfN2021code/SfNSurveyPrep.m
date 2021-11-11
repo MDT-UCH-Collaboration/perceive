@@ -1,6 +1,6 @@
 %% Change directory to the folder that contains the Patient CSV files
-cd('I:\01_Coding_Datasets\PERCEPT MDT colab\BrainSense Survey Stats')
-
+%cd('I:\01_Coding_Datasets\PERCEPT MDT colab\BrainSense Survey Stats')
+cd('C:\Users\sydne\Documents\github\perceive\patientData\abstract_data')
 %% Read in the CSV files for each patient
 p1 = readtable('brainSenseSurvey_P1.csv');
 p2 = readtable('brainSenseSurvey_P2.csv');
@@ -71,7 +71,7 @@ right_3 = downsample(right_R3,10);
 [~,RIGHT_r13,~] = kstest2(right_1,right_3);
 [~,RIGHT_r23,~] = kstest2(right_2,right_3);
 
-t = tiledlayout(3,2);
+t = tiledlayout(2, 3); 
 % Plot Kernal Density using probability distribution function (default for
 % function)
 [f_L1,xi_L1,~] = ksdensity(left_1);
@@ -83,7 +83,7 @@ t = tiledlayout(3,2);
 [f_R3,xi_R3,~] = ksdensity(right_3);
 
 % LEFT and RIGHT - Run 1 vs 2
-nexttile
+nexttile(1)
 plot(xi_L1,f_L1);
 hold on
 plot(xi_L2,f_L2);
@@ -92,7 +92,7 @@ ylabel('Probability density')
 xlabel('Log normal power')
 legend([pLabel, ' Left R1'],[pLabel, ' Left R2'])
 
-nexttile
+nexttile(4);
 plot(xi_R1,f_R1);
 hold on
 plot(xi_R2,f_R2);
@@ -104,7 +104,7 @@ legend([pLabel, ' Right R1'],[pLabel, ' Right R2'])
 
 
 % LEFT and RIGHT - Run 1 vs 3
-nexttile
+nexttile(2)
 plot(xi_L1,f_L1);
 hold on
 plot(xi_L3,f_L3);
@@ -113,7 +113,7 @@ ylabel('Probability density')
 xlabel('Log normal power')
 legend([pLabel, ' Left R1'],[pLabel, ' Left R3'])
 
-nexttile
+nexttile(5)
 plot(xi_R1,f_R1);
 hold on
 plot(xi_R3,f_R3);
@@ -124,7 +124,7 @@ legend([pLabel, ' Right R1'],[pLabel, ' Right R3'])
 
 
 % LEFT and RIGHT - Run 2 vs 3
-nexttile
+nexttile(3)
 plot(xi_L2,f_L2);
 hold on
 plot(xi_L3,f_L3);
@@ -133,7 +133,7 @@ ylabel('Probability density')
 xlabel('Log normal power')
 legend([pLabel, ' Left R2'],[pLabel, ' Left R3'])
 
-nexttile
+nexttile(6)
 plot(xi_R2,f_R2);
 hold on
 plot(xi_R3,f_R3);
