@@ -1,4 +1,4 @@
-function [] = findEventActtime()
+function [] = refineEventData()
 % Clean up Event data with Actigraphy dates
 
 % 1. Loop through cases
