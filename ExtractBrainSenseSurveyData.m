@@ -16,7 +16,6 @@ subjectFILE = 'pt4_0819_r_survey.json';
 
 js = jsondecode(fileread(subjectFILE));
 
-
 %%
 
 % TO DO Create NEW CSV files with RUN / SIDE / CHANNEL 
@@ -25,10 +24,10 @@ js = jsondecode(fileread(subjectFILE));
 % "1" = "L";
 % "2" = "R";
 
-channels = unique({js.LfpMontageTimeDomain.Channel}, 'stable');
+channels = unique({js.LfpMontageTimeDomain.Channel}, 'stable'); % 
 
-leng = numel({js.LfpMontageTimeDomain.Channel});
-sides = {'LEFT', 'RIGHT'};
+leng = numel({js.LfpMontageTimeDomain.Channel}); %
+sides = {'LEFT', 'RIGHT'}; 
 if any((contains(channels, sides{1}))) && any((contains(channels, sides{2}))) 
         doubleBattery = false; 
         %json has both left and right data 
