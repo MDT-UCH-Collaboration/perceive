@@ -1,5 +1,8 @@
 %% Change directory to the folder that contains the Patient CSV files
-cd('I:\01_Coding_Datasets\PERCEPT MDT colab\BrainSense Survey Stats')
+%JAT machine
+%cd('I:\01_Coding_Datasets\PERCEPT MDT colab\BrainSense Survey Stats')
+%SL machine
+cd('C:\Users\sydne\Documents\github\perceive\patientData\abstract_data')
 
 %% Read in the CSV files for each patient
 p1 = readtable('brainSenseSurvey_P1.csv');
@@ -11,9 +14,9 @@ close all
 
 [p1stats] = processTABLE(p1, 1);
 
-[p2stats] = processTABLE(p2 , 2);
+%[p2stats] = processTABLE(p2 , 2);
 
-[p3stats] = processTABLE(p3 , 3);
+%[p3stats] = processTABLE(p3 , 3);
 
 %%
 
@@ -87,20 +90,23 @@ nexttile
 plot(xi_L1,f_L1);
 hold on
 plot(xi_L2,f_L2);
-title(['p value ', num2str(LEFT_r12)])
+%title(['p value ', num2str(LEFT_r12, 3)])
+title(['left Run 1 vs Run 2, p = ', num2str(round(LEFT_r12, 3))])
 ylabel('Probability density')
 xlabel('Log normal power')
-legend([pLabel, ' Left R1'],[pLabel, ' Left R2'])
+%legend([pLabel, ' Left R1'],[pLabel, ' Left R2'])
+legend([pLabel, 'Run 1'],[pLabel, ' Run 2'])
 
 nexttile
 plot(xi_R1,f_R1);
 hold on
 plot(xi_R2,f_R2);
-title(['p value ', num2str(RIGHT_r12)])
+%title(['p value ', num2str(RIGHT_r12, 3)])
+title(['right Run 1 vs Run 2, p = ', num2str(round(RIGHT_r12, 3))])
 ylabel('Probability density')
 xlabel('Log normal power')
-legend([pLabel, ' Right R1'],[pLabel, ' Right R2'])
-
+%legend([pLabel, ' Left R1'],[pLabel, ' Left R2'])
+legend([pLabel, ' Run 1'],[pLabel, ' Run 2'])
 
 
 % LEFT and RIGHT - Run 1 vs 3
@@ -108,19 +114,24 @@ nexttile
 plot(xi_L1,f_L1);
 hold on
 plot(xi_L3,f_L3);
-title(['p value ', num2str(LEFT_r13)])
+%title(['p value ', num2str(LEFT_r13, 3)])
+title(['left Run 1 vs Run 3, p = ', num2str(round(LEFT_r13, 3))])
 ylabel('Probability density')
 xlabel('Log normal power')
-legend([pLabel, ' Left R1'],[pLabel, ' Left R3'])
+%legend([pLabel, ' Left R1'],[pLabel, ' Left R2'])
+legend([pLabel, ' Run 1'],[pLabel, ' Run 3'])
+
 
 nexttile
 plot(xi_R1,f_R1);
 hold on
 plot(xi_R3,f_R3);
-title(['p value ', num2str(RIGHT_r13)])
+%title(['p value ', num2str(RIGHT_r13, 3)])
+title(['right Run 1 vs Run 3, p = ', num2str(round(RIGHT_r13, 3))])
 ylabel('Probability density')
 xlabel('Log normal power')
-legend([pLabel, ' Right R1'],[pLabel, ' Right R3'])
+%legend([pLabel, ' Left R1'],[pLabel, ' Left R2'])
+legend([pLabel, ' Run 1'],[pLabel, ' Run 3'])
 
 
 % LEFT and RIGHT - Run 2 vs 3
@@ -128,22 +139,39 @@ nexttile
 plot(xi_L2,f_L2);
 hold on
 plot(xi_L3,f_L3);
-title(['p value ', num2str(LEFT_r23)])
+%title(['p value ', num2str(LEFT_r23, 3)])
+title(['left Run 2 vs Run 3, p = ', num2str(round(LEFT_r23, 3))])
 ylabel('Probability density')
 xlabel('Log normal power')
-legend([pLabel, ' Left R2'],[pLabel, ' Left R3'])
+%legend([pLabel, ' Left R1'],[pLabel, ' Left R2'])
+legend([pLabel, ' Run 2'],[pLabel, ' Run 3'])
+
 
 nexttile
 plot(xi_R2,f_R2);
 hold on
 plot(xi_R3,f_R3);
-title(['p value ', num2str(RIGHT_r23)])
+%title(['p value ', num2str(RIGHT_r23, 3)])
+title(['right Run 2 vs Run 3, p = ', num2str(round(RIGHT_r23, 3))])
 ylabel('Probability density')
 xlabel('Log normal power')
-legend([pLabel, ' Right R2'],[pLabel, ' Right R3'])
+%legend([pLabel, ' Left R1'],[pLabel, ' Left R2'])
+legend([pLabel, ' Run 2'],[pLabel, ' Run 3'])
+
 
 outStats = [LEFT_r12 , LEFT_r13 , LEFT_r23 , RIGHT_r12 , RIGHT_r13 , RIGHT_r23];
 
 t.TileSpacing = 'compact';
-t.Padding = 'compact';
+t.Padding = 'compact'; 
+
+% ha = axes('Position',[0 0 1 1],'Xlim',[0 1],'Ylim',[0  1],'Box','off','Visible','off','Units','normalized', 'clipping' , 'off');
+% text(0.25, 0.98, 'Patient 1 Left Hemisphere') 
+
+sleft = sgtitle("Patient 1 Left Hemisphere"); 
+sleft.HorizontalAlignment = "right"; 
+hold on
+sright = sgtitle("Patient 1 Right Hemisphere"); 
+sright.HorizontalAlignment = "left"; 
+
+
 end
