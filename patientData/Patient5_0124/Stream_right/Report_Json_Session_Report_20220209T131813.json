@@ -1,0 +1,966 @@
+{
+	"AbnormalEnd": false,
+	"FullyReadForSession": true,
+	"FeatureInformationCode": "4X1017f",
+	"SessionDate": "2022-02-09T18:12:55Z",
+	"SessionEndDate": "2022-02-09T18:21:59Z",
+	"ProgrammerTimezone": "Central Daylight Time",
+	"ProgrammerUtcOffset": "-06:00",
+	"ProgrammerLocale": "en_US",
+	"ProgrammerVersion": "3.0.1062",
+	"PatientInformation": {
+		"Initial": {
+			"PatientFirstName": "Michael",
+			"PatientLastName": "Rodcay",
+			"PatientGender": "PatientGenderDef.UNKNOWN",
+			"PatientId": "",
+			"ClinicianNotes": "",
+			"Diagnosis": "DiagnosisTypeDef.ParkinsonsDisease"
+		},
+		"Final": {
+			"PatientFirstName": "Michael",
+			"PatientLastName": "Rodcay",
+			"PatientGender": "PatientGenderDef.UNKNOWN",
+			"PatientId": "",
+			"ClinicianNotes": "",
+			"Diagnosis": "DiagnosisTypeDef.ParkinsonsDisease"
+		}
+	},
+	"DeviceInformation": {
+		"Initial": {
+			"Neurostimulator": "Percept PC",
+			"NeurostimulatorModel": "B35200",
+			"NeurostimulatorSerialNumber": "NPI716574H",
+			"NeurostimulatorLocation": "InsLocation.CHEST_RIGHT",
+			"ImplantDate": "2021-12-22T19:13:27Z",
+			"DeviceDateTime": "2022-02-09T18:11:18Z",
+			"OverdischargeCount": "0",
+			"ProductApplicationId": "42.01",
+			"ProductVersion": "07.05.05",
+			"DeviceApplicationId": "41.01",
+			"DeviceVersion": "07.05.00",
+			"CoreApplicationId": "40.01",
+			"CoreVersion": "07.05.00",
+			"AccumulatedTherapyOnTimeSinceImplant": 4225129,
+			"AccumulatedTherapyOnTimeSinceFollowup": 834,
+			"DeviceName": "Right IPG"
+		},
+		"Final": {
+			"Neurostimulator": "Percept PC",
+			"NeurostimulatorModel": "B35200",
+			"NeurostimulatorSerialNumber": "NPI716574H",
+			"NeurostimulatorLocation": "InsLocation.CHEST_RIGHT",
+			"ImplantDate": "2021-12-22T19:13:27Z",
+			"DeviceDateTime": "2022-02-09T18:20:34Z",
+			"OverdischargeCount": "0",
+			"ProductApplicationId": "42.01",
+			"ProductVersion": "07.05.05",
+			"DeviceApplicationId": "41.01",
+			"DeviceVersion": "07.05.00",
+			"CoreApplicationId": "40.01",
+			"CoreVersion": "07.05.00",
+			"AccumulatedTherapyOnTimeSinceImplant": 4225129,
+			"AccumulatedTherapyOnTimeSinceFollowup": 834,
+			"DeviceName": "Right IPG"
+		}
+	},
+	"BatteryInformation": {
+		"BatteryPercentage": 98,
+		"EstimatedBatteryLifeMonths": 215,
+		"TTEData": "0000002100000C24",
+		"BatteryStatus": "DeviceStateDef.OK"
+	},
+	"GroupUsagePercentage": [
+		{
+			"GroupId": "GroupIdDef.GROUP_A",
+			"UsagePercentage": 100.0
+		},
+		{},
+		{},
+		{}
+	],
+	"LeadConfiguration": {
+		"Initial": [
+			{
+				"Hemisphere": "HemisphereLocationDef.Right",
+				"Model": "LeadModelDef.LEAD_3389",
+				"LeadLocation": "LeadLocationDef.Stn",
+				"ElectrodeNumber": "InsPort.ZERO_THREE",
+				"TipOffset": "TipOffsetDef.ZERO"
+			}
+		],
+		"Final": [
+			{
+				"Hemisphere": "HemisphereLocationDef.Right",
+				"Model": "LeadModelDef.LEAD_3389",
+				"LeadLocation": "LeadLocationDef.Stn",
+				"ElectrodeNumber": "InsPort.ZERO_THREE",
+				"TipOffset": "TipOffsetDef.ZERO"
+			}
+		]
+	},
+	"Stimulation": {
+		"InitialStimStatus": "StimStatusDef.OFF",
+		"FinalStimStatus": "StimStatusDef.OFF"
+	},
+	"Groups": {
+		"Initial": [
+			{
+				"GroupId": "GroupIdDef.GROUP_A",
+				"GroupName": "",
+				"ActiveGroup": true,
+				"Mode": "LimitModeDef.AdvanceEdit",
+				"AdjustableParameter": "LimitTypeDef.Amplitude",
+				"ProgramSettings": {
+					"AmplitudeControl": "AmplitudeTypeDef.CURRENT",
+					"RightHemisphere": {
+						"Programs": [
+							{
+								"ProgramId": "ProgramIdDef.FIRST_RIGHT",
+								"ElectrodeState": [
+									{
+										"Electrode": "ElectrodeDef.FourElectrodes_2",
+										"ElectrodeStateResult": "ElectrodeStateDef.Negative",
+										"ElectrodeAmplitudeInMilliAmps": 2.7,
+										"ElectrodeFractionOf64": -64
+									},
+									{
+										"Electrode": "ElectrodeDef.Case",
+										"ElectrodeStateResult": "ElectrodeStateDef.Positive"
+									}
+								],
+								"AmplitudeInMilliAmps": 2.7,
+								"PulseWidthInMicroSecond": 60,
+								"RateInHertz": 60,
+								"UpperLimitInMilliAmps": 3.0,
+								"LowerLimitInMilliAmps": 0.0
+							}
+						]
+					}
+				},
+				"GroupSettings": {
+					"SoftStartStop": {
+						"Enabled": true,
+						"DurationInSeconds": 4
+					},
+					"Cycling": {
+						"Enabled": false
+					}
+				}
+			}
+		],
+		"Final": [
+			{
+				"GroupId": "GroupIdDef.GROUP_A",
+				"GroupName": "",
+				"ActiveGroup": true,
+				"Mode": "LimitModeDef.AdvanceEdit",
+				"AdjustableParameter": "LimitTypeDef.Amplitude",
+				"ProgramSettings": {
+					"AmplitudeControl": "AmplitudeTypeDef.CURRENT",
+					"RightHemisphere": {
+						"Programs": [
+							{
+								"ProgramId": "ProgramIdDef.FIRST_RIGHT",
+								"ElectrodeState": [
+									{
+										"Electrode": "ElectrodeDef.FourElectrodes_2",
+										"ElectrodeStateResult": "ElectrodeStateDef.Negative",
+										"ElectrodeAmplitudeInMilliAmps": 2.7,
+										"ElectrodeFractionOf64": -64
+									},
+									{
+										"Electrode": "ElectrodeDef.Case",
+										"ElectrodeStateResult": "ElectrodeStateDef.Positive"
+									}
+								],
+								"AmplitudeInMilliAmps": 2.7,
+								"PulseWidthInMicroSecond": 60,
+								"RateInHertz": 60,
+								"UpperLimitInMilliAmps": 3.0,
+								"LowerLimitInMilliAmps": 0.0
+							}
+						]
+					}
+				},
+				"GroupSettings": {
+					"SoftStartStop": {
+						"Enabled": true,
+						"DurationInSeconds": 4
+					},
+					"Cycling": {
+						"Enabled": false
+					}
+				}
+			}
+		]
+	},
+	"BatteryReminder": {
+		"Enabled": false
+	},
+	"MostRecentInSessionSignalCheck": [],
+	"Impedance": [
+		{
+			"ImpedanceStatus": "ImpedanceStateDef.GOOD",
+			"TestCurrentMA": "Automatic increase",
+			"Hemisphere": [
+				{
+					"Hemisphere": "HemisphereLocationDef.Right",
+					"SessionImpedance": {
+						"Monopolar": [
+							{
+								"Electrode1": "ElectrodeDef.Case",
+								"Electrode2": "ElectrodeDef.FourElectrodes_0",
+								"ResultValue": 1082
+							},
+							{
+								"Electrode1": "ElectrodeDef.Case",
+								"Electrode2": "ElectrodeDef.FourElectrodes_1",
+								"ResultValue": 909
+							},
+							{
+								"Electrode1": "ElectrodeDef.Case",
+								"Electrode2": "ElectrodeDef.FourElectrodes_2",
+								"ResultValue": 845
+							},
+							{
+								"Electrode1": "ElectrodeDef.Case",
+								"Electrode2": "ElectrodeDef.FourElectrodes_3",
+								"ResultValue": 827
+							}
+						],
+						"Bipolar": [
+							{
+								"Electrode1": "ElectrodeDef.FourElectrodes_0",
+								"Electrode2": "ElectrodeDef.FourElectrodes_1",
+								"ResultValue": 1401
+							},
+							{
+								"Electrode1": "ElectrodeDef.FourElectrodes_0",
+								"Electrode2": "ElectrodeDef.FourElectrodes_2",
+								"ResultValue": 1572
+							},
+							{
+								"Electrode1": "ElectrodeDef.FourElectrodes_0",
+								"Electrode2": "ElectrodeDef.FourElectrodes_3",
+								"ResultValue": 1678
+							},
+							{
+								"Electrode1": "ElectrodeDef.FourElectrodes_1",
+								"Electrode2": "ElectrodeDef.FourElectrodes_2",
+								"ResultValue": 1169
+							},
+							{
+								"Electrode1": "ElectrodeDef.FourElectrodes_1",
+								"Electrode2": "ElectrodeDef.FourElectrodes_3",
+								"ResultValue": 1366
+							},
+							{
+								"Electrode1": "ElectrodeDef.FourElectrodes_2",
+								"Electrode2": "ElectrodeDef.FourElectrodes_3",
+								"ResultValue": 1034
+							}
+						]
+					}
+				}
+			]
+		}
+	],
+	"GroupHistory": [
+		{
+			"SessionDate": "2022-02-09T16:09:28Z",
+			"Groups": [
+				{
+					"GroupId": "GroupIdDef.GROUP_A",
+					"ActiveGroup": true,
+					"ProgramSettings": {
+						"AmplitudeControl": "AmplitudeTypeDef.CURRENT",
+						"RightHemisphere": {
+							"Programs": [
+								{
+									"ProgramId": "ProgramIdDef.FIRST_RIGHT",
+									"ElectrodeState": [
+										{
+											"Electrode": "ElectrodeDef.FourElectrodes_2",
+											"ElectrodeStateResult": "ElectrodeStateDef.Negative"
+										},
+										{
+											"Electrode": "ElectrodeDef.Case",
+											"ElectrodeStateResult": "ElectrodeStateDef.Positive"
+										}
+									],
+									"AmplitudeInMilliAmps": 2.7,
+									"PulseWidthInMicroSecond": 60,
+									"RateInHertz": 60
+								}
+							]
+						}
+					},
+					"GroupSettings": {
+						"SoftStartStop": {
+							"Enabled": true,
+							"DurationInSeconds": 4
+						},
+						"Cycling": {
+							"Enabled": false
+						}
+					}
+				},
+				{
+					"GroupId": "GroupIdDef.GROUP_B"
+				},
+				{
+					"GroupId": "GroupIdDef.GROUP_C"
+				},
+				{
+					"GroupId": "GroupIdDef.GROUP_D"
+				}
+			]
+		},
+		{
+			"SessionDate": "2022-01-24T15:16:38Z",
+			"Groups": [
+				{
+					"GroupId": "GroupIdDef.GROUP_A",
+					"ActiveGroup": true,
+					"ProgramSettings": {
+						"AmplitudeControl": "AmplitudeTypeDef.CURRENT",
+						"SensingChannel": [
+							{
+								"HemisphereLocation": "HemisphereLocationDef.Right",
+								"ProgramId": "ProgramIdDef.FIRST_RIGHT",
+								"ElectrodeState": [
+									{
+										"Electrode": "ElectrodeDef.FourElectrodes_2",
+										"ElectrodeStateResult": "ElectrodeStateDef.Negative"
+									},
+									{
+										"Electrode": "ElectrodeDef.Case",
+										"ElectrodeStateResult": "ElectrodeStateDef.Positive"
+									}
+								],
+								"PulseWidthInMicroSecond": 60,
+								"RateInHertz": 135,
+								"BrainSensingStatus": "SensingStatusDef.ENABLED",
+								"Channel": "SensingElectrodeConfigDef.ONE_AND_THREE",
+								"UpperLfpThreshold": 30.0,
+								"LowerLfpThreshold": 20.0,
+								"UpperCaptureAmplitudeInMilliAmps": 0.0,
+								"LowerCaptureAmplitudeInMilliAmps": 0.0,
+								"MeasuredUpperLfp": 0,
+								"MeasuredLowerLfp": 0,
+								"SuspendAmplitudeInMilliAmps": 2.7,
+								"SensingSetup": {
+									"FrequencyInHertz": 0.0,
+									"AveragingDurationInMilliSeconds": 3000,
+									"ChannelSignalResult": {}
+								}
+							}
+						]
+					},
+					"GroupSettings": {
+						"SoftStartStop": {
+							"Enabled": true,
+							"DurationInSeconds": 4
+						},
+						"Cycling": {
+							"Enabled": false
+						},
+						"HighPassFilterInHertz": 1,
+						"SensingBlankingDurationInMicroseconds": 1260
+					}
+				},
+				{
+					"GroupId": "GroupIdDef.GROUP_B",
+					"ActiveGroup": false,
+					"ProgramSettings": {
+						"AmplitudeControl": "AmplitudeTypeDef.CURRENT",
+						"RightHemisphere": {
+							"Programs": [
+								{
+									"ProgramId": "ProgramIdDef.FIRST_RIGHT",
+									"ElectrodeState": [
+										{
+											"Electrode": "ElectrodeDef.FourElectrodes_2",
+											"ElectrodeStateResult": "ElectrodeStateDef.Negative"
+										},
+										{
+											"Electrode": "ElectrodeDef.Case",
+											"ElectrodeStateResult": "ElectrodeStateDef.Positive"
+										}
+									],
+									"AmplitudeInMilliAmps": 2.7,
+									"PulseWidthInMicroSecond": 60,
+									"RateInHertz": 60
+								}
+							]
+						}
+					},
+					"GroupSettings": {
+						"SoftStartStop": {
+							"Enabled": true,
+							"DurationInSeconds": 4
+						},
+						"Cycling": {
+							"Enabled": false
+						}
+					}
+				},
+				{
+					"GroupId": "GroupIdDef.GROUP_C"
+				},
+				{
+					"GroupId": "GroupIdDef.GROUP_D"
+				}
+			]
+		},
+		{
+			"SessionDate": "2022-01-04T19:33:09Z",
+			"Groups": [
+				{
+					"GroupId": "GroupIdDef.GROUP_A",
+					"ActiveGroup": true,
+					"ProgramSettings": {
+						"AmplitudeControl": "AmplitudeTypeDef.CURRENT",
+						"RightHemisphere": {
+							"Programs": [
+								{
+									"ProgramId": "ProgramIdDef.FIRST_RIGHT",
+									"ElectrodeState": [
+										{
+											"Electrode": "ElectrodeDef.FourElectrodes_2",
+											"ElectrodeStateResult": "ElectrodeStateDef.Negative"
+										},
+										{
+											"Electrode": "ElectrodeDef.Case",
+											"ElectrodeStateResult": "ElectrodeStateDef.Positive"
+										}
+									],
+									"AmplitudeInMilliAmps": 2.7,
+									"PulseWidthInMicroSecond": 60,
+									"RateInHertz": 135
+								}
+							]
+						}
+					},
+					"GroupSettings": {
+						"SoftStartStop": {
+							"Enabled": true,
+							"DurationInSeconds": 4
+						},
+						"Cycling": {
+							"Enabled": false
+						}
+					}
+				},
+				{
+					"GroupId": "GroupIdDef.GROUP_B",
+					"ActiveGroup": false,
+					"ProgramSettings": {
+						"AmplitudeControl": "AmplitudeTypeDef.CURRENT",
+						"RightHemisphere": {
+							"Programs": [
+								{
+									"ProgramId": "ProgramIdDef.FIRST_RIGHT",
+									"ElectrodeState": [
+										{
+											"Electrode": "ElectrodeDef.FourElectrodes_2",
+											"ElectrodeStateResult": "ElectrodeStateDef.Negative"
+										},
+										{
+											"Electrode": "ElectrodeDef.Case",
+											"ElectrodeStateResult": "ElectrodeStateDef.Positive"
+										}
+									],
+									"AmplitudeInMilliAmps": 2.7,
+									"PulseWidthInMicroSecond": 60,
+									"RateInHertz": 60
+								}
+							]
+						}
+					},
+					"GroupSettings": {
+						"SoftStartStop": {
+							"Enabled": true,
+							"DurationInSeconds": 4
+						},
+						"Cycling": {
+							"Enabled": false
+						}
+					}
+				},
+				{
+					"GroupId": "GroupIdDef.GROUP_C"
+				},
+				{
+					"GroupId": "GroupIdDef.GROUP_D"
+				}
+			]
+		},
+		{
+			"SessionDate": "2021-12-22T19:15:58Z",
+			"Groups": [
+				{
+					"GroupId": "GroupIdDef.GROUP_A",
+					"ActiveGroup": false,
+					"ProgramSettings": {
+						"AmplitudeControl": "AmplitudeTypeDef.CURRENT",
+						"RightHemisphere": {
+							"Programs": [
+								{
+									"ProgramId": "ProgramIdDef.FIRST_RIGHT",
+									"ElectrodeState": [
+										{
+											"Electrode": "ElectrodeDef.FourElectrodes_2",
+											"ElectrodeStateResult": "ElectrodeStateDef.Negative"
+										},
+										{
+											"Electrode": "ElectrodeDef.Case",
+											"ElectrodeStateResult": "ElectrodeStateDef.Positive"
+										}
+									],
+									"AmplitudeInMilliAmps": 2.6,
+									"PulseWidthInMicroSecond": 60,
+									"RateInHertz": 135
+								}
+							]
+						}
+					},
+					"GroupSettings": {
+						"SoftStartStop": {
+							"Enabled": true,
+							"DurationInSeconds": 4
+						},
+						"Cycling": {
+							"Enabled": false
+						}
+					}
+				},
+				{
+					"GroupId": "GroupIdDef.GROUP_B",
+					"ActiveGroup": true,
+					"ProgramSettings": {
+						"AmplitudeControl": "AmplitudeTypeDef.CURRENT",
+						"RightHemisphere": {
+							"Programs": [
+								{
+									"ProgramId": "ProgramIdDef.FIRST_RIGHT",
+									"ElectrodeState": [
+										{
+											"Electrode": "ElectrodeDef.FourElectrodes_2",
+											"ElectrodeStateResult": "ElectrodeStateDef.Negative"
+										},
+										{
+											"Electrode": "ElectrodeDef.Case",
+											"ElectrodeStateResult": "ElectrodeStateDef.Positive"
+										}
+									],
+									"AmplitudeInMilliAmps": 2.6,
+									"PulseWidthInMicroSecond": 60,
+									"RateInHertz": 60
+								}
+							]
+						}
+					},
+					"GroupSettings": {
+						"SoftStartStop": {
+							"Enabled": true,
+							"DurationInSeconds": 4
+						},
+						"Cycling": {
+							"Enabled": false
+						}
+					}
+				},
+				{
+					"GroupId": "GroupIdDef.GROUP_C"
+				},
+				{
+					"GroupId": "GroupIdDef.GROUP_D"
+				}
+			]
+		}
+	],
+	"EventSummary": {
+		"SessionStartDate": "2022-02-09T16:45:23Z",
+		"SessionEndDate": "2022-02-09T18:11:18Z",
+		"LfpAndAmplitudeSummary": [
+			{
+				"GroupId": "GroupIdDef.GROUP_A",
+				"Hemisphere": "HemisphereLocationDef.Right",
+				"LeadLocation": "LeadLocationDef.Stn",
+				"AboveThresholdPercent": -100,
+				"BetweenThresholdPercent": "N/A",
+				"BelowThresholdPercent": -100,
+				"AverageAmplitude": 0.0
+			}
+		]
+	},
+	"DiagnosticData": {
+		"LFPTrendLogs": {
+			"HemisphereLocationDef.Right": {
+				"2022-01-24T19:09:03Z": [
+					{
+						"DateTime": "2022-01-24T15:09:01Z",
+						"LFP": 13200,
+						"AmplitudeInMilliAmps": 2.7
+					},
+					{
+						"DateTime": "2022-01-24T14:59:01Z",
+						"LFP": 10271,
+						"AmplitudeInMilliAmps": 2.7
+					},
+					{
+						"DateTime": "2022-01-24T14:49:01Z",
+						"LFP": 7723,
+						"AmplitudeInMilliAmps": 2.7
+					},
+					{
+						"DateTime": "2022-01-24T14:39:01Z",
+						"LFP": 7269,
+						"AmplitudeInMilliAmps": 2.7
+					},
+					{
+						"DateTime": "2022-01-24T14:29:01Z",
+						"LFP": 6782,
+						"AmplitudeInMilliAmps": 2.7
+					},
+					{
+						"DateTime": "2022-01-24T14:19:01Z",
+						"LFP": 7436,
+						"AmplitudeInMilliAmps": 2.7
+					},
+					{
+						"DateTime": "2022-01-24T14:09:01Z",
+						"LFP": 7408,
+						"AmplitudeInMilliAmps": 2.7
+					},
+					{
+						"DateTime": "2022-01-24T13:59:01Z",
+						"LFP": 7466,
+						"AmplitudeInMilliAmps": 2.7
+					},
+					{
+						"DateTime": "2022-01-24T13:49:01Z",
+						"LFP": 7057,
+						"AmplitudeInMilliAmps": 2.7
+					},
+					{
+						"DateTime": "2022-01-24T13:39:01Z",
+						"LFP": 8443,
+						"AmplitudeInMilliAmps": 2.7
+					},
+					{
+						"DateTime": "2022-01-24T13:29:01Z",
+						"LFP": 7839,
+						"AmplitudeInMilliAmps": 2.7
+					},
+					{
+						"DateTime": "2022-01-24T13:19:01Z",
+						"LFP": 7687,
+						"AmplitudeInMilliAmps": 2.7
+					},
+					{
+						"DateTime": "2022-01-24T13:09:01Z",
+						"LFP": 7327,
+						"AmplitudeInMilliAmps": 2.7
+					},
+					{
+						"DateTime": "2022-01-24T12:59:01Z",
+						"LFP": 7112,
+						"AmplitudeInMilliAmps": 2.7
+					},
+					{
+						"DateTime": "2022-01-24T12:49:01Z",
+						"LFP": 6938,
+						"AmplitudeInMilliAmps": 2.7
+					},
+					{
+						"DateTime": "2022-01-24T12:39:01Z",
+						"LFP": 6086,
+						"AmplitudeInMilliAmps": 2.7
+					},
+					{
+						"DateTime": "2022-01-24T12:29:01Z",
+						"LFP": 6987,
+						"AmplitudeInMilliAmps": 2.7
+					},
+					{
+						"DateTime": "2022-01-24T12:19:01Z",
+						"LFP": 4953,
+						"AmplitudeInMilliAmps": 2.7
+					},
+					{
+						"DateTime": "2022-01-24T12:09:01Z",
+						"LFP": 4615,
+						"AmplitudeInMilliAmps": 2.7
+					},
+					{
+						"DateTime": "2022-01-24T11:59:01Z",
+						"LFP": 4590,
+						"AmplitudeInMilliAmps": 2.7
+					},
+					{
+						"DateTime": "2022-01-24T11:49:01Z",
+						"LFP": 4695,
+						"AmplitudeInMilliAmps": 2.7
+					},
+					{
+						"DateTime": "2022-01-24T11:39:01Z",
+						"LFP": 4643,
+						"AmplitudeInMilliAmps": 2.7
+					},
+					{
+						"DateTime": "2022-01-24T11:29:01Z",
+						"LFP": 4643,
+						"AmplitudeInMilliAmps": 2.7
+					},
+					{
+						"DateTime": "2022-01-24T11:19:01Z",
+						"LFP": 4638,
+						"AmplitudeInMilliAmps": 2.7
+					},
+					{
+						"DateTime": "2022-01-24T11:09:01Z",
+						"LFP": 4814,
+						"AmplitudeInMilliAmps": 2.7
+					},
+					{
+						"DateTime": "2022-01-24T10:59:01Z",
+						"LFP": 4890,
+						"AmplitudeInMilliAmps": 2.7
+					},
+					{
+						"DateTime": "2022-01-24T10:49:01Z",
+						"LFP": 4854,
+						"AmplitudeInMilliAmps": 2.7
+					},
+					{
+						"DateTime": "2022-01-24T10:39:01Z",
+						"LFP": 4828,
+						"AmplitudeInMilliAmps": 2.7
+					},
+					{
+						"DateTime": "2022-01-24T10:29:00Z",
+						"LFP": 5043,
+						"AmplitudeInMilliAmps": 2.7
+					},
+					{
+						"DateTime": "2022-01-24T10:19:00Z",
+						"LFP": 6307,
+						"AmplitudeInMilliAmps": 2.7
+					},
+					{
+						"DateTime": "2022-01-24T10:09:00Z",
+						"LFP": 6387,
+						"AmplitudeInMilliAmps": 2.7
+					}
+				]
+			}
+		},
+		"EventLogs": [
+			{
+				"DateTime": "2021-12-22T19:09:03Z",
+				"SessionType": "SessionStateDef.SessionStart"
+			},
+			{
+				"DateTime": "2021-12-22T19:14:55Z",
+				"SessionType": "SessionStateDef.SessionEnd"
+			},
+			{
+				"DateTime": "2021-12-22T19:15:57Z",
+				"SessionType": "SessionStateDef.SessionStart"
+			},
+			{
+				"DateTime": "2021-12-22T19:17:44Z",
+				"SessionType": "SessionStateDef.SessionEnd"
+			},
+			{
+				"DateTime": "2021-12-22T19:21:36Z",
+				"SessionType": "SessionStateDef.SessionStart"
+			},
+			{
+				"DateTime": "2021-12-22T19:22:22Z",
+				"SessionType": "SessionStateDef.SessionEnd"
+			},
+			{
+				"DateTime": "2021-12-22T20:19:32Z",
+				"SessionType": "SessionStateDef.SessionStart"
+			},
+			{
+				"DateTime": "2021-12-22T20:55:27Z",
+				"SessionType": "SessionStateDef.SessionEnd"
+			},
+			{
+				"DateTime": "2022-01-04T19:33:09Z",
+				"SessionType": "SessionStateDef.SessionStart"
+			},
+			{
+				"DateTime": "2022-01-04T19:39:19Z",
+				"SessionType": "SessionStateDef.SessionEnd"
+			},
+			{
+				"DateTime": "2022-01-24T15:16:37Z",
+				"SessionType": "SessionStateDef.SessionStart"
+			},
+			{
+				"DateTime": "2022-01-24T15:35:21Z",
+				"SessionType": "SessionStateDef.SessionEnd"
+			},
+			{
+				"DateTime": "2022-01-24T15:40:37Z",
+				"SessionType": "SessionStateDef.SessionStart"
+			},
+			{
+				"DateTime": "2022-01-24T15:42:01Z",
+				"SessionType": "SessionStateDef.SessionEnd"
+			},
+			{
+				"DateTime": "2022-01-24T15:42:29Z",
+				"SessionType": "SessionStateDef.SessionStart"
+			},
+			{
+				"DateTime": "2022-01-24T15:43:19Z",
+				"SessionType": "SessionStateDef.SessionEnd"
+			},
+			{
+				"DateTime": "2022-01-24T15:43:48Z",
+				"SessionType": "SessionStateDef.SessionStart"
+			},
+			{
+				"DateTime": "2022-01-24T15:51:47Z",
+				"SessionType": "SessionStateDef.SessionEnd"
+			},
+			{
+				"DateTime": "2022-01-24T16:09:55Z",
+				"SessionType": "SessionStateDef.SessionStart"
+			},
+			{
+				"DateTime": "2022-01-24T16:10:39Z",
+				"ParameterTrendId": "ParameterTrendIdDef.LeadIntegrityPerformed"
+			},
+			{
+				"DateTime": "2022-01-24T16:10:42Z",
+				"ParameterTrendId": "ParameterTrendIdDef.LeadIntegrityPerformed"
+			},
+			{
+				"DateTime": "2022-01-24T16:10:47Z",
+				"ParameterTrendId": "ParameterTrendIdDef.TherapyStatus",
+				"TherapyStatus": "TherapyChangeStatusDef.OFF"
+			},
+			{
+				"DateTime": "2022-01-24T16:11:28Z",
+				"ParameterTrendId": "ParameterTrendIdDef.ActiveGroup",
+				"NewGroupId": "GroupIdDef.GROUP_A",
+				"OldGroupId": "GroupIdDef.GROUP_A"
+			},
+			{
+				"DateTime": "2022-01-24T16:11:30Z",
+				"ParameterTrendId": "ParameterTrendIdDef.TherapyStatus",
+				"TherapyStatus": "TherapyChangeStatusDef.ON"
+			},
+			{
+				"DateTime": "2022-01-24T16:12:15Z",
+				"ParameterTrendId": "ParameterTrendIdDef.ActiveGroup",
+				"NewGroupId": "GroupIdDef.GROUP_B",
+				"OldGroupId": "GroupIdDef.GROUP_A"
+			},
+			{
+				"DateTime": "2022-01-24T16:12:35Z",
+				"ParameterTrendId": "ParameterTrendIdDef.TherapyStatus",
+				"TherapyStatus": "TherapyChangeStatusDef.OFF"
+			},
+			{
+				"DateTime": "2022-01-24T16:15:25Z",
+				"ParameterTrendId": "ParameterTrendIdDef.ActiveGroup",
+				"NewGroupId": "GroupIdDef.GROUP_A",
+				"OldGroupId": "GroupIdDef.GROUP_B"
+			},
+			{
+				"DateTime": "2022-01-24T16:16:22Z",
+				"SessionType": "SessionStateDef.SessionEnd"
+			},
+			{
+				"DateTime": "2022-01-24T16:38:53Z",
+				"SessionType": "SessionStateDef.SessionStart"
+			},
+			{
+				"DateTime": "2022-01-24T16:40:09Z",
+				"SessionType": "SessionStateDef.SessionEnd"
+			},
+			{
+				"DateTime": "2022-02-09T16:09:27Z",
+				"SessionType": "SessionStateDef.SessionStart"
+			},
+			{
+				"DateTime": "2022-02-09T16:09:51Z",
+				"ParameterTrendId": "ParameterTrendIdDef.LeadIntegrityPerformed"
+			},
+			{
+				"DateTime": "2022-02-09T16:09:54Z",
+				"ParameterTrendId": "ParameterTrendIdDef.LeadIntegrityPerformed"
+			},
+			{
+				"DateTime": "2022-02-09T16:21:16Z",
+				"SessionType": "SessionStateDef.SessionEnd"
+			},
+			{
+				"DateTime": "2022-02-09T16:21:45Z",
+				"SessionType": "SessionStateDef.SessionStart"
+			},
+			{
+				"DateTime": "2022-02-09T16:22:16Z",
+				"SessionType": "SessionStateDef.SessionEnd"
+			},
+			{
+				"DateTime": "2022-02-09T16:28:35Z",
+				"SessionType": "SessionStateDef.SessionStart"
+			},
+			{
+				"DateTime": "2022-02-09T16:28:54Z",
+				"ParameterTrendId": "ParameterTrendIdDef.TherapyStatus",
+				"TherapyStatus": "TherapyChangeStatusDef.OFF"
+			},
+			{
+				"DateTime": "2022-02-09T16:29:22Z",
+				"ParameterTrendId": "ParameterTrendIdDef.LeadIntegrityPerformed"
+			},
+			{
+				"DateTime": "2022-02-09T16:29:25Z",
+				"ParameterTrendId": "ParameterTrendIdDef.LeadIntegrityPerformed"
+			},
+			{
+				"DateTime": "2022-02-09T16:32:55Z",
+				"ParameterTrendId": "ParameterTrendIdDef.TherapyStatus",
+				"TherapyStatus": "TherapyChangeStatusDef.ON"
+			},
+			{
+				"DateTime": "2022-02-09T16:33:12Z",
+				"SessionType": "SessionStateDef.SessionEnd"
+			},
+			{
+				"DateTime": "2022-02-09T16:44:51Z",
+				"SessionType": "SessionStateDef.SessionStart"
+			},
+			{
+				"DateTime": "2022-02-09T16:45:10Z",
+				"ParameterTrendId": "ParameterTrendIdDef.TherapyStatus",
+				"TherapyStatus": "TherapyChangeStatusDef.OFF"
+			},
+			{
+				"DateTime": "2022-02-09T16:45:23Z",
+				"SessionType": "SessionStateDef.SessionEnd"
+			},
+			{
+				"DateTime": "2022-02-09T16:52:13Z",
+				"ParameterTrendId": "ParameterTrendIdDef.TherapyStatus",
+				"TherapyStatus": "TherapyChangeStatusDef.ON"
+			},
+			{
+				"DateTime": "2022-02-09T17:06:07Z",
+				"ParameterTrendId": "ParameterTrendIdDef.TherapyStatus",
+				"TherapyStatus": "TherapyChangeStatusDef.OFF"
+			}
+		]
+	}
+}
