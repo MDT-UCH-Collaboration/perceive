@@ -1,6 +1,6 @@
 function [] = actigraphyProcess(subID)
 
-mainLOC = 'C:\Users\Admin\Dropbox\Publications_Meta\InProgress\ABaumgartner_Percept2020\Data\';
+mainLOC = 'D:\Dropbox\Publications_Meta\InProgress\ABaumgartner_Percept2020\Data\';
 % subID = 2;
 subNUM = ['SPPD' , num2str(subID)];
 actLOC = [mainLOC,subNUM,'\ACT_data'];
