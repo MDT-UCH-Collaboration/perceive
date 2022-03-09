@@ -50,7 +50,7 @@ for ai = 1:length(allCases)
 
             % Find day column
             dayLogical = ismember(allDays(1,:),tmpTimeDay);
-            if ~isany(dayLogical)
+            if ~any(dayLogical)
                 continue
             end
             dayHCol = allHours(:,dayLogical);

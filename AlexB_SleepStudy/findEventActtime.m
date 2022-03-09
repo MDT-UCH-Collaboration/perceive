@@ -1,8 +1,16 @@
 function [] = findEventActtime()
 % Clean up Event data with Actigraphy dates
 
+% Change directory
+name = getenv('COMPUTERNAME');
+if matches(name,'DESKTOP-95LU6PO') % Home PC
+    mainDIR = 'D:\Dropbox\Publications_Meta\InProgress\ABaumgartner_Percept2020\Data';
+else
+    mainDIR = 'C:\Users\johna\Dropbox\Publications_Meta\InProgress\ABaumgartner_Percept2020\Data';
+end
+
 % 1. Loop through cases
-mainDIR = 'C:\Users\johna\Dropbox\Publications_Meta\InProgress\ABaumgartner_Percept2020\Data';
+
 cd(mainDIR)
 dirS1 = dir();
 dirS2 = {dirS1.name};
@@ -50,7 +58,7 @@ for ai = 1:length(allCases)
 
             % Find day column
             dayLogical = ismember(allDays(1,:),tmpTimeDay);
-            if ~isany(dayLogical)
+            if ~any(dayLogical)
                 continue
             end
             dayHCol = allHours(:,dayLogical);
