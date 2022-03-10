@@ -100,11 +100,7 @@ switch inPS.stagE
         allEvents = cell(length(dataOfInterest.LfpFrequencySnapshotEvents),1);
 
         for ae = 1:length(allEvents)
-            if iscell(dataOfInterest.LfpFrequencySnapshotEvents)
-                allEvents{ae} = dataOfInterest.LfpFrequencySnapshotEvents{ae,1}.EventName;
-            elseif isstruct(dataOfInterest.LfpFrequencySnapshotEvents)
-                allEvents{ae} = dataOfInterest.LfpFrequencySnapshotEvents(ae).EventName;
-            end
+            allEvents{ae} = dataOfInterest.LfpFrequencySnapshotEvents{ae,1}.EventName;
         end
 
         allEventsS = cellfun(@(x) replace(x,' ',''), allEvents, 'UniformOutput',false);
@@ -118,11 +114,7 @@ switch inPS.stagE
 
         for di = 1:length(dataOfInterest.LfpFrequencySnapshotEvents)
 
-            if iscell(dataOfInterest.LfpFrequencySnapshotEvents)
-                tmpDat = dataOfInterest.LfpFrequencySnapshotEvents{di,1};
-            elseif isstruct(dataOfInterest.LfpFrequencySnapshotEvents)
-                tmpDat = dataOfInterest.LfpFrequencySnapshotEvents(di,1);
-            end
+            tmpDat = dataOfInterest.LfpFrequencySnapshotEvents{di,1};
 
             tEvent = tmpDat.EventName;
             tEventS = replace(tEvent,' ','');
@@ -183,7 +175,6 @@ switch inPS.stagE
 
         % Save Excel file
         outTableE = table;
-        tmpTabs = cell(1,length(uniEVENTS));
         for ci = 1:length(uniEVENTS)
             % Time
             timeAll = cell(100,length(outEVENTS.(uniEVENTS{ci}).DateTime));
@@ -207,24 +198,17 @@ switch inPS.stagE
             % Create column for event type
             eventName = repmat(uniEVENTS(ci),size(minuteOI2));
 
-            tmpTs.Time = timeAll2;
-            tmpTs.Month = monthOI2;
-            tmpTs.Day = dayOI2;
-            tmpTs.Hour = hourOI2;
-            tmpTs.Minute = minuteOI2;
-            tmpTs.EventT = eventName;
-            tmpTs.FFT = outEVENTS.(uniEVENTS{ci}).FFTBinData(:);
-            tmpTs.Freq = outEVENTS.(uniEVENTS{ci}).Frequency(:);
-
-            tmpTt = struct2table(tmpTs);
-
-            tmpTabs{ci} = tmpTt;
 
         end
-
-        for ti = 1:length(tmpTabs)
-            outTableE = [outTableE ; tmpTabs{ti}]; %#ok<AGROW> 
-        end
+        outTableE.([uniEVENTS{ci},'Time']) = timeAll2;
+        outTableE.([uniEVENTS{ci},'_Month']) = monthOI2;
+        outTableE.([uniEVENTS{ci},'_Day']) = dayOI2;
+        outTableE.([uniEVENTS{ci},'_Hour']) = hourOI2;
+        outTableE.([uniEVENTS{ci},'_Minute']) = minuteOI2;
+        % FFT
+        outTableE.([uniEVENTS{ci},'FFT']) = outEVENTS.(uniEVENTS{ci}).FFTBinData(:);
+        % Frequency
+        outTableE.([uniEVENTS{ci},'Freq']) = outEVENTS.(uniEVENTS{ci}).Frequency(:);
 
         cd(saveLOC)
         fileNAME = ['SPPD',num2str(inPS.subID),'_Events.csv'];
