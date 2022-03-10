@@ -1,0 +1,44 @@
+patParams = struct;
+
+%% 1
+patParms.P1.hemi. = 'R';
+patParms.P1.ID = 1;
+patParms.P1.OverSat = true;
+patParms.P1.json = 'Report_Json_Session_Report_20210521T115931[1].json';
+%% 2
+patParms.P2.hemi = 'L';
+patParms.P2.ID = 2;
+patParms.P2.OverSat = false;
+patParms.P2.json = 'Report_Json_Session_Report_20210521T105436[1].json';
+%% 3
+patParms.P3.hemi = 'L';
+patParms.P3.ID = 3;
+patParms.P3.OverSat = true;
+patParms.P3.json = 'Report_Json_Session_Report_20210514T110817.json';
+%% 4
+patParms.P4.hemi = 'R';
+patParms.P4.ID = 4;
+patParms.P4.OverSat = true;
+patParms.P4.json = 'Report_Json_Session_Report_20210615T131452.json';
+%% 5
+patParms.P5.hemi = 'R';
+patParms.P5.ID = 5;
+patParms.P5.OverSat = true;
+patParms.P5.json = 'Report_Json_Session_Report_20210707T111453.json';
+%% 6
+patParms.P6.hemi = 'R';
+patParms.P6.ID = 6;
+patParms.P6.OverSat = true;
+patParms.P6.json = 'Report_Json_Session_Report_20210816T120043.json';
+%% 7
+patParms.P7.hemi = 'R';
+patParms.P7.ID = 6;
+patParms.P7.OverSat = true;
+patParms.P7.json = 'Report_Json_Session_Report_20210816T120043.json';
+
+
+
+
+
+
+

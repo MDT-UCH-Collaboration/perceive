@@ -8,10 +8,13 @@
 actigraphyProcess(subID)
 
 %% Step 2
+% Load in Pat struct
+cd('D:\Dropbox\Publications_Meta\InProgress\ABaumgartner_Percept2020')
+load("PatParms.mat","patParams");
+
+%% Step 3
 % One case
-
-pat2use = 2;
-
+pat2use = 10;
 
 mainDIR = 'D:\Dropbox\Publications_Meta\InProgress\ABaumgartner_Percept2020';
 userDIRs = [mainDIR,'\Data\SPPD'];
@@ -21,14 +24,19 @@ saveDIRe = 'D:\Dropbox\Publications_Meta\InProgress\ABaumgartner_Percept2020\tes
 tabLOC = [mainDIR,'\summarydataTab.csv'];
 actDloc = [mainDIR,'\Data\SPPD'];
 
+patParsmsFs = fieldnames(patParams);
+patFields = patParams.(patParsmsFs{contains(patParsmsFs,num2str(pat2use))});
+hemiFields = fieldnames(patFields);
 
-patParmsFs = fieldnames(patParms);
-patFields = patParms.(patParmsFs{contains(patParmsFs,num2str(pat2use))});
+side = 2; % for bilateral: 1 = 'L'
+% if length(hemiFields) == 1
+patTAB = patFields.(hemiFields{side}); % for bilateral: 1 = 'L'
+hemi = hemiFields{side}; % for bilateral: 1 = 'L'
 
-hemiS = patFields.hemi;
-patID = patFields.ID;
-overSAT = patFields.OverSat;
-jsonNAMEs = patFields.json;
+hemiS = hemi;
+patID = pat2use;
+overSAT = patTAB.OverSat;
+jsonNAMEs = patTAB.json;
 
 saveDIR = saveDIRe;
 userDIR = [userDIRs , num2str(patID) , userDIRe];

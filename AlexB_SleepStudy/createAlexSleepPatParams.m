@@ -1,5 +1,9 @@
 function [] = createAlexSleepPatParams(saveDIR)
 
+if nargin == 0
+    saveDIR = 'D:\Dropbox\Publications_Meta\InProgress\ABaumgartner_Percept2020';
+end
+
 patParams = struct;
 
 %% 1
@@ -25,10 +29,21 @@ patParams.P7.L.OverSat = true;
 patParams.P7.L.json = 'Report_Json_Session_Report_20210726T094956.json';
 patParams.P7.R.OverSat = true;
 patParams.P7.R.json = 'Report_Json_Session_Report_20210726T100116.json';
+%% 8
+patParams.P8.R.OverSat = true;
+patParams.P8.R.json = 'Report_Json_Session_Report_20211123T131149.json';
+%% 9
+patParams.P9.L.OverSat = true;
+patParams.P9.L.json = 'Report_Json_Session_Report_20220104T121534.json';
+%% 10
+patParams.P10.L.OverSat = true;
+patParams.P10.L.json = 'Report_Json_Session_Report_20220124T081628.json';
+patParams.P10.R.OverSat = true;
+patParams.P10.R.json = 'Report_Json_Session_Report_20220124T081944.json';
 
 dateCreate = datestr(now);
 
-cd(saveDir)
+cd(saveDIR)
 save('PatParms.mat','patParams','dateCreate');
 
 
