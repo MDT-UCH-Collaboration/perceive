@@ -178,7 +178,11 @@ switch inPS.stagE
 
         % Save mat file
         cd(saveLOC)
-        fileNAMEm = ['SPPD',num2str(inPS.subID),'_Events.mat'];
+        if matches(inPS.hemiS,'L')
+            fileNAMEm = ['SPPD',num2str(inPS.subID),'_L_Events.mat'];
+        else
+            fileNAMEm = ['SPPD',num2str(inPS.subID),'_R_Events.mat'];
+        end
         save(fileNAMEm,'outEVENTS');
 
         % Save Excel file
@@ -226,9 +230,9 @@ switch inPS.stagE
             outTableE = [outTableE ; tmpTabs{ti}]; %#ok<AGROW> 
         end
 
-        cd(saveLOC)
-        fileNAME = ['SPPD',num2str(inPS.subID),'_Events.csv'];
-        writetable(outTableE,fileNAME);
+%         cd(saveLOC)
+%         fileNAME = ['SPPD',num2str(inPS.subID),'_Events.csv'];
+%         writetable(outTableE,fileNAME);
 
 
     case 2 % Timeline
@@ -237,7 +241,20 @@ switch inPS.stagE
         groupID = [js.Groups.Final.ActiveGroup];
         activeGROUP = js.Groups.Final(groupID).ProgramSettings.SensingChannel;
         activeSenseChan = activeGROUP.Channel;
-        activeSenseFreq = activeGROUP.SensingSetup.FrequencyInHertz;
+        if isstruct(activeGROUP)
+
+            % Figure out left and right rows
+            hemiOps =  {activeGROUP(:).HemisphereLocation};
+            if matches(inPS.hemiS,'L')
+                rowLOC = find(contains(hemiOps,'Left'));
+            else
+                rowLOC = find(contains(hemiOps,'Right'));
+            end
+
+            activeSenseFreq = activeGROUP(rowLOC).SensingSetup.FrequencyInHertz;
+        else
+            activeSenseFreq = activeGROUP.SensingSetup.FrequencyInHertz;
+        end
 
         dataOfInterest = js.(infoFields{1});
 
@@ -429,6 +446,8 @@ switch inPS.stagE
                 if length(hourMINlfp2) ~= 144
                     hourMINlfp2 = hourMINlfp2(~ismember(hourMINlfp2,'0:00'));
                 end
+            else
+                hourMINlfp2 = hourMINlfpnn;
             end
 
             % CONVERT ACT TIME from 12 to 24

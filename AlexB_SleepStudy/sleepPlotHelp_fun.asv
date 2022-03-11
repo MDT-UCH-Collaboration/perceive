@@ -15,16 +15,16 @@ switch caseID
         [~,fNames,~] = cellfun(@(x) fileparts(x), matDir2, 'UniformOutput', false);
         tlList = matDir2(contains(fNames,'TimeLine'));
 
-        tlParts = split(tlList , '_');
-        tlNum = replace(tlParts(:,:,1),'SPPD','');
+        tlParts = str
 
-        matDir2use = tlList(matches(tlNum,caseID));
+
+
 
 end
 
-for i = 1:length(matDir2use)
+for i = 1:length(matDir2)
 
-    load(matDir2use{i},'outMAT')
+    load(matDir2{i},'outMAT')
     fig = figure;
     left_color = [1 0 0];
     right_color = [0 0 0];
@@ -71,5 +71,7 @@ for i = 1:length(matDir2use)
 %     yticks([0 0.5 1])
 
 
+    pause
+    close all
 
 end
