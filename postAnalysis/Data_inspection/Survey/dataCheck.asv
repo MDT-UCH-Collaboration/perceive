@@ -160,10 +160,6 @@ outStats = [LEFT_r12 , LEFT_r13 , LEFT_r23 , RIGHT_r12 , RIGHT_r13 , RIGHT_r23];
 t.TileSpacing = 'compact';
 t.Padding = 'compact';
 
-
-
-
-figure
 t2 = tiledlayout(2, 3);
 
 %LEFT 
@@ -204,11 +200,11 @@ else if P12l && W12l < 0.05
     end
 end 
 
-nexttile(1)
+
+figure 
 histogram(ksvals)
 hold on 
 xline(KS12)
-title(["L12", P12l, pLabel])
 
 
 %RUN 1 VS 3 LEFT 
@@ -234,13 +230,7 @@ else if P13l && W13l < 0.05
     else
         H13l = 7;
     end
-end 
-
-nexttile(2)
-histogram(ksvals)
-hold on 
-xline(KS13)
-title(["L13", P13l, pLabel])
+end
 
 %RUN 2 VS 3 LEFT 
 ksvals = zeros(1000,1);
@@ -266,12 +256,6 @@ else if P23l < 0.05 && W23l < 0.05
         H23l = 7;
     end
 end 
-
-nexttile(3)
-histogram(ksvals)
-hold on 
-xline(KS23)
-title(["L23", P23l, pLabel])
 
 %RIGHT SIDE  
 [~, ~, KS12] = kstest2(right_R1, right_R2);
@@ -311,12 +295,6 @@ else if P12r && W12r < 0.05
     end
 end
 
-nexttile(4)
-histogram(ksvals)
-hold on 
-xline(KS12)
-title(["R12", P12r, pLabel])
-
 %RUN 1 VS 3 LEFT 
 ksvals = zeros(1000,1);
 wsvals = zeros(1000,1);
@@ -340,13 +318,7 @@ else if P13r && W13r < 0.05
     else
         H13r = 7;
     end
-end 
-
-nexttile(5)
-histogram(ksvals)
-hold on 
-xline(KS13)
-title(["L13", P13r, pLabel])
+end
 
 %RUN 2 VS 3 LEFT 
 ksvals = zeros(1000,1);
@@ -373,15 +345,11 @@ else if P23r < 0.05 && W23r < 0.05
     end
 end 
 
-nexttile(6)
-histogram(ksvals)
-hold on 
-xline(KS23)
-title(["L23", P23r, pLabel])
-
 outKS = [LEFT_r12 , LEFT_r13 , LEFT_r23 , RIGHT_r12 , RIGHT_r13 , RIGHT_r23];
 outP = [P12l, P13l, P23l, P12r, P13r, P23r]; 
 outW = [W12l, W13l, W23l, W12r, W13r, W23r];  
 outH = [H12l, H13l, H23l, H12r, H13r, H23r]; 
 outStats = [outKS; outP; outW; outH]; 
 end 
+
+
