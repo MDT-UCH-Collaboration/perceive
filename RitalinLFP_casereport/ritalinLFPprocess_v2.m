@@ -33,29 +33,65 @@ allraw_Post1 = allraw_Post(postRing);
 
 allraw_PreL = allraw_Pre1(contains(allcAr_Pre1,'LEFT'));
 allcAr_PreL = allcAr_Pre1(contains(allcAr_Pre1,'LEFT'));
-allcAr_PreL2 = allraw_PreL(contains(allcAr_PreL,'TWO'));
+
+maxPeak_PreL = findMaxBp(allraw_PreL);
+chanPreL = allcAr_PreL(maxPeak_PreL);
+rawPreL = allraw_PreL(maxPeak_PreL);
 
 allraw_PreR = allraw_Pre1(contains(allcAr_Pre1,'RIGHT'));
 allcAr_PreR = allcAr_Pre1(contains(allcAr_Pre1,'RIGHT'));
-allcAr_PreR2 = allraw_PreR(contains(allcAr_PreR,'TWO'));
+
+% maxPeak_PreR = findMaxBp(allraw_PreR);
+chanPreR = allcAr_PreR(maxPeak_PreL);
+rawPreR = allraw_PreR(maxPeak_PreL);
 
 allraw_PostL = allraw_Post1(contains(allcAr_Post1,'LEFT'));
 allcAr_PostL = allcAr_Post1(contains(allcAr_Post1,'LEFT'));
-allcAr_PostL2 = allraw_PostL(contains(allcAr_PostL,'TWO'));
+
+% maxPeak_PostL = findMaxBp(allraw_PostL);
+chanPostL = allcAr_PostL(maxPeak_PreL);
+rawPostL = allraw_PostL(maxPeak_PreL);
 
 allraw_PostR = allraw_Post1(contains(allcAr_Post1,'RIGHT'));
 allcAr_PostR = allcAr_Post1(contains(allcAr_Post1,'RIGHT'));
-allcAr_PostR2 = allraw_PostR(contains(allcAr_PostR,'RIGHT'));
+
+chanPostR = allcAr_PostR(maxPeak_PreL);
+rawPostR = allraw_PostR(maxPeak_PreL);
 
 
-[allpwrsN3Pre , freQPre] = getNormPr(allcAr_Pre1 , allraw_Pre1);
-[allpwrsN3Post , freQPost] = getNormPr(allcAr_Post1 , allraw_Post1);
+alldata = [rawPreL , rawPreR , rawPostL ,rawPostR];
+allChan = repmat(chanPreL,size(alldata));
+
+[allpwrsN3Pre , freQPre] = getNormPr(allChan , alldata);
+% [allpwrsN3Post , freQPost] = getNormPr(allcAr_Post1 , allraw_Post1);
 
 
-plot(allpwrsN3Pre)
-hold    
-plot(allpwrsN3Post)
+% plot(allpwrsN3Pre,'LineWidth',2.5)
 
+for pi = 1:4
+
+    switch pi
+        case 1 % Pre Left
+            plot(freQPre , allpwrsN3Pre(:,1) ,  'Color' , [0.75 0.75 1], 'LineWidth',2.5)
+        case 2 % Pre Right
+            plot(freQPre , allpwrsN3Pre(:,2) ,  'Color' , [1 0.75 0.75], 'LineWidth',2.5)
+        case 3 % Post Left
+            plot(freQPre , allpwrsN3Pre(:,3) ,  'Color' , [0 0 1], 'LineWidth',2.5)
+        case 4 % Post Right
+            plot(freQPre , allpwrsN3Pre(:,4) ,  'Color' , [1 0 0], 'LineWidth',2.5)
+    end
+    hold on
+
+end
+
+
+
+xline(13,'Color','k','LineStyle','--')
+xline(30,'Color','k','LineStyle','--')
+title('ONE AND THREE')
+legend('Pre LEFT','Pre RIGHT', 'Post LEFT', 'Post RIGHT');
+xlabel('Frequency Hz')
+ylabel('Z-score Power')
 
 end
 
@@ -111,5 +147,30 @@ allpwrsN2 = normalize(allpwrsN1,'range');
 allpwrsN3 = reshape(allpwrsN2, size(allpwrs));
 
 end
+
+
+
+function [maxPeakID] = findMaxBp(rawChannels)
+
+allBetas = zeros(length(rawChannels),1);
+maxPeakID = false(length(rawChannels),1);
+for ci = 1:length(rawChannels)
+    uniRUN = rawChannels{ci};
+    [pwR , freQ] = pspectrum(uniRUN, 250, 'FrequencyLimits', [0.5 60]);
+    betaB = mean(pwR(freQ > 13 & freQ < 30));
+    allBetas(ci) = betaB;
+end
+
+[~ , maxID] = max(allBetas);
+maxPeakID(maxID) = true;
+
+end
+
+
+
+
+
+
+
 
 
