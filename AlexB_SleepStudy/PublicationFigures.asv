@@ -50,7 +50,6 @@ xticks(dayStarts);
 xticklabels(1:length(smSunful)/144)
 xlim([1, length(smSunful)])
 xlabel('Days of recording')
-set(gca,'TickLength',[0 .001])
 
 %%%% GET IN BED times Map start and stop times from EVENTS
 [inBEDx , inBEDdays] = findBEDinds('inbed' , evData , tmData);
@@ -109,14 +108,6 @@ for ib = 1:length(inBEDdays)
         inANDout(inOUTc,1) = inBEDx(ib);
         inANDout(inOUTc,2) = outBEDx(outLog);
         inOUTc = inOUTc + 1;
-    else
-        if tmpINbd == 30 || tmpINbd == 31
-            tmpOUTdb = 1;
-            outLog = ismember(outBEDdays,tmpOUTdb);
-            inANDout(inOUTc,1) = inBEDx(ib);
-            inANDout(inOUTc,2) = outBEDx(outLog);
-            inOUTc = inOUTc + 1;
-        end
     end
 end
 
@@ -128,11 +119,10 @@ for ip = 1:size(inANDouti,1)
     xPbot = inANDouti(ip,1):inANDouti(ip,2);
     xPtop = fliplr(xPbot);
     yPbot = repmat(yLIMn(1),size(xPbot));
-    yPtop = fliplr(transpose(smSunful(xPbot)));
+    yPtop = fliplr(yPbot);
 
-    patch([xPbot xPtop],[yPbot yPtop],[0.5 0.5 0.5],...
-        'FaceAlpha',0.4,'EdgeColor','none')
-
+    patch([xPbot xPtop],[yPbot yPtop],'FaceColor',[0.5 0.5 0.5],...
+        'FaceAlpha',0.5,'EdgeColor','none')
 
 
 
