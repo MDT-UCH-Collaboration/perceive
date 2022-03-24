@@ -7,12 +7,11 @@ cd(mainLOC)
 addpath('C:\Users\John\Documents\GitHub\perceive\AlexB_SleepStudy');
 addpath('C:\Users\John\Documents\GitHub\perceive\AlexB_SleepStudy\matplotlib03232022');
 
-%% Figure 1A - Timeline plot of single patient entire sequence
+%% Figure 1A - Timeline plot of single patient entire sequence - LFP
 close all
 % To do::
-% 3. add gray block for night and day
-% 4. Change color map to cividis
-% 5. Shading only for in-bed and out of bed (known) - black/empty otherwise
+% 3. Scale color to day/night cycle and not the median
+
 
 subjectID = '3';
 hemisphere = 'L';
@@ -141,12 +140,21 @@ end
 title('Patient 3')
 
 
+%% Figure 1B - Timeline plot of single patient entire sequence - ACTIGRAPHY
+
+% To do::
+% 1. 
 
 
-% yline(medLine)
-% Create the RED up and BLUE down with gradient effect
-% https://observablehq.com/@analyzer2004/plot-gallery
 
+%% Figure 1C - Heat map of actigraphy/lfp
+
+
+
+
+
+
+%% Figure 1D - Event plot for rep patient
 
 
 
