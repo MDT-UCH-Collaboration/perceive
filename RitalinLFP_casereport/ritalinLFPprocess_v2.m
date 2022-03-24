@@ -1,97 +1,205 @@
-function [] = ritalinLFPprocess_v2()
+function [] = ritalinLFPprocess_v2(analysis)
 
-cd('C:\Users\johna\Desktop\ritalin_LFP\PRE')
+cd('C:\Users\Admin\Documents\Github\perceive\RitalinLFP_casereport')
 preFILE = 'Report_Json_Session_Report_20220317T110442.json';
 prejs = jsondecode(fileread(preFILE));
 
-cd('C:\Users\johna\Desktop\ritalin_LFP\POST')
+
 postFILE = 'Report_Json_Session_Report_20220317T114335.json';
 postjs = jsondecode(fileread(postFILE));
 
-[contactTpre] = processChanTab(prejs);
-preRing = matches(contactTpre.Type,'RING');
-[contactTpost] = processChanTab(postjs);
-postRing = matches(contactTpost.Type,'RING');
 
-tdDataPre = prejs.LfpMontageTimeDomain;
-tdDataPost = postjs.LfpMontageTimeDomain;
+switch analysis
 
-% All channels and runs LABELS
-allcAr_Pre = {tdDataPre.Channel};
-allcAr_Pre1 = allcAr_Pre(preRing);
-allraw_Pre = {tdDataPre.TimeDomainData};
-allraw_Pre1 = allraw_Pre(preRing);
+    case 'Bsense'
 
-allcAr_Post = {tdDataPost.Channel};
-allcAr_Post1 = allcAr_Post(postRing);
-allraw_Post = {tdDataPost.TimeDomainData};
-allraw_Post1 = allraw_Post(postRing);
+        [contactTpre] = processChanTab(prejs);
+        preRing = matches(contactTpre.Type,'RING');
+        [contactTpost] = processChanTab(postjs);
+        postRing = matches(contactTpost.Type,'RING');
 
-% 2a 2b 2c - Left ; 10a 10b 10c - Right
-% Plot Pre Left 2-1 and Post Left 2-1
-% Plot Pre Right 2-1 and Post Right 2-1
+        tdDataPre = prejs.LfpMontageTimeDomain;
+        tdDataPost = postjs.LfpMontageTimeDomain;
 
-allraw_PreL = allraw_Pre1(contains(allcAr_Pre1,'LEFT'));
-allcAr_PreL = allcAr_Pre1(contains(allcAr_Pre1,'LEFT'));
+        % All channels and runs LABELS
+        allcAr_Pre = {tdDataPre.Channel};
+        allcAr_Pre1 = allcAr_Pre(preRing);
+        allraw_Pre = {tdDataPre.TimeDomainData};
+        allraw_Pre1 = allraw_Pre(preRing);
 
-maxPeak_PreL = findMaxBp(allraw_PreL);
-chanPreL = allcAr_PreL(maxPeak_PreL);
-rawPreL = allraw_PreL(maxPeak_PreL);
+        allcAr_Post = {tdDataPost.Channel};
+        allcAr_Post1 = allcAr_Post(postRing);
+        allraw_Post = {tdDataPost.TimeDomainData};
+        allraw_Post1 = allraw_Post(postRing);
 
-allraw_PreR = allraw_Pre1(contains(allcAr_Pre1,'RIGHT'));
-allcAr_PreR = allcAr_Pre1(contains(allcAr_Pre1,'RIGHT'));
+        % 2a 2b 2c - Left ; 10a 10b 10c - Right
+        % Plot Pre Left 2-1 and Post Left 2-1
+        % Plot Pre Right 2-1 and Post Right 2-1
 
-% maxPeak_PreR = findMaxBp(allraw_PreR);
-chanPreR = allcAr_PreR(maxPeak_PreL);
-rawPreR = allraw_PreR(maxPeak_PreL);
+        allraw_PreL = allraw_Pre1(contains(allcAr_Pre1,'LEFT'));
+        allcAr_PreL = allcAr_Pre1(contains(allcAr_Pre1,'LEFT'));
 
-allraw_PostL = allraw_Post1(contains(allcAr_Post1,'LEFT'));
-allcAr_PostL = allcAr_Post1(contains(allcAr_Post1,'LEFT'));
+        maxPeak_PreL = findMaxBp(allraw_PreL);
+        chanPreL = allcAr_PreL(maxPeak_PreL);
+        rawPreL = allraw_PreL(maxPeak_PreL);
 
-% maxPeak_PostL = findMaxBp(allraw_PostL);
-chanPostL = allcAr_PostL(maxPeak_PreL);
-rawPostL = allraw_PostL(maxPeak_PreL);
+        allraw_PreR = allraw_Pre1(contains(allcAr_Pre1,'RIGHT'));
+        allcAr_PreR = allcAr_Pre1(contains(allcAr_Pre1,'RIGHT'));
 
-allraw_PostR = allraw_Post1(contains(allcAr_Post1,'RIGHT'));
-allcAr_PostR = allcAr_Post1(contains(allcAr_Post1,'RIGHT'));
+        % maxPeak_PreR = findMaxBp(allraw_PreR);
+        chanPreR = allcAr_PreR(maxPeak_PreL);
+        rawPreR = allraw_PreR(maxPeak_PreL);
 
-chanPostR = allcAr_PostR(maxPeak_PreL);
-rawPostR = allraw_PostR(maxPeak_PreL);
+        allraw_PostL = allraw_Post1(contains(allcAr_Post1,'LEFT'));
+        allcAr_PostL = allcAr_Post1(contains(allcAr_Post1,'LEFT'));
 
+        % maxPeak_PostL = findMaxBp(allraw_PostL);
+        chanPostL = allcAr_PostL(maxPeak_PreL);
+        rawPostL = allraw_PostL(maxPeak_PreL);
 
-alldata = [rawPreL , rawPreR , rawPostL ,rawPostR];
-allChan = repmat(chanPreL,size(alldata));
+        allraw_PostR = allraw_Post1(contains(allcAr_Post1,'RIGHT'));
+        allcAr_PostR = allcAr_Post1(contains(allcAr_Post1,'RIGHT'));
 
-[allpwrsN3Pre , freQPre] = getNormPr(allChan , alldata);
-% [allpwrsN3Post , freQPost] = getNormPr(allcAr_Post1 , allraw_Post1);
+        chanPostR = allcAr_PostR(maxPeak_PreL);
+        rawPostR = allraw_PostR(maxPeak_PreL);
 
 
-% plot(allpwrsN3Pre,'LineWidth',2.5)
+        alldata = [rawPreL , rawPreR , rawPostL ,rawPostR];
+        allChan = repmat(chanPreL,size(alldata));
 
-for pi = 1:4
+        [allpwrsN3Pre , freQPre] = getNormPr(allChan , alldata);
+        % [allpwrsN3Post , freQPost] = getNormPr(allcAr_Post1 , allraw_Post1);
 
-    switch pi
-        case 1 % Pre Left
-            plot(freQPre , allpwrsN3Pre(:,1) ,  'Color' , [0.75 0.75 1], 'LineWidth',2.5)
-        case 2 % Pre Right
-            plot(freQPre , allpwrsN3Pre(:,2) ,  'Color' , [1 0.75 0.75], 'LineWidth',2.5)
-        case 3 % Post Left
-            plot(freQPre , allpwrsN3Pre(:,3) ,  'Color' , [0 0 1], 'LineWidth',2.5)
-        case 4 % Post Right
-            plot(freQPre , allpwrsN3Pre(:,4) ,  'Color' , [1 0 0], 'LineWidth',2.5)
-    end
-    hold on
+
+        % plot(allpwrsN3Pre,'LineWidth',2.5)
+
+        for pi = 1:4
+
+            switch pi
+                case 1 % Pre Left
+                    plot(freQPre , allpwrsN3Pre(:,1) ,  'Color' , [0.75 0.75 1], 'LineWidth',2.5)
+                case 2 % Pre Right
+                    plot(freQPre , allpwrsN3Pre(:,2) ,  'Color' , [1 0.75 0.75], 'LineWidth',2.5)
+                case 3 % Post Left
+                    plot(freQPre , allpwrsN3Pre(:,3) ,  'Color' , [0 0 1], 'LineWidth',2.5)
+                case 4 % Post Right
+                    plot(freQPre , allpwrsN3Pre(:,4) ,  'Color' , [1 0 0], 'LineWidth',2.5)
+            end
+            hold on
+
+        end
+
+
+
+        xline(13,'Color','k','LineStyle','--')
+        xline(30,'Color','k','LineStyle','--')
+        title('ONE AND THREE')
+        legend('Pre LEFT','Pre RIGHT', 'Post LEFT', 'Post RIGHT');
+        xlabel('Frequency Hz')
+        ylabel('Z-score Power')
+
+
+    case 'stream'
+
+
+        bsTD = {postjs.BrainSenseLfp.LfpData};
+
+        allStreams = cell(length(bsTD),1);
+        for bi = 1:length(bsTD)
+
+            tmpStreamR = {bsTD{bi}.Right};
+            tmpStreamL = {bsTD{bi}.Left};
+
+            lLFP = zeros(length(tmpStreamL),1);
+            rLFP = zeros(length(tmpStreamL),1);
+            lSTIM = zeros(length(tmpStreamL),1);
+            rSTIM = zeros(length(tmpStreamL),1);
+
+            for rl = 1:2
+                switch rl
+                    case 1 % right
+                        for bin = 1:length(tmpStreamR)
+                            lLFP(bin) = tmpStreamR{bin}.LFP;
+                            lSTIM(bin) = tmpStreamR{bin}.mA;
+                        end
+                    case 2 % left
+                        for bin = 1:length(tmpStreamL)
+                            rLFP(bin) = tmpStreamL{bin}.LFP;
+                            rSTIM(bin) = tmpStreamL{bin}.mA;
+                        end
+                end
+            end
+            allStreams{bi} = table(lLFP,lSTIM,rLFP,rSTIM,'VariableNames',...
+                {'LeftLFP','LeftmA','RightLFP','RightmA'});
+        end
+
+
+        % Make a plot % 500 ms per bin
+
+%         figLEFT = figure;
+%         left_color =  [168/255 70/255 50/255];
+%         right_color = [50/255 123/255 168/255];
+%         set(figLEFT,'defaultAxesColorOrder',[left_color; right_color]);
+% 
+%         xTimeSecs = 0:2:(height(allStreams{1})*2)-1; % seconds
+%         leftLfp = allStreams{1}.LeftLFP;
+%         yyaxis left
+%         plot(xTimeSecs,leftLfp);
+%         ylabel('LFP Power')
+% 
+%         leftmA = allStreams{1}.LeftmA;
+%         yyaxis right
+%         plot(xTimeSecs,leftmA);
+%         ylabel('mA')
+% 
+%         xlabel('Time in seconds')
+%         title('Left STN')
+
+        % Clean up for publication
+        rightDATA = allStreams{1};
+        rightDATAa = rightDATA(41:height(rightDATA),:);
+
+        figRIGHT = figure;
+        left_color =  [168/255 70/255 50/255];
+        right_color = [50/255 123/255 168/255];
+        set(figRIGHT,'defaultAxesColorOrder',[left_color; right_color]);
+
+        xTimeSecs = 0:2:(height(rightDATAa)*2)-1; % seconds
+        rightLfp = rightDATAa.RightLFP;
+        yyaxis left
+        plot(xTimeSecs,rightLfp);
+        ylabel('LFP Power')
+
+        rightmA = rightDATAa.RightmA;
+        yyaxis right
+        plot(xTimeSecs,rightmA);
+        ylabel('mA')
+
+        xlabel('Time in seconds')
+        title('Right STN')
+
+        corrPLOT = figure;
+        plot(rightDATAa.RightLFP,rightDATAa.RightmA,'o')
+        hold on
+        % Get coefficients of a line fit through the data.
+        coefficients = polyfit(rightDATAa.RightLFP,rightDATAa.RightmA, 1);
+        % Create a new x axis with exactly 1000 points (or whatever you want).
+        xFit = linspace(min(rightDATAa.RightLFP), max(rightDATAa.RightLFP), 1000);
+        % Get the estimated yFit value for each of those 1000 new x locations.
+        yFit = polyval(coefficients , xFit);
+        plot(xFit, yFit, 'r-', 'LineWidth', 2);
+        ylim([0 2.5])
+        [rho , pval] = corr(rightDATAa.RightLFP,rightDATAa.RightmA);
+        title('r = -0.77 , p = 0.00001');
+        ylabel('mA')
+        xlabel('LFP power')
+
+
+        
+
 
 end
 
-
-
-xline(13,'Color','k','LineStyle','--')
-xline(30,'Color','k','LineStyle','--')
-title('ONE AND THREE')
-legend('Pre LEFT','Pre RIGHT', 'Post LEFT', 'Post RIGHT');
-xlabel('Frequency Hz')
-ylabel('Z-score Power')
 
 end
 
