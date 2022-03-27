@@ -142,27 +142,26 @@ switch figNUM
 
         title('Patient 3')
 
-
-        %% Figure 1B - Timeline plot of single patient entire sequence - ACTIGRAPHY
-
+    case 2 % Figure 1B - Timeline plot of single patient entire sequence - ACTIGRAPHY
         % To do::
-        % 1.
-
-    case 2
+        % 1. Ensure that they line up 
+        % 2. Sleep Wake
+        % 3. Plot raw
+        % 4. Plot fit
 
         subjectID = '3';
         hemisphere = 'L';
         [tmData] = getPatDat(subjectID , hemisphere , 'TimeLine');
+        [apData] = getPatDat(subjectID , hemisphere , 'ActALL');
 
-
-        %% Figure 1C - Heat map of actigraphy/lfp
-
-
-
+        % Figure 1C - Heat map of actigraphy/lfp
 
 
 
-        %% Figure 1D - Event plot for rep patient
+
+
+
+        % Figure 1D - Event plot for rep patient
 
 
 
@@ -223,15 +222,16 @@ hIDs = matEls(:,:,2);
 tIDs1 = matEls(:,:,3);
 tIDs2 = extractBefore(tIDs1,'.');
 
-matLog = matches(cIDs2,cID) & matches(hIDs,hID) & matches(tIDs2,tID);
-
 if matches(tID,'TimeLine')
+    matLog = matches(cIDs2,cID) & matches(hIDs,hID) & matches(tIDs2,tID);
     load(matNames{matLog},'outMAT');
     tmpDaOUT = outMAT;
 elseif matches(tID,'Events')
+    matLog = matches(cIDs2,cID) & matches(hIDs,hID) & matches(tIDs2,tID);
     load(matNames{matLog},'outEVENTS');
     tmpDaOUT = outEVENTS;
 else
+    matLog = matches(cIDs2,cID) & matches(tIDs2,tID);
     load(matNames{matLog},'rawActSlWk')
     tmpDaOUT = rawActSlWk;
 end
