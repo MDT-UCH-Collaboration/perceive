@@ -1,4 +1,4 @@
-function [] = createAlexPerceptFigures(figNUM)
+function [] = createAlexPerceptFigures_v2(figNUM)
 
 % mainLOC = 'D:\Dropbox\Publications_Meta\InProgress\ABaumgartner_Percept2020\testSav';
 % sleepPlotHelp_fun(mainLOC , num2str(9))
@@ -146,9 +146,9 @@ switch figNUM
         % To do::
         % 1. 
         % 2. 
-        % 3. Sleep Wake
-        % 4. Plot raw
-        % 5. Plot fit
+        % 3. 
+        % 4. Sleep Wake
+        % 5. DTW
 
         subjectID = '3';
         hemisphere = 'L';
@@ -156,21 +156,58 @@ switch figNUM
         [apData] = getPatDat(subjectID , hemisphere , 'ActALL');
         [cleanApT] = trim144Apdata(tmData , apData);
 
-        test = 1;
+        figure; % ACT Figure 1B
+        % Activity
+        nActraw = cleanApT.Activity;
+        unfurlACTr = nActraw(:);
+        sMnRmACTr = smoothdata(unfurlACTr,'gaussian',40,'omitnan');
+        nRmACTr = normalize(sMnRmACTr, 'range');
+        plot(nRmACTr,'Color','r','LineWidth',2)
 
-        figure;
-        yyaxis left
-        plot(cleanApT.cirCad(:))
         hold on
-        yyaxis right
-        plot(tmData.ActMean(:))
+        % Circadian Fit
+        nFitraw = cleanApT.cirCad;
+        unfurlFITr = nFitraw(:);
+        nRmFITr = normalize(unfurlFITr, 'range');
+        plot(nRmFITr,'Color','g','LineWidth',2)
+
+        % Sleep Wake State
+        % Ronnenberg: 1 = Sleep
+        % Crespo: 1 = Wake
+
+        % Invert Ronneberg
+        reonUF = cleanApT.ronenbSW(:);
+        nonNanInd1 = ~isnan(reonUF);
+        reonUnfurli = ~reonUF(nonNanInd1);
+        reonUFi = reonUF;
+        reonUFi(nonNanInd1) = reonUnfurli;
+        % Get Crespo
+        cresUF = cleanApT.crespoSW(:);
+        % Find agreement
+        pairRC = [reonUFi , cresUF];
+        % Find nonNans
+        nanInd2 = isnan(pairRC(:,1));
+%         pairNnans = pairRC(nonNanInd2,:);
+        pairMatch = pairRC(:,1) == pairRC(:,2);
+        swFinMat = pairRC(:,1);
+        swFinMat(pairMatch) = pairRC(pairMatch,1);
+        swFinMat(~pairMatch) = nan;
+        swFinMat(nanInd2) = nan;
+
+        xAxisAct = 1:length(swFinMat);
+        plot(xAxisAct(swFinMat == 1),ones(),'mo')
+        ylim([-0.1 1.2])
+        legend('Raw Actigraphy','Cosinar','Sleep/Wake')
+
+%         yyaxis right
+%         plot(cleanApT.Activity(:))
 %         ylim([0 1.5])
 
-        yyaxis left
-        plot(apData.Circadian)
-        hold on
-        yyaxis right
-        plot(str2double(apData.Activity))
+%         yyaxis left
+%         plot(apData.Circadian)
+%         hold on
+%         yyaxis right
+%         plot(str2double(apData.Activity))
 
 
 
@@ -337,21 +374,22 @@ allMonth = month(datetime(join([actPydat.Date actPydat.Time],' ')));
 allDay = day(datetime(join([actPydat.Date actPydat.Time],' ')));
 allHour = hour(datetime(join([actPydat.Date actPydat.Time],' ')));
 allMin = minute(datetime(join([actPydat.Date actPydat.Time],' ')));
-% allSec = second(datetime(join([actPydat.Date actPydat.Time],' ')));
+allSec = second(datetime(join([actPydat.Date actPydat.Time],' ')));
 
 % loop through row and column
 cosinar = nan(size(proCombdat.actTime));
 fractaL = nan(size(proCombdat.actTime));
 SSA = nan(size(proCombdat.actTime));
+activity = nan(size(proCombdat.actTime));
 cirCad = nan(size(proCombdat.actTime));
 ultrid = nan(size(proCombdat.actTime));
 recSt = nan(size(proCombdat.actTime));
-ckSW = nan([size(proCombdat.actTime),2]); % 0: sleep, 1: wake
-sadehSW = nan([size(proCombdat.actTime),2]);
-scripsSW = nan([size(proCombdat.actTime),2]);
-oakleySW = nan([size(proCombdat.actTime),2]);
-crespoSW = nan([size(proCombdat.actTime),2]);
-ronenbSW = nan([size(proCombdat.actTime),2]); 
+ckSW = nan(size(proCombdat.actTime)); % 0: sleep, 1: wake
+sadehSW = nan(size(proCombdat.actTime));
+scripsSW = nan(size(proCombdat.actTime));
+oakleySW = nan(size(proCombdat.actTime));
+crespoSW = nan(size(proCombdat.actTime));
+ronenbSW = nan(size(proCombdat.actTime)); 
 
 for dayI = 1:size(proCombdat.actTime,2)
 
@@ -368,59 +406,35 @@ for dayI = 1:size(proCombdat.actTime,2)
         for hourMin = 1:size(proCombdat.actTime,1)
                 tmpHou1 = unique(hour(proCombdat.actTime(hourMin,dayI)));
                 tmpMin1 = unique(minute(proCombdat.actTime(hourMin,dayI)));
-                
-                % tmpSec = unique(second(proCombdat.actTime(hourMin,dayI)));
+                tmpSec = unique(second(proCombdat.actTime(hourMin,dayI)));
+                if tmpSec > 30
+                    tmpSec = 30;
+                else
+                    tmpSec = 0;
+                end
                 % If on last row contine
-
                 chkMIN = find((tmpHou1 == allHour &...
-                    tmpMin1 == allMin & mdCheck));
-                if sum(chkMIN) == 0
+                    tmpMin1 == allMin & tmpSec == allSec & mdCheck));
+                if sum(chkMIN) == 0 || isempty(chkMIN)
                     continue
                 else
 
-                    startMIN = find((tmpHou1 == allHour &...
-                        tmpMin1 == allMin & mdCheck),1,'first');
-                    if hourMin == height(proCombdat.actTime)
-                        stopMIN = find((tmpHou1 == allHour &...
-                            tmpMin1 == allMin & mdCheck),1,'last');
-                    else
-                        tmpHou2 = unique(hour(proCombdat.actTime(hourMin + 1,dayI)));
-                        tmpMin2 = unique(minute(proCombdat.actTime(hourMin + 1,dayI)));
-                        stopMIN = find((tmpHou2 == allHour &...
-                            tmpMin2 == allMin & mdCheck),1,'first');
-                    end
-
                     % Fits
-                    cosinar(hourMin,dayI) = mean(actPydat.Cosine(startMIN:stopMIN),'omitnan');
-                    fractaL(hourMin,dayI) = mean(actPydat.Fractal(startMIN:stopMIN),'omitnan');
-                    SSA(hourMin,dayI)     = mean(actPydat.SSA(startMIN:stopMIN),'omitnan');
-                    cirCad(hourMin,dayI)  = mean(actPydat.Circadian(startMIN:stopMIN),'omitnan');
-                    ultrid(hourMin,dayI)  = mean(actPydat.Ultridian(startMIN:stopMIN),'omitnan');
-                    recSt(hourMin,dayI)   = mean(actPydat.Reconstruct(startMIN:stopMIN),'omitnan');
+
+                    cosinar(hourMin,dayI) = actPydat.Cosine(chkMIN);
+                    fractaL(hourMin,dayI) = actPydat.Fractal(chkMIN);
+                    SSA(hourMin,dayI)     = actPydat.SSA(chkMIN);
+                    cirCad(hourMin,dayI)  = actPydat.Circadian(chkMIN);
+                    ultrid(hourMin,dayI)  = actPydat.Ultridian(chkMIN);
+                    recSt(hourMin,dayI)   = actPydat.Reconstruct(chkMIN);
+                    activity(hourMin,dayI) = str2double(actPydat.Activity{chkMIN});
                     % SW
-                    [ckfrac, ckState] = getSWstate(actPydat.CK,startMIN,stopMIN);
-                    ckSW(hourMin,dayI,1) = ckfrac;
-                    ckSW(hourMin,dayI,2) = ckState;
-
-                    [sadfrac, sadState] = getSWstate(actPydat.Sadeh,startMIN,stopMIN);
-                    sadehSW(hourMin,dayI,1) = sadfrac;
-                    sadehSW(hourMin,dayI,2) = sadState;
-
-                    [scifrac, sciState] = getSWstate(actPydat.Scripps,startMIN,stopMIN);
-                    scripsSW(hourMin,dayI,1) = scifrac;
-                    scripsSW(hourMin,dayI,2) = sciState;
-
-                    [oakfrac, oakState] = getSWstate(actPydat.Oakley,startMIN,stopMIN);
-                    oakleySW(hourMin,dayI,1) = oakfrac;
-                    oakleySW(hourMin,dayI,2) = oakState;
-
-                    [crefrac, creState] = getSWstate(actPydat.Crespo,startMIN,stopMIN);
-                    crespoSW(hourMin,dayI,1) = crefrac;
-                    crespoSW(hourMin,dayI,2) = creState;
-
-                    [roefrac, roeState] = getSWstate(actPydat.Roneenberg,startMIN,stopMIN);
-                    ronenbSW(hourMin,dayI,1) = roefrac;
-                    ronenbSW(hourMin,dayI,2) = roeState;
+                    ckSW(hourMin,dayI) = actPydat.CK(chkMIN);
+                    sadehSW(hourMin,dayI) = actPydat.Sadeh(chkMIN);
+                    scripsSW(hourMin,dayI) = actPydat.Scripps(chkMIN);
+                    oakleySW(hourMin,dayI) = actPydat.Oakley(chkMIN);
+                    crespoSW(hourMin,dayI) = actPydat.Crespo(chkMIN);
+                    ronenbSW(hourMin,dayI) = actPydat.Roneenberg(chkMIN);
 
                 end % If/else check if there are minutes/hours
 
@@ -435,32 +449,16 @@ cleanApT.SSA = SSA;
 cleanApT.cirCad = cirCad;
 cleanApT.ultrid = ultrid;
 cleanApT.recSt = recSt;
-cleanApT.ckSW_fracW = ckSW(:,:,1);
-cleanApT.ckSW_st = ckSW(:,:,2);
-cleanApT.sadehSW_fracW = sadehSW(:,:,1);
-cleanApT.sadehSW_st = sadehSW(:,:,2);
-cleanApT.scripsSW_fracW = scripsSW(:,:,1);
-cleanApT.scripsSW_st = scripsSW(:,:,2);
-cleanApT.oakleySW_fracW = oakleySW(:,:,1);
-cleanApT.oakleySW_st = oakleySW(:,:,2);
-cleanApT.crespoSW_fracW = crespoSW(:,:,1);
-cleanApT.crespoSW_st = crespoSW(:,:,2);
-cleanApT.ronenbSW_fracW = ronenbSW(:,:,1);
-cleanApT.ronenbSW_st = ronenbSW(:,:,2);
+cleanApT.Activity = activity;
+cleanApT.ckSW = ckSW;
+cleanApT.sadehSW = sadehSW;
+cleanApT.scripsSW = scripsSW;
+cleanApT.oakleySW = oakleySW;
+cleanApT.crespoSW = crespoSW;
+cleanApT.ronenbSW = ronenbSW;
+
 
 end
 
 
-
-function [outFrac, outState] = getSWstate(inSTATE,start,stop)
-
-ckfrac = sum(inSTATE(start:stop))/length(inSTATE(start:stop));
-outFrac = ckfrac;
-if outFrac <= 0.4
-    outState = 0;
-else
-    outState = 1;
-end
-
-end
 
