@@ -204,8 +204,47 @@ switch figNUM
         ylabel('Scaled Activity')
         yticks(linspace(0,1,6))
 
-    case 3 % Figure 1C - Heat map of actigraphy/lfp
+    case 3 % Figure 1C - DTW or Cross cor
+        subjectID = '3';
+        hemisphere = 'L';
+        [tmData] = getPatDat(subjectID , hemisphere , 'TimeLine');
+        [apData] = getPatDat(subjectID , hemisphere , 'ActALL');
+        [cleanApT] = trim144Apdata(tmData , apData);
+        
+        % LFP
+        nLFP = tmData.LFP;
+        unfurlLFP = nLFP(:);
+        mSunful = unfurlLFP - (min(unfurlLFP));
+        mSunful(mSunful > 2.3000e+09) = nan;
+        mSunful = normalize(mSunful, 'range');
+        smSunful = smoothdata(mSunful,'rloess',20,'omitnan');
 
+        % Activity
+        nActraw = cleanApT.Activity;
+        unfurlACTr = nActraw(:);
+        sMnRmACTr = smoothdata(unfurlACTr,'gaussian',40,'omitnan');
+        nRmACTr = normalize(sMnRmACTr, 'range');
+
+        % Circadian Fit
+        nFitraw = cleanApT.cirCad;
+        unfurlFITr = nFitraw(:);
+        sMnRmFITr = smoothdata(unfurlFITr,'gaussian',40,'omitnan');
+        nRmFITr = normalize(sMnRmFITr, 'range');
+
+        nonNanLocs = ~isnan(nRmACTr);
+        dist = dtw(smSunful(nonNanLocs),nRmACTr(nonNanLocs))
+
+        [c,lags] = xcorr(smSunful(nonNanLocs),nRmACTr(nonNanLocs));
+        c = c/max(c);
+        [m,i] = max(c);
+        t = lags(i);
+%         stem(lags,c)
+        % https://www.mathworks.com/help/signal/ug/measuring-signal-similarities.html
+        plot(lags,c,[t t],[-0.5 1],'r:')
+        text(t+100,0.5,['Lag: ' int2str(t)])
+        ylabel('c')
+        axis tight
+        title('Cross-Correlations')
 
     case 4 % Figure 1D - Heat map of actigraphy/lfp
 
