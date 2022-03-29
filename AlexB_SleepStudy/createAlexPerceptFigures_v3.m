@@ -296,7 +296,103 @@ switch figNUM
 
             end
         end
-        
+
+        % Interpolate and mean/sd blocks
+        for si = 1:2 % daynight blocks
+            switch si
+                case 1 % day
+                    % Find longest block
+                    dayBlMax = max(cellfun(@(x) size(x,2), dayBlocks, ...
+                        'UniformOutput',true));
+                    dayMatlfp = nan(size(dayBlocks,2),dayBlMax);
+                    dayMatact = nan(size(dayBlocks,2),dayBlMax);
+                    for di = 1:length(dayBlocks)
+                        tmpBlock = dayBlocks{di};
+                        % LFP
+                        lfpDat = smSunful(tmpBlock);
+                        % Act
+                        actDat = nRmACTr(tmpBlock);
+                        oldPoints = 1:length(tmpBlock);
+                        newPoints = linspace(1,length(tmpBlock),dayBlMax);
+
+                        newYlfp = interp1(oldPoints,lfpDat,newPoints,'spline');
+                        newYact = interp1(oldPoints,actDat,newPoints,'spline');
+                        %                         plot(oldPoints,lfpDat,'o',newPoints,newYlfp,':.');
+                        %                         plot(oldPoints,actDat,'o',newPoints,newYact,':.');
+                        dayMatlfp(di,:) = newYlfp;
+                        dayMatact(di,:) = newYact;
+                    end
+                case 2
+                    nightBlMax = max(cellfun(@(x) size(x,2), nightBlocks, ...
+                        'UniformOutput',true));
+                    nightMatlfp = nan(size(nightBlocks,2),nightBlMax);
+                    nightMatact = nan(size(nightBlocks,2),nightBlMax);
+                    for ni = 1:length(nightBlocks)
+                        tmpBlock = nightBlocks{ni};
+                        % LFP
+                        lfpDat = smSunful(tmpBlock);
+                        % Act
+                        actDat = nRmACTr(tmpBlock);
+                        oldPoints = 1:length(tmpBlock);
+                        newPoints = linspace(1,length(tmpBlock),nightBlMax);
+
+                        newYlfp = interp1(oldPoints,lfpDat,newPoints,'spline');
+                        newYact = interp1(oldPoints,actDat,newPoints,'spline');
+                        %                         plot(oldPoints,lfpDat,'o',newPoints,newYlfp,':.');
+                        %                         plot(oldPoints,actDat,'o',newPoints,newYact,':.');
+                        nightMatlfp(ni,:) = newYlfp;
+                        nightMatact(ni,:) = newYact;
+                    end
+            end
+        end
+
+        % Plot single
+        % Plot mean
+        [dayMeanlfp , daySTDlfp] = getMeanSTD(dayMatlfp,1);
+        [dayMeanact , daySTDact] = getMeanSTD(dayMatact,1);
+        % Left plot Day
+        % Right plot Night
+        figure;
+        subplot(1,2,1) % LFP DAY
+        pdlfp = patch([1:length(dayMeanlfp) fliplr(1:length(dayMeanlfp))],...
+            [daySTDlfp(2,:) fliplr(daySTDlfp(1,:))],'k');
+        pdlfp.EdgeColor = 'none';
+        pdlfp.FaceColor = [0.3020 0.7451 0.9333];
+        pdlfp.FaceAlpha = 0.3;
+        hold on
+        plot(dayMeanlfp,'Color',[0 0.4471 0.7412],'LineWidth',2)
+        % ACT DAY
+        pdact = patch([1:length(dayMeanact) fliplr(1:length(dayMeanact))],...
+            [daySTDact(2,:) fliplr(daySTDact(1,:))],'k');
+        pdact.EdgeColor = 'none';
+        pdact.FaceColor = [0.6275 0.8902 0.2863];
+        pdact.FaceAlpha = 0.3;
+        hold on
+        plot(dayMeanact,'Color',[0.4667 0.6745 0.1882],'LineWidth',2)
+        ylim([0 1])
+        xlim([1 length(dayMeanlfp)])
+
+        [nightMeanlfp , nightSTDlfp] = getMeanSTD(nightMatlfp,1);
+        [nightMeanact , nightSTDact] = getMeanSTD(nightMatact,1);
+        subplot(1,2,2) % NIGHT DAY
+        pnlfp = patch([1:length(nightMeanlfp) fliplr(1:length(nightMeanlfp))],...
+            [nightSTDlfp(2,:) fliplr(nightSTDlfp(1,:))],'k');
+        pnlfp.EdgeColor = 'none';
+        pnlfp.FaceColor = [0.3020 0.7451 0.9333];
+        pnlfp.FaceAlpha = 0.3;
+        hold on
+        plot(nightMeanlfp,'Color',[0 0.4471 0.7412],'LineWidth',2)
+        % ACT NIGHT
+        pnact = patch([1:length(nightMeanact) fliplr(1:length(nightMeanact))],...
+            [nightSTDact(2,:) fliplr(nightSTDact(1,:))],'k');
+        pnact.EdgeColor = 'none';
+        pnact.FaceColor = [0.6275 0.8902 0.2863];
+        pnact.FaceAlpha = 0.3;
+        hold on
+        plot(nightMeanact,'Color',[0.4667 0.6745 0.1882],'LineWidth',2)
+        ylim([0 1])
+        xlim([1 length(nightMeanlfp)])
+
         % Filled significant
         % Unfilled non-signficant
         daySig = dayData(:,2) < 0.5;
@@ -319,23 +415,115 @@ switch figNUM
 
 
 
-
-
-
-    case 5
-
-        % Figure 1D - Event plot for rep patient
-
-
-    case 6 % Events data
+    case 5 % Events data
 
         subjectID = '3';
         hemisphere = 'L';
         [tmData] = getPatDat(subjectID , hemisphere , 'TimeLine');
         [evData] = getPatDat(subjectID , hemisphere , 'Events');
 
-        test = 1;
+        gbFFT = evData.GoingToBed.FFTBinData;
+        gbHz = evData.GoingToBed.Frequency;
+        gbFFTt = gbFFT(1:82,:);
+        gbHzt = gbHz(1:82,:);
+        wuFFT = evData.WakingUp.FFTBinData;
+        wuHz = evData.WakingUp.Frequency;
+        wuHzt = wuHz(1:82,:);
+        wuFFTt = wuFFT(1:82,:);
+        % Smooth - individually
+        gFFTs = zeros(size(wuFFTt));
+        wFFTs = zeros(size(wuFFTt));
+        for smo = 1:2
+            if smo == 1
+                for iii = 1:size(gbFFTt,2)
+                    tmpCol = gbFFTt(:,iii);
+                    smFFT = smoothdata(tmpCol,'gaussian',6);
+                    gFFTs(:,iii) = smFFT;
+                end
+            else
+                for iii = 1:size(wuFFTt,2)
+                    tmpCol = wuFFTt(:,iii);
+                    smFFT = smoothdata(tmpCol,'gaussian',6);
+                    wFFTs(:,iii) = smFFT;
+                end
+            end
+        end
 
+
+        % Normalize - [upack and repack]
+        gwBoth = [gFFTs , wFFTs];
+        allNunpk = gwBoth(:);
+        allNorm1 = normalize(allNunpk, 'range');
+        allNormF = reshape(allNorm1,size(gwBoth));
+
+        gNormF = allNormF(:,1:size(gFFTs,2));
+        wNormF = allNormF(:,size(gFFTs,2)+1:end);
+
+        figure;
+        subplot(1,3,1)
+        for gb = 1:size(gNormF,2)
+            hold on
+            tmpFFT = gNormF(:,gb);
+            plot(tmpFFT,'k-')
+        end
+        xlim([0 80])
+        yticks([0 0.5 1])
+        ylim([0 1])
+        ylabel('Scaled power')
+
+        subplot(1,3,2)
+        for wu = 1:size(wNormF,2)
+            hold on
+            tmpFFT = wNormF(:,wu);
+            plot(tmpFFT,'r-')
+        end
+        xlim([0 80])
+        yticks([0 0.5 1])
+        ylim([0 1])
+        ylabel('Scaled power')
+
+        subplot(1,3,3)
+        gMean = mean(gNormF,2);
+        wMean = mean(wNormF,2);
+        plot(gMean,'k-','LineWidth',2.5)
+        hold on
+        plot(wMean,'r-','LineWidth',2.5)
+        xlim([0 80])
+        yticks([0 0.5 1])
+        ylim([0 1])
+        ylabel('Scaled power')
+
+        xVALS = -0.1:0.001:1;
+
+        [gbTheta , wuTheta] = getBandDat(gNormF , gbHzt, wNormF , wuHzt, 't');
+        [gbAlpha , wuAlpha] = getBandDat(gNormF , gbHzt, wNormF , wuHzt, 'a');
+        [gbBeta , wuBeta] = getBandDat(gNormF , gbHzt, wNormF , wuHzt, 'b');
+        [gbGamma , wuGamma] = getBandDat(gNormF , gbHzt, wNormF , wuHzt, 'g');
+        figure;
+        subplot(4,1,1) % theta
+        hold on
+        plot(xVALS,gbTheta,'k-','LineWidth',2)
+        plot(xVALS,wuTheta,'r-','LineWidth',2)
+        xlim([0 0.7])
+        title('theta')
+        subplot(4,1,2)
+        hold on
+        plot(xVALS,gbAlpha,'k-','LineWidth',2)
+        plot(xVALS,wuAlpha,'r-','LineWidth',2)
+        xlim([0 0.7])
+        title('alpha')
+        subplot(4,1,3)
+        hold on
+        plot(xVALS,gbBeta,'k-','LineWidth',2)
+        plot(xVALS,wuBeta,'r-','LineWidth',2)
+        xlim([0 0.7])
+        title('beta')
+        subplot(4,1,4)
+        hold on
+        plot(xVALS,gbGamma,'k-','LineWidth',2)
+        plot(xVALS,wuGamma,'r-','LineWidth',2)
+        xlim([0 0.7])
+        title('gamma')
 
 
 
@@ -641,12 +829,52 @@ end
 
 
 
+function [dayMean , daySTDud] = getMeanSTD(inMat , offSET)
+
+dayMean = mean(inMat);
+
+daySTD = std(inMat);
+
+daySTDu = dayMean + (daySTD*offSET);
+daySTDd = dayMean - (daySTD*offSET);
+
+daySTDud(1,:) = daySTDu;
+daySTDud(2,:) = daySTDd;
+
+end
 
 
 
+function [freqBand_fitG , freqBand_fitW] = getBandDat(normG , HZg, normW , HZw, bAND)
+
+switch bAND
+    case 't'
+        low = 4;
+        high = 8;
+    case 'a'
+        low = 9;
+        high = 12;
+    case 'b'
+        low = 13;
+        high = 30;
+    case 'g'
+        low = 31;
+        high = 75;
+end
 
 
+xVALS = -0.1:0.001:1;
+gbBeta = normG(HZg(:,1) >= low & HZg(:,1) <= high,:);
+gbBetaU = gbBeta(:);
+wuBeta = normW(HZw(:,1) >= low & HZw(:,1) <= high,:);
+wuBetaU = wuBeta(:);
 
+gbB_pdSix = fitdist(gbBetaU,'Kernel','Width',0.05);
+freqBand_fitG = pdf(gbB_pdSix,xVALS);
+wuB_pdSix = fitdist(wuBetaU,'Kernel','Width',0.05);
+freqBand_fitW = pdf(wuB_pdSix,xVALS);
+
+end
 
 
 
