@@ -210,7 +210,7 @@ switch figNUM
         [tmData] = getPatDat(subjectID , hemisphere , 'TimeLine');
         [apData] = getPatDat(subjectID , hemisphere , 'ActALL');
         [cleanApT] = trim144Apdata(tmData , apData);
-        
+
         % LFP
         nLFP = tmData.LFP;
         unfurlLFP = nLFP(:);
@@ -226,19 +226,19 @@ switch figNUM
         nRmACTr = normalize(sMnRmACTr, 'range');
 
         % Circadian Fit
-        nFitraw = cleanApT.cirCad;
-        unfurlFITr = nFitraw(:);
-        sMnRmFITr = smoothdata(unfurlFITr,'gaussian',40,'omitnan');
-        nRmFITr = normalize(sMnRmFITr, 'range');
+        %         nFitraw = cleanApT.cirCad;
+        %         unfurlFITr = nFitraw(:);
+        %         sMnRmFITr = smoothdata(unfurlFITr,'gaussian',40,'omitnan');
+        %         nRmFITr = normalize(sMnRmFITr, 'range');
 
         nonNanLocs = ~isnan(nRmACTr);
-%         dist = dtw(smSunful(nonNanLocs),nRmACTr(nonNanLocs))
+        %         dist = dtw(smSunful(nonNanLocs),nRmACTr(nonNanLocs))
 
         [c,lags] = xcorr(smSunful(nonNanLocs),nRmACTr(nonNanLocs));
         c = c/max(c);
         [~,i] = max(c);
         t = lags(i);
-%         stem(lags,c)
+        %         stem(lags,c)
         % https://www.mathworks.com/help/signal/ug/measuring-signal-similarities.html
         plot(lags,c,[t t],[-0.5 1],'r:')
         text(t+100,0.5,['Lag: ' int2str(t)])
@@ -247,15 +247,80 @@ switch figNUM
         title('Cross-Correlations')
 
         figure;
-%         [Cxy,f] = mscohere(smSunful(nonNanLocs),nRmACTr(nonNanLocs),[],[],[],0.0017);
-%         plot(f,Cxy)
-%         title('Coherence Estimate')
-%        Whole period
-         [R,P,RL,RU] = corrcoef(smSunful(nonNanLocs),nRmACTr(nonNanLocs))
-         % Day vs night
+        % Whole period
+        [R,P,~,~] = corrcoef(smSunful(nonNanLocs),nRmACTr(nonNanLocs));
+        % Day vs night
+        % Invert Ronneberg
+        reonUF = cleanApT.ronenbSW(:);
+        nonNanInd1 = ~isnan(reonUF);
+        reonUnfurli = ~reonUF(nonNanInd1);
+        reonUFi = reonUF;
+        reonUFi(nonNanInd1) = reonUnfurli;
+        % Get Crespo
+        cresUF = cleanApT.crespoSW(:);
+        % Find agreement
+        pairRC = [reonUFi , cresUF];
+        % Find nonNans
+        nanInd2 = isnan(pairRC(:,1));
+        %         pairNnans = pairRC(nonNanInd2,:);
+        pairMatch = pairRC(:,1) == pairRC(:,2);
+        swFinMat = pairRC(:,1);
+        swFinMat(pairMatch) = pairRC(pairMatch,1);
+        swFinMat(~pairMatch) = nan;
+        swFinMat(nanInd2) = nan;
+        [dayBlocks , nightBlocks] = getBlocks(swFinMat);
+        % 1. Pull out night and day points
+        % 2. Loop through
+        % 3. Correlation coefficient for each R/P
+        % 4. Store by segment
+        nightData = nan(length(nightBlocks),2);
+        dayData = nan(length(dayBlocks),2);
+        for dn = 1:2
+            if dn == 1
+                dnBlocks = dayBlocks;
+            else
+                dnBlocks = nightBlocks;
+            end
+
+            for ii = 1:length(dnBlocks)
+                tmpBlock = dnBlocks{ii};
+                [R,P] = corrcoef(smSunful(tmpBlock),nRmACTr(tmpBlock));
+                if dn == 1
+                    dayData(ii,1) = R(2,1);
+                    dayData(ii,2) = P(2,1);
+                else
+                    nightData(ii,1) = R(2,1);
+                    nightData(ii,2) = P(2,1);
+                end
+
+
+            end
+        end
+        
+        % Filled significant
+        % Unfilled non-signficant
+        daySig = dayData(:,2) < 0.5;
+        nightSig = nightData(:,2) < 0.5;
+        % Non
+        scatter(zeros(length(dayData(~daySig)),1),dayData(~daySig,1),'red')
+        hold on
+        % Sig
+        scatter(zeros(length(dayData(daySig)),1),dayData(daySig,1),'red')
+        % Non - Night
+        scatter(zeros(length(dayData),1),dayData(:,1),'red','filled')
+        % Sig - Night
+        scatter(ones(length(nightData),1),nightData(:,1),'blue','filled')
+        xlim([-0.5 1.5])
+        xticks([0 1])
+        xticklabels({'Day','Night'})
+        ylabel('r')
+
+        test = 1;
+
+
     case 4 % Figure 1D - Heat map of actigraphy/lfp
 
-        
+
 
 
 
@@ -503,6 +568,90 @@ cleanApT.ronenbSW = ronenbSW;
 
 
 end
+
+
+
+
+function [dayBlocks , nightBlocks] = getBlocks(alldatBlocks)
+
+% 0 = night
+% 1 = day
+
+% nighDayid = nan(1,50);
+
+nblkC = 1;
+nepc = 1;
+nallepochs = cell(1,50);
+
+dblkC = 1;
+depc = 1;
+dallepochs = cell(1,50);
+for dn = 1:2 % loop through day and night search
+
+    switch dn
+        case 1
+            swID = 0;
+            for ei = 1:length(alldatBlocks)
+                tmpEi = alldatBlocks(ei);
+                if isnan(tmpEi) && nepc == 1
+                    continue
+                elseif isnan(tmpEi) && nepc ~= 1
+                    nepc = 1;
+                    nblkC = nblkC + 1;
+                elseif tmpEi == swID
+                    nallepochs{nblkC}(nepc) = ei;
+                    nepc = nepc + 1;
+                elseif tmpEi ~= swID && nepc == 1
+                    continue
+                else
+                    nepc = 1;
+                    nblkC = nblkC + 1;
+                end
+            end
+            nightBlocks  = nallepochs(cellfun(@(x) ~isempty(x), nallepochs,...
+                'UniformOutput',true));
+        case 2
+            swID = 1;
+            for ei = 1:length(alldatBlocks)
+                tmpEi = alldatBlocks(ei);
+                if isnan(tmpEi) && depc == 1
+                    continue
+                elseif isnan(tmpEi) && depc ~= 1
+                    depc = 1;
+                    dblkC = dblkC + 1;
+                elseif tmpEi == swID
+                    dallepochs{dblkC}(depc) = ei;
+                    depc = depc + 1;
+                elseif tmpEi ~= swID && depc == 1
+                    continue
+                else
+                    depc = 1;
+                    dblkC = dblkC + 1;
+                end
+            end
+            dayBlocks  = dallepochs(cellfun(@(x) ~isempty(x), dallepochs,...
+                'UniformOutput',true));
+    end
+end
+
+end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

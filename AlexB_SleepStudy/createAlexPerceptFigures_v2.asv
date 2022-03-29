@@ -253,6 +253,25 @@ switch figNUM
 %        Whole period
          [R,P,RL,RU] = corrcoef(smSunful(nonNanLocs),nRmACTr(nonNanLocs))
          % Day vs night
+                 % Invert Ronneberg
+        reonUF = cleanApT.ronenbSW(:);
+        nonNanInd1 = ~isnan(reonUF);
+        reonUnfurli = ~reonUF(nonNanInd1);
+        reonUFi = reonUF;
+        reonUFi(nonNanInd1) = reonUnfurli;
+        % Get Crespo
+        cresUF = cleanApT.crespoSW(:);
+        % Find agreement
+        pairRC = [reonUFi , cresUF];
+        % Find nonNans
+        nanInd2 = isnan(pairRC(:,1));
+        %         pairNnans = pairRC(nonNanInd2,:);
+        pairMatch = pairRC(:,1) == pairRC(:,2);
+        swFinMat = pairRC(:,1);
+        swFinMat(pairMatch) = pairRC(pairMatch,1);
+        swFinMat(~pairMatch) = nan;
+        swFinMat(nanInd2) = nan;
+
     case 4 % Figure 1D - Heat map of actigraphy/lfp
 
         

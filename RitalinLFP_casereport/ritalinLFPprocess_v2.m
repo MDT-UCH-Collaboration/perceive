@@ -1,6 +1,6 @@
 function [] = ritalinLFPprocess_v2(analysis)
 
-cd('C:\Users\Admin\Documents\Github\perceive\RitalinLFP_casereport')
+cd('C:\Users\John\Documents\GitHub\perceive\RitalinLFP_casereport')
 preFILE = 'Report_Json_Session_Report_20220317T110442.json';
 prejs = jsondecode(fileread(preFILE));
 
@@ -8,10 +8,15 @@ prejs = jsondecode(fileread(preFILE));
 postFILE = 'Report_Json_Session_Report_20220317T114335.json';
 postjs = jsondecode(fileread(postFILE));
 
-
+close all
 switch analysis
 
     case 'Bsense'
+
+        darkCol1 = [1.0000 0.8235 0.1098];
+        lightCol1 = [1.0000    0.9373    0.6902];
+        darkCol2 = [0.4667    0.6745    0.1882];
+        lightCol2 = [0.7529    0.9412    0.5059];
 
         [contactTpre] = processChanTab(prejs);
         preRing = matches(contactTpre.Type,'RING');
@@ -77,13 +82,13 @@ switch analysis
 
             switch pi
                 case 1 % Pre Left
-                    plot(freQPre , allpwrsN3Pre(:,1) ,  'Color' , [0.75 0.75 1], 'LineWidth',2.5)
+                    plot(freQPre , allpwrsN3Pre(:,1) ,  'Color' , lightCol1, 'LineWidth',2.5)
                 case 2 % Pre Right
-                    plot(freQPre , allpwrsN3Pre(:,2) ,  'Color' , [1 0.75 0.75], 'LineWidth',2.5)
+                    plot(freQPre , allpwrsN3Pre(:,2) ,  'Color' , lightCol2, 'LineWidth',2.5)
                 case 3 % Post Left
-                    plot(freQPre , allpwrsN3Pre(:,3) ,  'Color' , [0 0 1], 'LineWidth',2.5)
+                    plot(freQPre , allpwrsN3Pre(:,3) ,  'Color' , darkCol1, 'LineWidth',2.5)
                 case 4 % Post Right
-                    plot(freQPre , allpwrsN3Pre(:,4) ,  'Color' , [1 0 0], 'LineWidth',2.5)
+                    plot(freQPre , allpwrsN3Pre(:,4) ,  'Color' , darkCol2, 'LineWidth',2.5)
             end
             hold on
 
@@ -94,9 +99,10 @@ switch analysis
         xline(13,'Color','k','LineStyle','--')
         xline(30,'Color','k','LineStyle','--')
         title('ONE AND THREE')
-        legend('Pre LEFT','Pre RIGHT', 'Post LEFT', 'Post RIGHT');
+        legend('+Ritalin LEFT','+Ritalin RIGHT', '-Ritalin LEFT', '-Ritalin RIGHT');
         xlabel('Frequency Hz')
-        ylabel('Z-score Power')
+        ylabel('Scaled power')
+        axis square
 
 
     case 'stream'
@@ -134,65 +140,48 @@ switch analysis
         end
 
 
-        % Make a plot % 500 ms per bin
-
-%         figLEFT = figure;
-%         left_color =  [168/255 70/255 50/255];
-%         right_color = [50/255 123/255 168/255];
-%         set(figLEFT,'defaultAxesColorOrder',[left_color; right_color]);
-% 
-%         xTimeSecs = 0:2:(height(allStreams{1})*2)-1; % seconds
-%         leftLfp = allStreams{1}.LeftLFP;
-%         yyaxis left
-%         plot(xTimeSecs,leftLfp);
-%         ylabel('LFP Power')
-% 
-%         leftmA = allStreams{1}.LeftmA;
-%         yyaxis right
-%         plot(xTimeSecs,leftmA);
-%         ylabel('mA')
-% 
-%         xlabel('Time in seconds')
-%         title('Left STN')
-
         % Clean up for publication
         rightDATA = allStreams{1};
         rightDATAa = rightDATA(41:height(rightDATA),:);
 
         figRIGHT = figure;
-        left_color =  [168/255 70/255 50/255];
-        right_color = [50/255 123/255 168/255];
+        left_color =  [0.4667    0.6745    0.1882];
+        right_color = [0 0 0];
         set(figRIGHT,'defaultAxesColorOrder',[left_color; right_color]);
 
         xTimeSecs = 0:2:(height(rightDATAa)*2)-1; % seconds
         rightLfp = rightDATAa.RightLFP;
         yyaxis left
-        plot(xTimeSecs,rightLfp);
+
+%         lfpsm = smoothdata(rightLfp,'movmean',15);
+
+        plot(xTimeSecs,rightLfp,'LineWidth',2.5);
         ylabel('LFP Power')
 
         rightmA = rightDATAa.RightmA;
         yyaxis right
-        plot(xTimeSecs,rightmA);
+        plot(xTimeSecs,rightmA,'LineStyle','-.','LineWidth',2.5);
         ylabel('mA')
 
         xlabel('Time in seconds')
         title('Right STN')
+        axis square
 
-        corrPLOT = figure;
-        plot(rightDATAa.RightLFP,rightDATAa.RightmA,'o')
-        hold on
+%         corrPLOT = figure;
+%         plot(rightDATAa.RightLFP,rightDATAa.RightmA,'o')
+%         hold on
         % Get coefficients of a line fit through the data.
-        coefficients = polyfit(rightDATAa.RightLFP,rightDATAa.RightmA, 1);
+%         coefficients = polyfit(rightDATAa.RightLFP,rightDATAa.RightmA, 1);
         % Create a new x axis with exactly 1000 points (or whatever you want).
-        xFit = linspace(min(rightDATAa.RightLFP), max(rightDATAa.RightLFP), 1000);
+%         xFit = linspace(min(rightDATAa.RightLFP), max(rightDATAa.RightLFP), 1000);
         % Get the estimated yFit value for each of those 1000 new x locations.
-        yFit = polyval(coefficients , xFit);
-        plot(xFit, yFit, 'r-', 'LineWidth', 2);
-        ylim([0 2.5])
+%         yFit = polyval(coefficients , xFit);
+%         plot(xFit, yFit, 'r-', 'LineWidth', 2);
+%         ylim([0 2.5])
         [rho , pval] = corr(rightDATAa.RightLFP,rightDATAa.RightmA);
-        title('r = -0.77 , p = 0.00001');
-        ylabel('mA')
-        xlabel('LFP power')
+%         title('r = -0.77 , p = 0.00001');
+%         ylabel('mA')
+%         xlabel('LFP power')
 
 
         
