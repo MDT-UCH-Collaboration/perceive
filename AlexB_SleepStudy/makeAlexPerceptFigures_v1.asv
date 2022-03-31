@@ -1,30 +1,26 @@
-function [] = createAlexPerceptFigures_v2(figNUM)
-
-% mainLOC = 'D:\Dropbox\Publications_Meta\InProgress\ABaumgartner_Percept2020\testSav';
-% sleepPlotHelp_fun(mainLOC , num2str(9))
+function [] = makeAlexPerceptFigures_v1(figureNUM)
+%UNTITLED Summary of this function goes here
+%   Detailed explanation goes here
 
 mainLOC = 'D:\Dropbox\Publications_Meta\InProgress\ABaumgartner_Percept2020\testSav';
 cd(mainLOC)
 addpath('C:\Users\John\Documents\GitHub\perceive\AlexB_SleepStudy');
 addpath('C:\Users\John\Documents\GitHub\perceive\AlexB_SleepStudy\matplotlib03232022');
-
-%% Figure 1A - Timeline plot of single patient entire sequence - LFP
 close all
-% To do::
-% 3. Scale color to day/night cycle and not the median
-
-switch figNUM
+switch figureNUM
     case 1
 
+        % Set up Figure window
+        % 4 ROWS | 4 COLUMNS
+        % ROW 1 - Cols 1-3 = LFP plot | Col 4 Heat plot
+        mainFig = figure;
+        set(mainFig,'Position', [1485 311 1128 863]);
+        tiledlayout(4,4,"Padding","tight");
+        % Load data
         subjectID = '3';
         hemisphere = 'L';
         [tmData] = getPatDat(subjectID , hemisphere , 'TimeLine');
         [evData] = getPatDat(subjectID , hemisphere , 'Events');
-
-        fig = figure;
-        left_color = [1 0 0];
-        right_color = [0 0 0];
-        set(fig,'defaultAxesColorOrder',[left_color; right_color]);
 
         nLFP = tmData.LFP;
         unfurlLFP = nLFP(:);
@@ -33,13 +29,13 @@ switch figNUM
         mSunful = normalize(mSunful, 'range');
         smSunful = smoothdata(mSunful,'rloess',20,'omitnan');
 
-        % p2 = scatter(1:length(mSunful),mSunful,'filled','o','ColorVariable','r','SizeData',20);
-        % alpha(p2 , 0.3)
         medLine = median(smSunful);
         minVale = min(smSunful);
         maxVale = max(smSunful);
-        % iMAP = linspace(0,1,256);
-        % cMAP = brewermap([],"RdBu");
+
+        % Plot 1 ##########################################################
+        nexttile([1 4])
+
         cMAP = cividis;
         [reMAP] = reMapCmap(medLine,minVale,maxVale,cMAP,smSunful,0);
         scatter(1:length(smSunful),smSunful,[],reMAP,'filled')
@@ -54,13 +50,8 @@ switch figNUM
         xlabel('Days of recording')
         set(gca,'TickLength',[0 .001])
 
-        %%%% GET IN BED times Map start and stop times from EVENTS
         [inBEDx , inBEDdays] = findBEDinds('inbed' , evData , tmData);
 
-        % Need line code
-        % For IN BED
-        % 1. yMIN = yValue
-        % 2. yMAX = max Y axis
         hold on
         yLIMn = ylim();
         inBEDlineX = transpose([inBEDx , inBEDx]);
@@ -69,28 +60,20 @@ switch figNUM
         inBEDlineY = transpose([inBEDminY ,  inBEDmaxY]);
         line(inBEDlineX , inBEDlineY , 'Color', 'k', 'LineWidth',1);
 
-        % IN Bed text code - Right justified
         xt_IN = inBEDx + 2;
         yt_IN = repmat(yLIMn(2)*0.95,length(inBEDx),1);
         str_IN = repmat({'IN'},length(inBEDx),1);
         inText = text(xt_IN,yt_IN,str_IN);
-        % set(inText,'Rotation',90)
-        % xline(inBEDx,'-',repmat({'in bed'},length(inBEDx),1))
 
-        %%%% GET IN BED times Map start and stop times from EVENTS
         [outBEDx , outBEDdays] = findBEDinds('wake' , evData , tmData);
 
-        % Out BED line code
-        % For IN BED
-        % 1. yMIN = yValue
-        % 2. yMAX = max Y axis
         outBEDlineX = transpose([outBEDx , outBEDx]);
         outBEDminY = smSunful(outBEDx) - smSunful(outBEDx)*0.1;
         outBEDmaxY = repmat(yLIMn(1),length(outBEDx),1);
         outBEDlineY = transpose([outBEDminY ,  outBEDmaxY]);
         line(outBEDlineX , outBEDlineY , 'Color', 'k', 'LineWidth',1);
 
-        % OUT Bed text code - Right justified
+                % OUT Bed text code - Right justified
         xt_OUT = outBEDx - 2;
         yt_OUT = repmat(yLIMn(2) - (yLIMn(2)*0.95),length(outBEDx),1);
         str_OUT = repmat({'OUT'},length(outBEDx),1);
@@ -123,7 +106,6 @@ switch figNUM
         end
 
         inANDouti = inANDout(~isnan(inANDout(:,1)),:);
-
         % ADD patch
         for ip = 1:size(inANDouti,1)
 
@@ -134,23 +116,19 @@ switch figNUM
 
             patch([xPbot xPtop],[yPbot yPtop],[0.5 0.5 0.5],...
                 'FaceAlpha',0.4,'EdgeColor','none')
-
-
-
-
         end
 
         title('Patient 3')
 
-    case 2 % Figure 1B - Timeline plot of single patient entire sequence - ACTIGRAPHY
-        % To do::
+        % PLOT 2 ##########################################################
+        nexttile([1 4])
+
         subjectID = '3';
         hemisphere = 'L';
         [tmData] = getPatDat(subjectID , hemisphere , 'TimeLine');
         [apData] = getPatDat(subjectID , hemisphere , 'ActALL');
         [cleanApT] = trim144Apdata(tmData , apData);
 
-        figure; % ACT Figure 1B
         % Activity
         nActraw = cleanApT.Activity;
         unfurlACTr = nActraw(:);
@@ -169,7 +147,6 @@ switch figNUM
         % Sleep Wake State
         % Ronnenberg: 1 = Sleep
         % Crespo: 1 = Wake
-
         % Invert Ronneberg
         reonUF = cleanApT.ronenbSW(:);
         nonNanInd1 = ~isnan(reonUF);
@@ -181,8 +158,6 @@ switch figNUM
         % Find agreement
         pairRC = [reonUFi , cresUF];
         % Find nonNans
-        nanInd2 = isnan(pairRC(:,1));
-        %         pairNnans = pairRC(nonNanInd2,:);
         pairMatch = pairRC(:,1) == pairRC(:,2);
         swFinMat = pairRC(:,1);
         swFinMat(pairMatch) = pairRC(pairMatch,1);
@@ -190,9 +165,15 @@ switch figNUM
         swFinMat(nanInd2) = nan;
 
         xAxisAct = 1:length(swFinMat);
-        plot(xAxisAct(swFinMat == 1),ones(size(xAxisAct(swFinMat == 1))),'mo')
-        plot(xAxisAct(swFinMat == 0),zeros(size(xAxisAct(swFinMat == 0))),'ko')
-        ylim([-0.1 1.4])
+        p1 = plot(xAxisAct(swFinMat == 1),ones(size(xAxisAct(swFinMat == 1))));
+        p1.LineStyle = "none";
+        p1.Color = [];
+        p1.Marker = 'o';
+        p2 = plot(xAxisAct(swFinMat == 0),zeros(size(xAxisAct(swFinMat == 0))));
+        p2.Color = 'k';
+        p2.Marker = 'o';
+        p2.LineStyle = "none";
+        ylim([-0.1 1.1])
         legend('Raw Actigraphy','Cosinar','Wake','Sleep')
 
         dayStarts = round(linspace(1,length(swFinMat)-144,length(swFinMat)/144));
@@ -202,86 +183,7 @@ switch figNUM
         xlabel('Days of recording')
         set(gca,'TickLength',[0 .001])
         ylabel('Scaled Activity')
-        yticks(linspace(0,1,6))
-
-    case 3 % Figure 1C - DTW or Cross cor
-        subjectID = '3';
-        hemisphere = 'L';
-        [tmData] = getPatDat(subjectID , hemisphere , 'TimeLine');
-        [apData] = getPatDat(subjectID , hemisphere , 'ActALL');
-        [cleanApT] = trim144Apdata(tmData , apData);
-        
-        % LFP
-        nLFP = tmData.LFP;
-        unfurlLFP = nLFP(:);
-        mSunful = unfurlLFP - (min(unfurlLFP));
-        mSunful(mSunful > 2.3000e+09) = nan;
-        mSunful = normalize(mSunful, 'range');
-        smSunful = smoothdata(mSunful,'rloess',20,'omitnan');
-
-        % Activity
-        nActraw = cleanApT.Activity;
-        unfurlACTr = nActraw(:);
-        sMnRmACTr = smoothdata(unfurlACTr,'gaussian',40,'omitnan');
-        nRmACTr = normalize(sMnRmACTr, 'range');
-
-        % Circadian Fit
-        nFitraw = cleanApT.cirCad;
-        unfurlFITr = nFitraw(:);
-        sMnRmFITr = smoothdata(unfurlFITr,'gaussian',40,'omitnan');
-        nRmFITr = normalize(sMnRmFITr, 'range');
-
-        nonNanLocs = ~isnan(nRmACTr);
-%         dist = dtw(smSunful(nonNanLocs),nRmACTr(nonNanLocs))
-
-        [c,lags] = xcorr(smSunful(nonNanLocs),nRmACTr(nonNanLocs));
-        c = c/max(c);
-        [~,i] = max(c);
-        t = lags(i);
-%         stem(lags,c)
-        % https://www.mathworks.com/help/signal/ug/measuring-signal-similarities.html
-        plot(lags,c,[t t],[-0.5 1],'r:')
-        text(t+100,0.5,['Lag: ' int2str(t)])
-        ylabel('c')
-        axis tight
-        title('Cross-Correlations')
-
-        figure;
-%         [Cxy,f] = mscohere(smSunful(nonNanLocs),nRmACTr(nonNanLocs),[],[],[],0.0017);
-%         plot(f,Cxy)
-%         title('Coherence Estimate')
-%        Whole period
-         [R,P,RL,RU] = corrcoef(smSunful(nonNanLocs),nRmACTr(nonNanLocs))
-         % Day vs night
-                 % Invert Ronneberg
-        reonUF = cleanApT.ronenbSW(:);
-        nonNanInd1 = ~isnan(reonUF);
-        reonUnfurli = ~reonUF(nonNanInd1);
-        reonUFi = reonUF;
-        reonUFi(nonNanInd1) = reonUnfurli;
-        % Get Crespo
-        cresUF = cleanApT.crespoSW(:);
-        % Find agreement
-        pairRC = [reonUFi , cresUF];
-        % Find nonNans
-        nanInd2 = isnan(pairRC(:,1));
-        %         pairNnans = pairRC(nonNanInd2,:);
-        pairMatch = pairRC(:,1) == pairRC(:,2);
-        swFinMat = pairRC(:,1);
-        swFinMat(pairMatch) = pairRC(pairMatch,1);
-        swFinMat(~pairMatch) = nan;
-        swFinMat(nanInd2) = nan;
-
-    case 4 % Figure 1D - Heat map of actigraphy/lfp
-
-        
-
-
-
-
-
-
-        % Figure 1D - Event plot for rep patient
+        yticks(linspace(0,1,3))
 
 
 
@@ -290,28 +192,40 @@ switch figNUM
 
 
 
+        nexttile(9)
+
+        nexttile(10)
+
+        nexttile(11)
+
+        nexttile([1 2])
+
+        nexttile([1 2])
+
+        % Load data
 
 
 
 
 
-
-
-
-
-
-
-
-
-
-
+    case 2
 
 
 
 
 end
 
+
+
+
 end
+
+
+
+
+
+
+
 
 
 
@@ -524,4 +438,119 @@ cleanApT.ronenbSW = ronenbSW;
 end
 
 
+
+
+function [dayBlocks , nightBlocks] = getBlocks(alldatBlocks)
+
+% 0 = night
+% 1 = day
+
+% nighDayid = nan(1,50);
+
+nblkC = 1;
+nepc = 1;
+nallepochs = cell(1,50);
+
+dblkC = 1;
+depc = 1;
+dallepochs = cell(1,50);
+for dn = 1:2 % loop through day and night search
+
+    switch dn
+        case 1
+            swID = 0;
+            for ei = 1:length(alldatBlocks)
+                tmpEi = alldatBlocks(ei);
+                if isnan(tmpEi) && nepc == 1
+                    continue
+                elseif isnan(tmpEi) && nepc ~= 1
+                    nepc = 1;
+                    nblkC = nblkC + 1;
+                elseif tmpEi == swID
+                    nallepochs{nblkC}(nepc) = ei;
+                    nepc = nepc + 1;
+                elseif tmpEi ~= swID && nepc == 1
+                    continue
+                else
+                    nepc = 1;
+                    nblkC = nblkC + 1;
+                end
+            end
+            nightBlocks  = nallepochs(cellfun(@(x) ~isempty(x), nallepochs,...
+                'UniformOutput',true));
+        case 2
+            swID = 1;
+            for ei = 1:length(alldatBlocks)
+                tmpEi = alldatBlocks(ei);
+                if isnan(tmpEi) && depc == 1
+                    continue
+                elseif isnan(tmpEi) && depc ~= 1
+                    depc = 1;
+                    dblkC = dblkC + 1;
+                elseif tmpEi == swID
+                    dallepochs{dblkC}(depc) = ei;
+                    depc = depc + 1;
+                elseif tmpEi ~= swID && depc == 1
+                    continue
+                else
+                    depc = 1;
+                    dblkC = dblkC + 1;
+                end
+            end
+            dayBlocks  = dallepochs(cellfun(@(x) ~isempty(x), dallepochs,...
+                'UniformOutput',true));
+    end
+end
+
+end
+
+
+
+
+function [dayMean , daySTDud] = getMeanSTD(inMat , offSET)
+
+dayMean = mean(inMat);
+
+daySTD = std(inMat);
+
+daySTDu = dayMean + (daySTD*offSET);
+daySTDd = dayMean - (daySTD*offSET);
+
+daySTDud(1,:) = daySTDu;
+daySTDud(2,:) = daySTDd;
+
+end
+
+
+
+function [freqBand_fitG , freqBand_fitW] = getBandDat(normG , HZg, normW , HZw, bAND)
+
+switch bAND
+    case 't'
+        low = 4;
+        high = 8;
+    case 'a'
+        low = 9;
+        high = 12;
+    case 'b'
+        low = 13;
+        high = 30;
+    case 'g'
+        low = 31;
+        high = 75;
+end
+
+
+xVALS = -0.1:0.001:1;
+gbBeta = normG(HZg(:,1) >= low & HZg(:,1) <= high,:);
+gbBetaU = gbBeta(:);
+wuBeta = normW(HZw(:,1) >= low & HZw(:,1) <= high,:);
+wuBetaU = wuBeta(:);
+
+gbB_pdSix = fitdist(gbBetaU,'Kernel','Width',0.05);
+freqBand_fitG = pdf(gbB_pdSix,xVALS);
+wuB_pdSix = fitdist(wuBetaU,'Kernel','Width',0.05);
+freqBand_fitW = pdf(wuB_pdSix,xVALS);
+
+end
 

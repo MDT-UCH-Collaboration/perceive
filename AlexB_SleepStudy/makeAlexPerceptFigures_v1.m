@@ -1,30 +1,28 @@
-function [] = createAlexPerceptFigures_v3(figNUM)
-
-% mainLOC = 'D:\Dropbox\Publications_Meta\InProgress\ABaumgartner_Percept2020\testSav';
-% sleepPlotHelp_fun(mainLOC , num2str(9))
+function [] = makeAlexPerceptFigures_v1(figureNUM)
+%UNTITLED Summary of this function goes here
+%   Detailed explanation goes here
 
 mainLOC = 'D:\Dropbox\Publications_Meta\InProgress\ABaumgartner_Percept2020\testSav';
 cd(mainLOC)
 addpath('C:\Users\John\Documents\GitHub\perceive\AlexB_SleepStudy');
 addpath('C:\Users\John\Documents\GitHub\perceive\AlexB_SleepStudy\matplotlib03232022');
-
-%% Figure 1A - Timeline plot of single patient entire sequence - LFP
 close all
-% To do::
-% 3. Scale color to day/night cycle and not the median
-
-switch figNUM
+switch figureNUM
     case 1
 
+        % Set up Figure window
+        % 4 ROWS | 4 COLUMNS
+        % ROW 1 - Cols 1-3 = LFP plot | Col 4 Heat plot
+        mainFig = figure;
+        set(mainFig,'Position', [1485 311 1128 863]);
+        tiledlayout(4,4,"Padding","tight");
+        % Load data
         subjectID = '3';
         hemisphere = 'L';
         [tmData] = getPatDat(subjectID , hemisphere , 'TimeLine');
         [evData] = getPatDat(subjectID , hemisphere , 'Events');
-
-        fig = figure;
-        left_color = [1 0 0];
-        right_color = [0 0 0];
-        set(fig,'defaultAxesColorOrder',[left_color; right_color]);
+        [apData] = getPatDat(subjectID , hemisphere , 'ActALL');
+        [cleanApT] = trim144Apdata(tmData , apData);
 
         nLFP = tmData.LFP;
         unfurlLFP = nLFP(:);
@@ -33,13 +31,13 @@ switch figNUM
         mSunful = normalize(mSunful, 'range');
         smSunful = smoothdata(mSunful,'rloess',20,'omitnan');
 
-        % p2 = scatter(1:length(mSunful),mSunful,'filled','o','ColorVariable','r','SizeData',20);
-        % alpha(p2 , 0.3)
         medLine = median(smSunful);
         minVale = min(smSunful);
         maxVale = max(smSunful);
-        % iMAP = linspace(0,1,256);
-        % cMAP = brewermap([],"RdBu");
+
+        % Plot 1 ##########################################################
+        nexttile([1 4])
+
         cMAP = cividis;
         [reMAP] = reMapCmap(medLine,minVale,maxVale,cMAP,smSunful,0);
         scatter(1:length(smSunful),smSunful,[],reMAP,'filled')
@@ -54,13 +52,8 @@ switch figNUM
         xlabel('Days of recording')
         set(gca,'TickLength',[0 .001])
 
-        %%%% GET IN BED times Map start and stop times from EVENTS
         [inBEDx , inBEDdays] = findBEDinds('inbed' , evData , tmData);
 
-        % Need line code
-        % For IN BED
-        % 1. yMIN = yValue
-        % 2. yMAX = max Y axis
         hold on
         yLIMn = ylim();
         inBEDlineX = transpose([inBEDx , inBEDx]);
@@ -69,28 +62,20 @@ switch figNUM
         inBEDlineY = transpose([inBEDminY ,  inBEDmaxY]);
         line(inBEDlineX , inBEDlineY , 'Color', 'k', 'LineWidth',1);
 
-        % IN Bed text code - Right justified
         xt_IN = inBEDx + 2;
         yt_IN = repmat(yLIMn(2)*0.95,length(inBEDx),1);
         str_IN = repmat({'IN'},length(inBEDx),1);
         inText = text(xt_IN,yt_IN,str_IN);
-        % set(inText,'Rotation',90)
-        % xline(inBEDx,'-',repmat({'in bed'},length(inBEDx),1))
 
-        %%%% GET IN BED times Map start and stop times from EVENTS
         [outBEDx , outBEDdays] = findBEDinds('wake' , evData , tmData);
 
-        % Out BED line code
-        % For IN BED
-        % 1. yMIN = yValue
-        % 2. yMAX = max Y axis
         outBEDlineX = transpose([outBEDx , outBEDx]);
         outBEDminY = smSunful(outBEDx) - smSunful(outBEDx)*0.1;
         outBEDmaxY = repmat(yLIMn(1),length(outBEDx),1);
         outBEDlineY = transpose([outBEDminY ,  outBEDmaxY]);
         line(outBEDlineX , outBEDlineY , 'Color', 'k', 'LineWidth',1);
 
-        % OUT Bed text code - Right justified
+                % OUT Bed text code - Right justified
         xt_OUT = outBEDx - 2;
         yt_OUT = repmat(yLIMn(2) - (yLIMn(2)*0.95),length(outBEDx),1);
         str_OUT = repmat({'OUT'},length(outBEDx),1);
@@ -123,7 +108,6 @@ switch figNUM
         end
 
         inANDouti = inANDout(~isnan(inANDout(:,1)),:);
-
         % ADD patch
         for ip = 1:size(inANDouti,1)
 
@@ -134,29 +118,27 @@ switch figNUM
 
             patch([xPbot xPtop],[yPbot yPtop],[0.5 0.5 0.5],...
                 'FaceAlpha',0.4,'EdgeColor','none')
-
-
-
-
         end
 
         title('Patient 3')
 
-    case 2 % Figure 1B - Timeline plot of single patient entire sequence - ACTIGRAPHY
-        % To do::
+        % PLOT 2 ##########################################################
+        nexttile([1 4])
+
         subjectID = '3';
         hemisphere = 'L';
         [tmData] = getPatDat(subjectID , hemisphere , 'TimeLine');
         [apData] = getPatDat(subjectID , hemisphere , 'ActALL');
         [cleanApT] = trim144Apdata(tmData , apData);
 
-        figure; % ACT Figure 1B
         % Activity
         nActraw = cleanApT.Activity;
         unfurlACTr = nActraw(:);
         sMnRmACTr = smoothdata(unfurlACTr,'gaussian',40,'omitnan');
         nRmACTr = normalize(sMnRmACTr, 'range');
-        plot(nRmACTr,'Color','r','LineWidth',2)
+        lraw = plot(nRmACTr,'LineWidth',2);
+        lraw.Color = 'k';
+        lraw.LineStyle = "-";
 
         hold on
         % Circadian Fit
@@ -164,12 +146,13 @@ switch figNUM
         unfurlFITr = nFitraw(:);
         sMnRmFITr = smoothdata(unfurlFITr,'gaussian',40,'omitnan');
         nRmFITr = normalize(sMnRmFITr, 'range');
-        plot(nRmFITr,'Color','g','LineWidth',2)
+        lcosin = plot(nRmFITr,'LineWidth',2);
+        lcosin.Color = [0.5 0.5 0.5];
+        lcosin.LineStyle = "-.";
 
         % Sleep Wake State
         % Ronnenberg: 1 = Sleep
         % Crespo: 1 = Wake
-
         % Invert Ronneberg
         reonUF = cleanApT.ronenbSW(:);
         nonNanInd1 = ~isnan(reonUF);
@@ -180,9 +163,8 @@ switch figNUM
         cresUF = cleanApT.crespoSW(:);
         % Find agreement
         pairRC = [reonUFi , cresUF];
-        % Find nonNans
         nanInd2 = isnan(pairRC(:,1));
-        %         pairNnans = pairRC(nonNanInd2,:);
+        % Find nonNans
         pairMatch = pairRC(:,1) == pairRC(:,2);
         swFinMat = pairRC(:,1);
         swFinMat(pairMatch) = pairRC(pairMatch,1);
@@ -190,9 +172,15 @@ switch figNUM
         swFinMat(nanInd2) = nan;
 
         xAxisAct = 1:length(swFinMat);
-        plot(xAxisAct(swFinMat == 1),ones(size(xAxisAct(swFinMat == 1))),'mo')
-        plot(xAxisAct(swFinMat == 0),zeros(size(xAxisAct(swFinMat == 0))),'ko')
-        ylim([-0.1 1.4])
+        p1 = plot(xAxisAct(swFinMat == 1),ones(size(xAxisAct(swFinMat == 1))));
+        p1.LineStyle = "none";
+        p1.Color = cMAP(246,:);
+        p1.Marker = 'o';
+        p2 = plot(xAxisAct(swFinMat == 0),zeros(size(xAxisAct(swFinMat == 0))));
+        p2.Color = cMAP(10,:);
+        p2.Marker = 'o';
+        p2.LineStyle = "none";
+        ylim([-0.1 1.1])
         legend('Raw Actigraphy','Cosinar','Wake','Sleep')
 
         dayStarts = round(linspace(1,length(swFinMat)-144,length(swFinMat)/144));
@@ -201,343 +189,66 @@ switch figNUM
         xlim([1, length(swFinMat)])
         xlabel('Days of recording')
         set(gca,'TickLength',[0 .001])
-        ylabel('Scaled Activity')
-        yticks(linspace(0,1,6))
+        ylabel('Scaled activity')
+        yticks(linspace(0,1,3))
 
-    case 3 % Figure 1C - DTW or Cross cor
-        subjectID = '3';
-        hemisphere = 'L';
-        [tmData] = getPatDat(subjectID , hemisphere , 'TimeLine');
-        [apData] = getPatDat(subjectID , hemisphere , 'ActALL');
-        [cleanApT] = trim144Apdata(tmData , apData);
-
-        % LFP
-        nLFP = tmData.LFP;
-        unfurlLFP = nLFP(:);
-        mSunful = unfurlLFP - (min(unfurlLFP));
-        mSunful(mSunful > 2.3000e+09) = nan;
-        mSunful = normalize(mSunful, 'range');
-        smSunful = smoothdata(mSunful,'rloess',20,'omitnan');
-
-        % Activity
+        % Plot 3 ##########################################################
+        % Cross Correlation
+        nexttile(9)
         nActraw = cleanApT.Activity;
         unfurlACTr = nActraw(:);
         sMnRmACTr = smoothdata(unfurlACTr,'gaussian',40,'omitnan');
         nRmACTr = normalize(sMnRmACTr, 'range');
 
-        % Circadian Fit
-        %         nFitraw = cleanApT.cirCad;
-        %         unfurlFITr = nFitraw(:);
-        %         sMnRmFITr = smoothdata(unfurlFITr,'gaussian',40,'omitnan');
-        %         nRmFITr = normalize(sMnRmFITr, 'range');
-
         nonNanLocs = ~isnan(nRmACTr);
-        %         dist = dtw(smSunful(nonNanLocs),nRmACTr(nonNanLocs))
 
         [c,lags] = xcorr(smSunful(nonNanLocs),nRmACTr(nonNanLocs));
         c = c/max(c);
         [~,i] = max(c);
         t = lags(i);
-        %         stem(lags,c)
-        % https://www.mathworks.com/help/signal/ug/measuring-signal-similarities.html
+
         plot(lags,c,[t t],[-0.5 1],'r:')
         text(t+100,0.5,['Lag: ' int2str(t)])
         ylabel('c')
         axis tight
         title('Cross-Correlations')
 
-        figure;
-        % Whole period
-        [R,P,~,~] = corrcoef(smSunful(nonNanLocs),nRmACTr(nonNanLocs));
-        % Day vs night
-        % Invert Ronneberg
-        reonUF = cleanApT.ronenbSW(:);
-        nonNanInd1 = ~isnan(reonUF);
-        reonUnfurli = ~reonUF(nonNanInd1);
-        reonUFi = reonUF;
-        reonUFi(nonNanInd1) = reonUnfurli;
-        % Get Crespo
-        cresUF = cleanApT.crespoSW(:);
-        % Find agreement
-        pairRC = [reonUFi , cresUF];
-        % Find nonNans
-        nanInd2 = isnan(pairRC(:,1));
-        %         pairNnans = pairRC(nonNanInd2,:);
-        pairMatch = pairRC(:,1) == pairRC(:,2);
-        swFinMat = pairRC(:,1);
-        swFinMat(pairMatch) = pairRC(pairMatch,1);
-        swFinMat(~pairMatch) = nan;
-        swFinMat(nanInd2) = nan;
-        [dayBlocks , nightBlocks] = getBlocks(swFinMat);
-        % 1. Pull out night and day points
-        % 2. Loop through
-        % 3. Correlation coefficient for each R/P
-        % 4. Store by segment
-        nightData = nan(length(nightBlocks),2);
-        dayData = nan(length(dayBlocks),2);
-        for dn = 1:2
-            if dn == 1
-                dnBlocks = dayBlocks;
-            else
-                dnBlocks = nightBlocks;
-            end
-
-            for ii = 1:length(dnBlocks)
-                tmpBlock = dnBlocks{ii};
-                [R,P] = corrcoef(smSunful(tmpBlock),nRmACTr(tmpBlock));
-                if dn == 1
-                    dayData(ii,1) = R(2,1);
-                    dayData(ii,2) = P(2,1);
-                else
-                    nightData(ii,1) = R(2,1);
-                    nightData(ii,2) = P(2,1);
-                end
-
-
-            end
-        end
-
-        % Interpolate and mean/sd blocks
-        for si = 1:2 % daynight blocks
-            switch si
-                case 1 % day
-                    % Find longest block
-                    dayBlMax = max(cellfun(@(x) size(x,2), dayBlocks, ...
-                        'UniformOutput',true));
-                    dayMatlfp = nan(size(dayBlocks,2),dayBlMax);
-                    dayMatact = nan(size(dayBlocks,2),dayBlMax);
-                    for di = 1:length(dayBlocks)
-                        tmpBlock = dayBlocks{di};
-                        % LFP
-                        lfpDat = smSunful(tmpBlock);
-                        % Act
-                        actDat = nRmACTr(tmpBlock);
-                        oldPoints = 1:length(tmpBlock);
-                        newPoints = linspace(1,length(tmpBlock),dayBlMax);
-
-                        newYlfp = interp1(oldPoints,lfpDat,newPoints,'spline');
-                        newYact = interp1(oldPoints,actDat,newPoints,'spline');
-                        %                         plot(oldPoints,lfpDat,'o',newPoints,newYlfp,':.');
-                        %                         plot(oldPoints,actDat,'o',newPoints,newYact,':.');
-                        dayMatlfp(di,:) = newYlfp;
-                        dayMatact(di,:) = newYact;
-                    end
-                case 2
-                    nightBlMax = max(cellfun(@(x) size(x,2), nightBlocks, ...
-                        'UniformOutput',true));
-                    nightMatlfp = nan(size(nightBlocks,2),nightBlMax);
-                    nightMatact = nan(size(nightBlocks,2),nightBlMax);
-                    for ni = 1:length(nightBlocks)
-                        tmpBlock = nightBlocks{ni};
-                        % LFP
-                        lfpDat = smSunful(tmpBlock);
-                        % Act
-                        actDat = nRmACTr(tmpBlock);
-                        oldPoints = 1:length(tmpBlock);
-                        newPoints = linspace(1,length(tmpBlock),nightBlMax);
-
-                        newYlfp = interp1(oldPoints,lfpDat,newPoints,'spline');
-                        newYact = interp1(oldPoints,actDat,newPoints,'spline');
-                        %                         plot(oldPoints,lfpDat,'o',newPoints,newYlfp,':.');
-                        %                         plot(oldPoints,actDat,'o',newPoints,newYact,':.');
-                        nightMatlfp(ni,:) = newYlfp;
-                        nightMatact(ni,:) = newYact;
-                    end
-            end
-        end
-
-        % Plot single
-        % Plot mean
-        [dayMeanlfp , daySTDlfp] = getMeanSTD(dayMatlfp,1);
-        [dayMeanact , daySTDact] = getMeanSTD(dayMatact,1);
-        % Left plot Day
-        % Right plot Night
-        figure;
-        subplot(1,2,1) % LFP DAY
-        pdlfp = patch([1:length(dayMeanlfp) fliplr(1:length(dayMeanlfp))],...
-            [daySTDlfp(2,:) fliplr(daySTDlfp(1,:))],'k');
-        pdlfp.EdgeColor = 'none';
-        pdlfp.FaceColor = [0.3020 0.7451 0.9333];
-        pdlfp.FaceAlpha = 0.3;
-        hold on
-        plot(dayMeanlfp,'Color',[0 0.4471 0.7412],'LineWidth',2)
-        % ACT DAY
-        pdact = patch([1:length(dayMeanact) fliplr(1:length(dayMeanact))],...
-            [daySTDact(2,:) fliplr(daySTDact(1,:))],'k');
-        pdact.EdgeColor = 'none';
-        pdact.FaceColor = [0.6275 0.8902 0.2863];
-        pdact.FaceAlpha = 0.3;
-        hold on
-        plot(dayMeanact,'Color',[0.4667 0.6745 0.1882],'LineWidth',2)
-        ylim([0 1])
-        xlim([1 length(dayMeanlfp)])
-
-        [nightMeanlfp , nightSTDlfp] = getMeanSTD(nightMatlfp,1);
-        [nightMeanact , nightSTDact] = getMeanSTD(nightMatact,1);
-        subplot(1,2,2) % NIGHT DAY
-        pnlfp = patch([1:length(nightMeanlfp) fliplr(1:length(nightMeanlfp))],...
-            [nightSTDlfp(2,:) fliplr(nightSTDlfp(1,:))],'k');
-        pnlfp.EdgeColor = 'none';
-        pnlfp.FaceColor = [0.3020 0.7451 0.9333];
-        pnlfp.FaceAlpha = 0.3;
-        hold on
-        plot(nightMeanlfp,'Color',[0 0.4471 0.7412],'LineWidth',2)
-        % ACT NIGHT
-        pnact = patch([1:length(nightMeanact) fliplr(1:length(nightMeanact))],...
-            [nightSTDact(2,:) fliplr(nightSTDact(1,:))],'k');
-        pnact.EdgeColor = 'none';
-        pnact.FaceColor = [0.6275 0.8902 0.2863];
-        pnact.FaceAlpha = 0.3;
-        hold on
-        plot(nightMeanact,'Color',[0.4667 0.6745 0.1882],'LineWidth',2)
-        ylim([0 1])
-        xlim([1 length(nightMeanlfp)])
-
-        % Filled significant
-        % Unfilled non-signficant
-        daySig = dayData(:,2) < 0.5;
-        nightSig = nightData(:,2) < 0.5;
-        % Non
-        scatter(zeros(length(dayData(~daySig)),1),dayData(~daySig,1),'red')
-        hold on
-        % Sig
-        scatter(zeros(length(dayData(daySig)),1)+0.05,dayData(daySig,1),'red','filled')
-        % Non - Night
-        scatter(ones(length(nightData(~nightSig)),1),nightData(~nightSig,1),'blue')
-        % Sig - Night
-        scatter(ones(length(nightData(nightSig)),1)+0.05,nightData(nightSig,1),'blue','filled')
-        xlim([-0.5 1.5])
-        xticks([0 1])
-        xticklabels({'Day','Night'})
-        ylabel('r')
-
-    case 4 % Figure 1D - Heat map of actigraphy/lfp
 
 
 
-    case 5 % Events data
 
-        subjectID = '3';
-        hemisphere = 'L';
-        [tmData] = getPatDat(subjectID , hemisphere , 'TimeLine');
-        [evData] = getPatDat(subjectID , hemisphere , 'Events');
+        nexttile(10)
 
-        gbFFT = evData.GoingToBed.FFTBinData;
-        gbHz = evData.GoingToBed.Frequency;
-        gbFFTt = gbFFT(1:82,:);
-        gbHzt = gbHz(1:82,:);
-        wuFFT = evData.WakingUp.FFTBinData;
-        wuHz = evData.WakingUp.Frequency;
-        wuHzt = wuHz(1:82,:);
-        wuFFTt = wuFFT(1:82,:);
-        % Smooth - individually
-        gFFTs = zeros(size(wuFFTt));
-        wFFTs = zeros(size(wuFFTt));
-        for smo = 1:2
-            if smo == 1
-                for iii = 1:size(gbFFTt,2)
-                    tmpCol = gbFFTt(:,iii);
-                    smFFT = smoothdata(tmpCol,'gaussian',6);
-                    gFFTs(:,iii) = smFFT;
-                end
-            else
-                for iii = 1:size(wuFFTt,2)
-                    tmpCol = wuFFTt(:,iii);
-                    smFFT = smoothdata(tmpCol,'gaussian',6);
-                    wFFTs(:,iii) = smFFT;
-                end
-            end
-        end
+        nexttile(11)
 
+        nexttile([1 2])
 
-        % Normalize - [upack and repack]
-        gwBoth = [gFFTs , wFFTs];
-        allNunpk = gwBoth(:);
-        allNorm1 = normalize(allNunpk, 'range');
-        allNormF = reshape(allNorm1,size(gwBoth));
+        nexttile([1 2])
 
-        gNormF = allNormF(:,1:size(gFFTs,2));
-        wNormF = allNormF(:,size(gFFTs,2)+1:end);
-
-        figure;
-        subplot(1,3,1)
-        for gb = 1:size(gNormF,2)
-            hold on
-            tmpFFT = gNormF(:,gb);
-            plot(tmpFFT,'k-')
-        end
-        xlim([0 80])
-        yticks([0 0.5 1])
-        ylim([0 1])
-        ylabel('Scaled power')
-
-        subplot(1,3,2)
-        for wu = 1:size(wNormF,2)
-            hold on
-            tmpFFT = wNormF(:,wu);
-            plot(tmpFFT,'r-')
-        end
-        xlim([0 80])
-        yticks([0 0.5 1])
-        ylim([0 1])
-        ylabel('Scaled power')
-
-        subplot(1,3,3)
-        gMean = mean(gNormF,2);
-        wMean = mean(wNormF,2);
-        plot(gMean,'k-','LineWidth',2.5)
-        hold on
-        plot(wMean,'r-','LineWidth',2.5)
-        xlim([0 80])
-        yticks([0 0.5 1])
-        ylim([0 1])
-        ylabel('Scaled power')
-
-        xVALS = -0.1:0.001:1;
-
-        [gbTheta , wuTheta] = getBandDat(gNormF , gbHzt, wNormF , wuHzt, 't');
-        [gbAlpha , wuAlpha] = getBandDat(gNormF , gbHzt, wNormF , wuHzt, 'a');
-        [gbBeta , wuBeta] = getBandDat(gNormF , gbHzt, wNormF , wuHzt, 'b');
-        [gbGamma , wuTheta_Six] = getBandDat(gNormF , gbHzt, wNormF , wuHzt, 'g');
-        figure;
-        subplot(2,1,1) % theta
-        hold on
-        plot(xVALS,gbTheta_Six,'k-','LineWidth',2)
-        plot(xVALS,wuTheta_Six,'r-','LineWidth',2)
-        xlim([0 1])
-        subplot(2,1,2)
-        hold on
-        plot(xVALS,gbBeta_Six,'k-','LineWidth',2)
-        plot(xVALS,wuBeta_Six,'r-','LineWidth',2)
-        xlim([0 1])
-        subplot(2,1,2)
-        hold on
-        plot(xVALS,gbBeta_Six,'k-','LineWidth',2)
-        plot(xVALS,wuBeta_Six,'r-','LineWidth',2)
-        xlim([0 1])
+        % Load data
 
 
 
 
 
-
-
-
-
-
-
-
-
-
-
-
+    case 2
 
 
 
 
 end
 
+
+
+
 end
+
+
+
+
+
+
+
 
 
 
@@ -865,13 +576,4 @@ wuB_pdSix = fitdist(wuBetaU,'Kernel','Width',0.05);
 freqBand_fitW = pdf(wuB_pdSix,xVALS);
 
 end
-
-
-
-
-
-
-
-
-
 
