@@ -7,6 +7,12 @@ cd(mainLOC)
 addpath('C:\Users\John\Documents\GitHub\perceive\AlexB_SleepStudy');
 addpath('C:\Users\John\Documents\GitHub\perceive\AlexB_SleepStudy\matplotlib03232022');
 close all
+
+% To do
+%. 1 Fix Figure 1A
+%. 2 Add x-label to 1E [Frequency Hz]
+%. 3 Add xline d t a b g
+
 switch figureNUM
     case 1
 
@@ -15,7 +21,7 @@ switch figureNUM
         % ROW 1 - Cols 1-3 = LFP plot | Col 4 Heat plot
         mainFig = figure;
         set(mainFig,'Position', [1485 311 1128 863]);
-        tiledlayout(4,4,"Padding","tight");
+        tiledlayout(3,4,"Padding","tight");
         % Load data
         subjectID = '3';
         hemisphere = 'L';
@@ -130,6 +136,7 @@ switch figureNUM
         [tmData] = getPatDat(subjectID , hemisphere , 'TimeLine');
         [apData] = getPatDat(subjectID , hemisphere , 'ActALL');
         [cleanApT] = trim144Apdata(tmData , apData);
+        [evData] = getPatDat(subjectID , hemisphere , 'Events');
 
         % Activity
         nActraw = cleanApT.Activity;
@@ -181,7 +188,8 @@ switch figureNUM
         p2.Marker = 'o';
         p2.LineStyle = "none";
         ylim([-0.1 1.1])
-        legend('Raw Actigraphy','Cosinar','Wake','Sleep')
+        leg2 = legend('Raw activity','Cosinor','Wake','Sleep');
+        leg2.Position = [0.0490 0.6406 0.1126 0.0713];
 
         dayStarts = round(linspace(1,length(swFinMat)-144,length(swFinMat)/144));
         xticks(dayStarts);
@@ -202,30 +210,281 @@ switch figureNUM
 
         nonNanLocs = ~isnan(nRmACTr);
 
-        [c,lags] = xcorr(smSunful(nonNanLocs),nRmACTr(nonNanLocs));
-        c = c/max(c);
-        [~,i] = max(c);
-        t = lags(i);
+        [crossCorvals,lags] = xcorr(smSunful(nonNanLocs),nRmACTr(nonNanLocs));
+        crossCorvalsN = crossCorvals/max(crossCorvals);
+        [~,ccnLoc] = max(crossCorvalsN);
+        maxClagLoc = lags(ccnLoc);
 
-        plot(lags,c,[t t],[-0.5 1],'r:')
-        text(t+100,0.5,['Lag: ' int2str(t)])
-        ylabel('c')
+        plot(lags,crossCorvalsN,'Color','k','LineWidth',1.5)
+        xl1 = xline(maxClagLoc,'-.',['Max Lag = ' num2str(maxClagLoc)]);
+        xl1.LineWidth = 1.5;
+        xl1.Color = 'r';
+        xl1.LabelVerticalAlignment = "bottom";
+%         text(maxClagLoc + 100, 0.5 ,['Lag: ' int2str(maxClagLoc)])
+        ylabel('\textit{r}','Interpreter','latex')
+        yticks(linspace(0,1,3))
+        xlabel('Lag in samples')
+        title('Max lag between activity and LFP')
         axis tight
-        title('Cross-Correlations')
 
-
-
-
-
+        % Plot 4 ##########################################################
+        % Day v Night cross corr estimates
         nexttile(10)
 
+%         [R,P,~,~] = corrcoef(smSunful(nonNanLocs),nRmACTr(nonNanLocs));
+        % Day vs night
+        % Invert Ronneberg
+        reonUF = cleanApT.ronenbSW(:);
+        nonNanInd1 = ~isnan(reonUF);
+        reonUnfurli = ~reonUF(nonNanInd1);
+        reonUFi = reonUF;
+        reonUFi(nonNanInd1) = reonUnfurli;
+        % Get Crespo
+        cresUF = cleanApT.crespoSW(:);
+        % Find agreement
+        pairRC = [reonUFi , cresUF];
+        % Find nonNans
+        nanInd2 = isnan(pairRC(:,1));
+        %         pairNnans = pairRC(nonNanInd2,:);
+        pairMatch = pairRC(:,1) == pairRC(:,2);
+        swFinMat = pairRC(:,1);
+        swFinMat(pairMatch) = pairRC(pairMatch,1);
+        swFinMat(~pairMatch) = nan;
+        swFinMat(nanInd2) = nan;
+        [dayBlocks , nightBlocks] = getBlocks(swFinMat);
+        % 1. Pull out night and day points
+        % 2. Loop through
+        % 3. Correlation coefficient for each R/P
+        % 4. Store by segment
+        nightData = nan(length(nightBlocks),2);
+        dayData = nan(length(dayBlocks),2);
+        for dn = 1:2
+            if dn == 1
+                dnBlocks = dayBlocks;
+            else
+                dnBlocks = nightBlocks;
+            end
+
+            for ii = 1:length(dnBlocks)
+                tmpBlock = dnBlocks{ii};
+                [R,P] = corrcoef(smSunful(tmpBlock),nRmACTr(tmpBlock));
+                if dn == 1
+                    dayData(ii,1) = R(2,1);
+                    dayData(ii,2) = P(2,1);
+                else
+                    nightData(ii,1) = R(2,1);
+                    nightData(ii,2) = P(2,1);
+                end
+
+
+            end
+        end
+
+        % Interpolate and mean/sd blocks
+        for si = 1:2 % daynight blocks
+            switch si
+                case 1 % day
+                    % Find longest block
+                    dayBlMax = max(cellfun(@(x) size(x,2), dayBlocks, ...
+                        'UniformOutput',true));
+                    dayMatlfp = nan(size(dayBlocks,2),dayBlMax);
+                    dayMatact = nan(size(dayBlocks,2),dayBlMax);
+                    for di = 1:length(dayBlocks)
+                        tmpBlock = dayBlocks{di};
+                        % LFP
+                        lfpDat = smSunful(tmpBlock);
+                        % Act
+                        actDat = nRmACTr(tmpBlock);
+                        oldPoints = 1:length(tmpBlock);
+                        newPoints = linspace(1,length(tmpBlock),dayBlMax);
+
+                        newYlfp = interp1(oldPoints,lfpDat,newPoints,'spline');
+                        newYact = interp1(oldPoints,actDat,newPoints,'spline');
+%                         plot(oldPoints,lfpDat,'o',newPoints,newYlfp,':.');
+%                         plot(oldPoints,actDat,'o',newPoints,newYact,':.');
+                        dayMatlfp(di,:) = newYlfp;
+                        dayMatact(di,:) = newYact;
+                    end
+                case 2
+                    nightBlMax = max(cellfun(@(x) size(x,2), nightBlocks, ...
+                        'UniformOutput',true));
+                    nightMatlfp = nan(size(nightBlocks,2),nightBlMax);
+                    nightMatact = nan(size(nightBlocks,2),nightBlMax);
+                    for ni = 1:length(nightBlocks)
+                        tmpBlock = nightBlocks{ni};
+                        % LFP
+                        lfpDat = smSunful(tmpBlock);
+                        % Act
+                        actDat = nRmACTr(tmpBlock);
+                        oldPoints = 1:length(tmpBlock);
+                        newPoints = linspace(1,length(tmpBlock),nightBlMax);
+
+                        newYlfp = interp1(oldPoints,lfpDat,newPoints,'spline');
+                        newYact = interp1(oldPoints,actDat,newPoints,'spline');
+%                         plot(oldPoints,lfpDat,'o',newPoints,newYlfp,':.');
+%                         plot(oldPoints,actDat,'o',newPoints,newYact,':.');
+                        nightMatlfp(ni,:) = newYlfp;
+                        nightMatact(ni,:) = newYact;
+                    end
+            end
+        end
+
+        % Filled significant
+        % Unfilled non-signficant
+        daySig = dayData(:,2) < 0.5;
+        nightSig = nightData(:,2) < 0.5;
+        violinDATA = [{nightData(nightSig,1)} {dayData(daySig,1)}];
+        catnames_labels = {'Day','Night'};
+        coloRS = {cMAP(10,:), cMAP(256,:)};
+        violinplot(violinDATA,catnames_labels,'ViolinColor',coloRS,'ViolinAlpha',{0.5 0.5},...
+            'ShowMedian',false);
+        title('Cross-Cor for night and day epochs')
+        xticklabels('Significant correlations')
+        ylabel('\textit{r}','Interpreter','latex')
+
+        % Plot 5 ##########################################################
+        % Wake up and To bed Event mean plots
+        % To Do
+        % 3. Add STD
         nexttile(11)
 
-        nexttile([1 2])
+        gbFFT = evData.GoingToBed.FFTBinData;
+        gbHz = evData.GoingToBed.Frequency;
+        gbFFTt = gbFFT(1:82,:);
+        gbHzt = gbHz(1:82,:);
+        wuFFT = evData.WakingUp.FFTBinData;
+        wuHz = evData.WakingUp.Frequency;
+        wuHzt = wuHz(1:82,:);
+        wuFFTt = wuFFT(1:82,:);
+        % Smooth - individually
+        gFFTs = zeros(size(wuFFTt));
+        wFFTs = zeros(size(wuFFTt));
+        for smo = 1:2
+            if smo == 1
+                for iii = 1:size(gbFFTt,2)
+                    tmpCol = gbFFTt(:,iii);
+                    smFFT = smoothdata(tmpCol,'gaussian',6);
+                    gFFTs(:,iii) = smFFT;
+                end
+            else
+                for iii = 1:size(wuFFTt,2)
+                    tmpCol = wuFFTt(:,iii);
+                    smFFT = smoothdata(tmpCol,'gaussian',6);
+                    wFFTs(:,iii) = smFFT;
+                end
+            end
+        end
 
-        nexttile([1 2])
 
-        % Load data
+        % Normalize - [upack and repack]
+        gwBoth = [gFFTs , wFFTs];
+        allNunpk = gwBoth(:);
+        allNorm1 = normalize(allNunpk, 'range');
+        allNormF = reshape(allNorm1,size(gwBoth));
+
+        gNormF = allNormF(:,1:size(gFFTs,2));
+        wNormF = allNormF(:,size(gFFTs,2)+1:end);
+
+        % ttest2(gNormF(:),wNormF(:))
+
+        gMean = mean(gNormF,2);
+        wMean = mean(wNormF,2);
+
+        gSTD = std(gNormF,[],2);
+        gSTDu = transpose(gMean + (gSTD));
+        gSTDd = transpose(gMean - (gSTD));
+
+        wSTD = std(wNormF,[],2);
+        wSTDu = transpose(wMean + (wSTD));
+        wSTDd = transpose(wMean - (wSTD));
+
+        lp1 = plot(gMean,'LineWidth',2.5);
+        lp1.Color = cMAP(246,:);
+        hold on
+
+        pch1 = patch([1:length(gMean) fliplr(1:length(gMean))],...
+            [gSTDd fliplr(gSTDu)],'k');
+
+        pch1.FaceColor = cMAP(246,:);
+        pch1.FaceAlpha = 0.3;
+        pch1.EdgeColor = 'none';
+
+        lp2 = plot(wMean,'LineWidth',2.5); % Get into bed
+        lp2.Color = cMAP(10,:);
+
+        pch2 = patch([1:length(wMean) fliplr(1:length(wMean))],...
+            [wSTDd fliplr(wSTDu)],'k');
+
+        pch2.FaceColor = cMAP(10,:);
+        pch2.FaceAlpha = 0.3;
+        pch2.EdgeColor = 'none';
+
+        xlt = xline(7,'-','theta');
+        xlt.LabelVerticalAlignment = 'middle';
+        xlt.LabelHorizontalAlignment = 'center';
+
+        xla = xline(12,'-','alpha');
+        xla.LabelVerticalAlignment = 'middle';
+        xla.LabelHorizontalAlignment = 'center';
+
+        xlb = xline(29,'-','beta');
+        xlb.LabelVerticalAlignment = 'middle';
+        xlb.LabelHorizontalAlignment = 'center';
+
+%         xline(8,'theta','LabelVerticalAlignment','middle','LabelOrientation','aligned')
+%         xline(12,'alpha','LabelVerticalAlignment','middle','LabelOrientation','aligned')
+%         xline(29,'beta','LabelVerticalAlignment','middle','LabelOrientation','aligned')
+%         xline(60,'gamma','LabelVerticalAlignment','middle','LabelOrientation','aligned')
+
+        xlim([0 70])
+        yticks([0 0.25 0.5 0.75])
+        ylim([0 0.75])
+        ylabel('Scaled power')
+        text(40,0.1,'\textit{p} = 1.18e-07','Interpreter','latex')
+        legend('Going to bed: mean','Going to bed: SD',...
+               'Wake up: mean','Wake up: SD')
+        title('Patient Event Markers')
+        xlabel('Frequency (Hz)')
+
+%         nexttile(12)
+
+        xVALS = -0.1:0.001:1;
+
+        [gbTheta , wuTheta] = getBandDat(gNormF , gbHzt, wNormF , wuHzt, 't');
+        [gbAlpha , wuAlpha] = getBandDat(gNormF , gbHzt, wNormF , wuHzt, 'a');
+        [gbBeta , wuBeta] = getBandDat(gNormF , gbHzt, wNormF , wuHzt, 'b');
+        [gbGamma , wuGamma] = getBandDat(gNormF , gbHzt, wNormF , wuHzt, 'g');
+        figure;
+        subplot(4,1,1) % theta
+        hold on
+        plot(xVALS,gbTheta,'Color',cMAP(246,:),'LineWidth',2)
+        plot(xVALS,wuTheta,'Color',cMAP(10,:),'LineWidth',2)
+        xlim([0 0.7])
+        title('theta')
+        subplot(4,1,2)
+
+        hold on
+        plot(xVALS,gbAlpha,'Color',cMAP(246,:),'LineWidth',2)
+        plot(xVALS,wuAlpha,'Color',cMAP(10,:),'LineWidth',2)
+        xlim([0 0.7])
+        title('alpha')
+        subplot(4,1,3)
+
+        hold on
+        plot(xVALS,gbBeta,'Color',cMAP(246,:),'LineWidth',2)
+        plot(xVALS,wuBeta,'Color',cMAP(10,:),'LineWidth',2)
+        xlim([0 0.7])
+        title('beta')
+        subplot(4,1,4)
+
+        hold on
+        plot(xVALS,gbGamma,'Color',cMAP(246,:),'LineWidth',2)
+        plot(xVALS,wuGamma,'Color',cMAP(10,:),'LineWidth',2)
+        xlim([0 0.7])
+        title('gamma')
+        xlabel('Scaled power')
+        ylabel('Probability density')
+
 
 
 
