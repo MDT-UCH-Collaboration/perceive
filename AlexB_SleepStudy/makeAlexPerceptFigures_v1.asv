@@ -36,16 +36,17 @@ switch figureNUM
         mSunful(mSunful > 2.3000e+09) = nan;
         mSunful = normalize(mSunful, 'range');
         smSunful = smoothdata(mSunful,'rloess',20,'omitnan');
+        firstDayTime6At6p = [find(tmData.hour(:,2) == 6,1,'first')+144 ...
+            find(tmData.hour(:,2) == 18,1,'first')+144] ; 
 
-        medLine = median(smSunful);
-        minVale = min(smSunful);
         maxVale = max(smSunful);
 
         % Plot 1 ##########################################################
         nexttile([1 4])
 
         cMAP = cividis;
-        [reMAP] = reMapCmap(medLine,minVale,maxVale,cMAP,smSunful,0);
+%         [reMAP1] = reMapCmap(smSunful,cMAP,smSunful,0,'median');
+        [reMAP] = reMapCmap(tmData,cMAP,smSunful,1,'timeBased');
         scatter(1:length(smSunful),smSunful,[],reMAP,'filled')
         ylim([0 round(maxVale + 0.1,1)])
         yticks([0 round((maxVale + 0.1)/2,2) round(maxVale + 0.1,1)])
@@ -68,10 +69,12 @@ switch figureNUM
         inBEDlineY = transpose([inBEDminY ,  inBEDmaxY]);
         line(inBEDlineX , inBEDlineY , 'Color', 'k', 'LineWidth',1);
 
-        xt_IN = inBEDx + 2;
-        yt_IN = repmat(yLIMn(2)*0.95,length(inBEDx),1);
-        str_IN = repmat({'IN'},length(inBEDx),1);
+        % Add 'IN' to only first line
+        xt_IN = inBEDx(1) - 35;
+        yt_IN = yLIMn(2)*0.95;
+        str_IN = 'IN';
         inText = text(xt_IN,yt_IN,str_IN);
+        inText.FontWeight = "bold";
 
         [outBEDx , outBEDdays] = findBEDinds('wake' , evData , tmData);
 
@@ -79,13 +82,21 @@ switch figureNUM
         outBEDminY = smSunful(outBEDx) - smSunful(outBEDx)*0.1;
         outBEDmaxY = repmat(yLIMn(1),length(outBEDx),1);
         outBEDlineY = transpose([outBEDminY ,  outBEDmaxY]);
-        line(outBEDlineX , outBEDlineY , 'Color', 'k', 'LineWidth',1);
+        line(outBEDlineX , outBEDlineY , 'Color', 'k', 'LineStyle','-.','LineWidth',1);
 
-                % OUT Bed text code - Right justified
-        xt_OUT = outBEDx - 2;
-        yt_OUT = repmat(yLIMn(2) - (yLIMn(2)*0.95),length(outBEDx),1);
-        str_OUT = repmat({'OUT'},length(outBEDx),1);
-        outText = text(xt_OUT,yt_OUT,str_OUT,'HorizontalAlignment','right');
+        xt_OUT = outBEDx(1) + 5;
+        yt_OUT = yLIMn(2) - (yLIMn(2)*0.95);
+        str_OUT = 'OUT';
+        outText = text(xt_OUT,yt_OUT,str_OUT);
+        outText.FontWeight = "bold";
+
+        % Add 6AM to 6PM markers
+        xl6a = xline(firstDayTime6At6p(1),'--','6AM','LabelVerticalAlignment','bottom',...
+            'LabelHorizontalAlignment','center');
+        xl6a.Color = cMAP(246,:);
+        xl6p = xline(firstDayTime6At6p(2),'--','6PM','LabelVerticalAlignment','bottom',...
+            'LabelHorizontalAlignment','center');
+        xl6p.Color = cMAP(10,:);
 
         % Add grey patch code [above and below]
         % First find matching IN and OUT of bed days
@@ -427,6 +438,10 @@ switch figureNUM
         xla.LabelVerticalAlignment = 'middle';
         xla.LabelHorizontalAlignment = 'center';
 
+        xlb = xline(29,'-','beta');
+        xlb.LabelVerticalAlignment = 'middle';
+        xlb.LabelHorizontalAlignment = 'center';
+
 %         xline(8,'theta','LabelVerticalAlignment','middle','LabelOrientation','aligned')
 %         xline(12,'alpha','LabelVerticalAlignment','middle','LabelOrientation','aligned')
 %         xline(29,'beta','LabelVerticalAlignment','middle','LabelOrientation','aligned')
@@ -450,6 +465,17 @@ switch figureNUM
         [gbAlpha , wuAlpha] = getBandDat(gNormF , gbHzt, wNormF , wuHzt, 'a');
         [gbBeta , wuBeta] = getBandDat(gNormF , gbHzt, wNormF , wuHzt, 'b');
         [gbGamma , wuGamma] = getBandDat(gNormF , gbHzt, wNormF , wuHzt, 'g');
+
+        % Get max 
+        maxALL = max([gbTheta , wuTheta , gbAlpha , wuAlpha ,...
+            gbBeta, wuBeta,gbGamma , wuGamma]);
+
+
+
+
+
+
+
         figure;
         subplot(4,1,1) % theta
         hold on
@@ -555,25 +581,104 @@ end
 
 
 
-function [reMAP] = reMapCmap(medPoint,minVal,maxVal,cMap,datA,flipFlag)
+function [reMAP] = reMapCmap(inDATA,cMap,datA,flipFlag,reMapS)
 
 % Create iMap
 % Half 256 0.1 0.5 mapped to lower bound
-lowBound = linspace(minVal,medPoint,128);
-highBound = linspace(medPoint,maxVal,128);
-iMap = [lowBound , highBound];
 
-if flipFlag
-    cMap = flipud(cMap);
-end
+switch reMapS
+    case 'median'
 
-reMAP = zeros(length(datA),3);
-for di = 1:length(datA)
+        medPoint = median(inDATA);
+        minVal = min(inDATA);
+        maxVal = max(inDATA);
 
-    tmpDat = datA(di);
-    [~, rowID] = min(abs(iMap - tmpDat));
-    tCmp = cMap(rowID,:);
-    reMAP(di,:) = tCmp;
+        lowBound = linspace(minVal,medPoint,128);
+        highBound = linspace(medPoint,maxVal,128);
+        iMap = [lowBound , highBound];
+
+        if flipFlag
+            cMap = flipud(cMap);
+        end
+
+        reMAP = zeros(length(datA),3);
+        for di = 1:length(datA)
+
+            tmpDat = datA(di);
+            [~, rowID] = min(abs(iMap - tmpDat));
+            tCmp = cMap(rowID,:);
+            reMAP(di,:) = tCmp;
+
+        end
+
+    case 'ActSleepWake'
+
+
+
+    case 'timeBased'
+
+        timMat1 = repmat(linspace(0,0.5,6),24,1) + transpose(0:23);
+        timMat2 = timMat1(:);
+        timMat3 = sort(timMat2);
+        timMatf = [timMat3(timMat3 >= 6 & timMat3 <= 18) ; ...
+            timMat3(timMat3 > 18) ; timMat3(timMat3 < 6)];
+
+        minMat = inDATA.minu;
+        houMat = inDATA.hour;
+        % Consistify minute data
+        for mi = 1:size(minMat,1)
+            tmpRm = minMat(mi,:);
+            uRm = unique(tmpRm);
+
+            tmpRh = houMat(mi,:);
+            uRh = unique(tmpRh);
+
+            maxCm = 0;
+            maxIDm = 0;
+            for um = 1:length(uRm)
+                rowS = sum(ismember(tmpRm,uRm(um)));
+                if rowS > maxCm
+                    maxCm = rowS;
+                    maxIDm = uRm(um);
+                end
+            end
+            minMat(mi,:) = maxIDm;
+
+            maxCh = 0;
+            maxIDh = 0;
+            for uh = 1:length(uRh)
+                rowS = sum(ismember(tmpRh,uRh(uh)));
+                if rowS > maxCh
+                    maxCh = rowS;
+                    maxIDh = uRh(uh);
+                end
+            end
+            houMat(mi,:) = maxIDh;
+        end
+
+        % unfurl hour and min and line up
+        minMatu = minMat(:);
+        houMatu = houMat(:);
+
+        combMHu = (minMatu/100) + houMatu;
+
+        if flipFlag
+            cMap = flipud(cMap);
+        end
+
+        reMAP = zeros(length(datA),3);
+        for di = 1:length(datA)
+
+            tmpDat = combMHu(di);
+
+            tmLoc = find(timMatf == tmpDat);
+
+            cmapLoc = round((tmLoc/144)*256);
+
+            tCmp = cMap(cmapLoc,:);
+            reMAP(di,:) = tCmp;
+
+        end
 
 end
 

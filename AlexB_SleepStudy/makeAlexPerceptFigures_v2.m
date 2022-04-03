@@ -1,4 +1,4 @@
-function [] = makeAlexPerceptFigures_v1(figureNUM)
+function [] = makeAlexPerceptFigures_v2(figureNUM)
 %UNTITLED Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -47,6 +47,8 @@ switch figureNUM
         cMAP = cividis;
 %         [reMAP1] = reMapCmap(smSunful,cMAP,smSunful,0,'median');
         [reMAP] = reMapCmap(tmData,cMAP,smSunful,1,'timeBased');
+        lightCM = reMAP(10,:);
+        darkCM = reMAP(246,:);
         scatter(1:length(smSunful),smSunful,[],reMAP,'filled')
         ylim([0 round(maxVale + 0.1,1)])
         yticks([0 round((maxVale + 0.1)/2,2) round(maxVale + 0.1,1)])
@@ -141,12 +143,6 @@ switch figureNUM
 
         % PLOT 2 ##########################################################
         nexttile([1 4])
-
-        subjectID = '3';
-        hemisphere = 'L';
-        [tmData] = getPatDat(subjectID , hemisphere , 'TimeLine');
-        [apData] = getPatDat(subjectID , hemisphere , 'ActALL');
-        [cleanApT] = trim144Apdata(tmData , apData);
         [evData] = getPatDat(subjectID , hemisphere , 'Events');
 
         % Activity
@@ -192,10 +188,10 @@ switch figureNUM
         xAxisAct = 1:length(swFinMat);
         p1 = plot(xAxisAct(swFinMat == 1),ones(size(xAxisAct(swFinMat == 1))));
         p1.LineStyle = "none";
-        p1.Color = cMAP(246,:);
+        p1.Color = lightCM;
         p1.Marker = 'o';
         p2 = plot(xAxisAct(swFinMat == 0),zeros(size(xAxisAct(swFinMat == 0))));
-        p2.Color = cMAP(10,:);
+        p2.Color = darkCM;
         p2.Marker = 'o';
         p2.LineStyle = "none";
         ylim([-0.1 1.1])
@@ -241,8 +237,6 @@ switch figureNUM
         % Plot 4 ##########################################################
         % Day v Night cross corr estimates
         nexttile(10)
-
-%         [R,P,~,~] = corrcoef(smSunful(nonNanLocs),nRmACTr(nonNanLocs));
         % Day vs night
         % Invert Ronneberg
         reonUF = cleanApT.ronenbSW(:);
@@ -346,7 +340,7 @@ switch figureNUM
         nightSig = nightData(:,2) < 0.5;
         violinDATA = [{nightData(nightSig,1)} {dayData(daySig,1)}];
         catnames_labels = {'Day','Night'};
-        coloRS = {cMAP(10,:), cMAP(256,:)};
+        coloRS = {darkCM, lightCM};
         violinplot(violinDATA,catnames_labels,'ViolinColor',coloRS,'ViolinAlpha',{0.5 0.5},...
             'ShowMedian',false);
         title('Cross-Cor for night and day epochs')
@@ -410,23 +404,23 @@ switch figureNUM
         wSTDd = transpose(wMean - (wSTD));
 
         lp1 = plot(gMean,'LineWidth',2.5);
-        lp1.Color = cMAP(246,:);
+        lp1.Color = lightCM;
         hold on
 
         pch1 = patch([1:length(gMean) fliplr(1:length(gMean))],...
             [gSTDd fliplr(gSTDu)],'k');
 
-        pch1.FaceColor = cMAP(246,:);
+        pch1.FaceColor = lightCM;
         pch1.FaceAlpha = 0.3;
         pch1.EdgeColor = 'none';
 
         lp2 = plot(wMean,'LineWidth',2.5); % Get into bed
-        lp2.Color = cMAP(10,:);
+        lp2.Color = darkCM;
 
         pch2 = patch([1:length(wMean) fliplr(1:length(wMean))],...
             [wSTDd fliplr(wSTDu)],'k');
 
-        pch2.FaceColor = cMAP(10,:);
+        pch2.FaceColor = darkCM;
         pch2.FaceAlpha = 0.3;
         pch2.EdgeColor = 'none';
 
@@ -457,81 +451,106 @@ switch figureNUM
         title('Patient Event Markers')
         xlabel('Frequency (Hz)')
 
-%         nexttile(12)
-        figure;
+        nexttile(12)
         xVALS = -0.1:0.001:1;
 
-        [gbTheta , wuTheta] = getBandDat(gNormF , gbHzt, wNormF , wuHzt, 't');
-        [gbAlpha , wuAlpha] = getBandDat(gNormF , gbHzt, wNormF , wuHzt, 'a');
-        [gbBeta , wuBeta] = getBandDat(gNormF , gbHzt, wNormF , wuHzt, 'b');
-        [gbGamma , wuGamma] = getBandDat(gNormF , gbHzt, wNormF , wuHzt, 'g');
+        [gbTheta , wuTheta, gT , wT] = getBandDat(gNormF , gbHzt, wNormF , wuHzt, 't');
+        [gbAlpha , wuAlpha, gA , wA] = getBandDat(gNormF , gbHzt, wNormF , wuHzt, 'a');
+        [gbBeta , wuBeta, gB , wB] = getBandDat(gNormF , gbHzt, wNormF , wuHzt, 'b');
+        [gbGamma , wuGamma, gG , wG] = getBandDat(gNormF , gbHzt, wNormF , wuHzt, 'g');
+
+        % Prep for kruskal wallis / ANOVA
+        gALL = [gT ; gA ; gB ; gG];
+        wALL = [wT ; wA ; wB ; wG];
+        allDATA = [gALL ; wALL];
+        bandIDs1 = [repmat({'T'},size(gT)) ; repmat({'A'},size(gA)) ;...
+                   repmat({'B'},size(gB)) ; repmat({'G'},size(gG))];
+        bandIDs2 = [bandIDs1 ; bandIDs1];
+        groupIDs = [repmat({'GO'},size(gALL)) ; repmat({'GET'},size(wALL))];
+
+
+%         [p,tbl] = anova2(allDATA,groupIDs,bandIDs2,'off')
+         [~,~,stats]  = anovan(allDATA,{bandIDs2,groupIDs},'model',2,'varnames',{'BAND','ToD'},'display','off');
+         [results,~,~,gnames] = multcompare(stats,"Dimension",[1 2],'display','off');
+
+         tbl = array2table(results,"VariableNames", ...
+             ["Group A","Group B","Lower Limit","A-B","Upper Limit","P-value"]);
+         tbl.("Group A")=gnames(tbl.("Group A"));
+         tbl.("Group B")=gnames(tbl.("Group B"));
 
         % Get max 
         maxALL = round(max([gbTheta , wuTheta , gbAlpha , wuAlpha ,...
             gbBeta, wuBeta,gbGamma , wuGamma]));
-
-        yALL = 0:(maxALL*4)-1;
-
+        ylinOFF1 = linspace(maxALL,round(maxALL*4),4);
+        ylinOFF2 = linspace(0,maxALL*3,4);
+        offSET1 = [0 0.5 1 1.5];
+        ylinES = ylinOFF1 + offSET1;
+        xVALSoff = ylinOFF2 + offSET1;
         hold on
         % PLOT 1
-        plot(xVALS,gbTheta,'Color',cMAP(10,:),'LineWidth',2)
-        plot(xVALS,wuTheta,'Color',cMAP(246,:),'LineWidth',2)
-        yline(8,'-','theta','LabelVerticalAlignment','middle')
+        plot(xVALS,gbTheta + xVALSoff(1),'Color',lightCM,'LineWidth',2)
+        plot(xVALS,wuTheta,'Color',darkCM,'LineWidth',2)
+        yline(ylinES(1),'-','theta','LabelVerticalAlignment','bottom')
         % Stat
+        pVALt = tbl.("P-value")(matches(tbl.("Group A"),'BAND=T,ToD=GO') &...
+            matches(tbl.("Group B"),'BAND=T,ToD=GET'));
+        if pVALt == 0
+            ptextT = 'p < 0.0001';
+        else
+            pNUM = num2str(round(pVALt,2,'significant'));
+            ptextT = ['p = ',pNUM];
+        end
+        text(0.3,ylinES(1)-3.5,ptextT)
         % PLOT 2
-        plot(xVALS,gbAlpha+8.5,'Color',cMAP(10,:),'LineWidth',2)
-        plot(xVALS,wuAlpha+8.5,'Color',cMAP(246,:),'LineWidth',2)
-        yline(16.5,'-','alpha','LabelVerticalAlignment','middle')
+        plot(xVALS,gbAlpha + xVALSoff(2),'Color',lightCM,'LineWidth',2)
+        plot(xVALS,wuAlpha+8.5,'Color',darkCM,'LineWidth',2)
+        yline(ylinES(2),'-','alpha','LabelVerticalAlignment','bottom')
         % Stat
+        pVALa = tbl.("P-value")(matches(tbl.("Group A"),'BAND=A,ToD=GO') &...
+            matches(tbl.("Group B"),'BAND=A,ToD=GET'));
+        if pVALt == 0
+            ptextA = 'p < 0.0001';
+        else
+            pNUM = num2str(round(pVALa,2,'significant'));
+            ptextA = ['p = ',pNUM];
+        end
+        text(0.3,ylinES(2)-3.5,ptextA)
         % PLOT 3
-        plot(xVALS,gbBeta+17,'Color',cMAP(10,:),'LineWidth',2)
-        plot(xVALS,wuBeta+17,'Color',cMAP(246,:),'LineWidth',2)
-        yline(25,'-','beta','LabelVerticalAlignment','middle')
+        plot(xVALS,gbBeta + xVALSoff(3),'Color',lightCM,'LineWidth',2)
+        plot(xVALS,wuBeta+17,'Color',darkCM,'LineWidth',2)
+        yline(ylinES(3),'-','beta','LabelVerticalAlignment','bottom')
         % Stat
+        pVALb = tbl.("P-value")(matches(tbl.("Group A"),'BAND=B,ToD=GO') &...
+            matches(tbl.("Group B"),'BAND=B,ToD=GET'));
+        if pVALb == 0
+            ptextB = 'p < 0.0001';
+        else
+            pNUM = num2str(round(pVALb,2,'significant'));
+            ptextB = ['p = ',pNUM];
+        end
+        text(0.3,ylinES(3)-3.5,ptextB)
+        % PLOT 4
+        plot(xVALS,gbGamma + xVALSoff(4),'Color',lightCM,'LineWidth',2)
+        plot(xVALS,wuGamma+25.5,'Color',darkCM,'LineWidth',2)
+        yline(ylinES(4)+2,'-','gamma','LabelVerticalAlignment','bottom')
+        % Stat
+        pVALg = tbl.("P-value")(matches(tbl.("Group A"),'BAND=G,ToD=GO') &...
+            matches(tbl.("Group B"),'BAND=G,ToD=GET'));
+        if pVALg == 0
+            ptextG = 'p < 0.0001';
+        else
+            pNUM = num2str(round(pVALg,2,'significant'));
+            ptextG = ['p = ',pNUM];
+        end
+        text(0.3,ylinES(4)-3.5,ptextG)
 
-
-       
         xlim([0 0.7])
-        ylim([0 35])
-        yticks(1:7)
+        ylim([0 35.5])
+        yticks(linspace(1,7,3))
 
-
-
-        figure;
-        subplot(4,1,1) % theta
-        hold on
-        plot(xVALS,gbTheta,'Color',cMAP(246,:),'LineWidth',2)
-        plot(xVALS,wuTheta,'Color',cMAP(10,:),'LineWidth',2)
-        xlim([0 0.7])
-        title('theta')
-        subplot(4,1,2)
-
-        hold on
-        plot(xVALS,gbAlpha,'Color',cMAP(246,:),'LineWidth',2)
-        plot(xVALS,wuAlpha,'Color',cMAP(10,:),'LineWidth',2)
-        xlim([0 0.7])
-        title('alpha')
-        subplot(4,1,3)
-
-        hold on
-        plot(xVALS,gbBeta,'Color',cMAP(246,:),'LineWidth',2)
-        plot(xVALS,wuBeta,'Color',cMAP(10,:),'LineWidth',2)
-        xlim([0 0.7])
-        title('beta')
-        subplot(4,1,4)
-
-        hold on
-        plot(xVALS,gbGamma,'Color',cMAP(246,:),'LineWidth',2)
-        plot(xVALS,wuGamma,'Color',cMAP(10,:),'LineWidth',2)
-        xlim([0 0.7])
-        title('gamma')
         xlabel('Scaled power')
         ylabel('Probability density')
-
-
-
-
-
+        title('Event Frequency bands')
 
     case 2
 
@@ -641,8 +660,10 @@ switch reMapS
         timMat1 = repmat(linspace(0,0.5,6),24,1) + transpose(0:23);
         timMat2 = timMat1(:);
         timMat3 = sort(timMat2);
-        timMatf = [timMat3(timMat3 >= 6 & timMat3 <= 18) ; ...
-            timMat3(timMat3 > 18) ; timMat3(timMat3 < 6)];
+        INBEDave = 8; % CHECK per patient
+        OUTBEDave = 20;
+        timMatf = [timMat3(timMat3 >= INBEDave & timMat3 <= OUTBEDave) ; ...
+            timMat3(timMat3 > OUTBEDave) ; timMat3(timMat3 < INBEDave)];
 
         minMat = inDATA.minu;
         houMat = inDATA.hour;
@@ -910,24 +931,7 @@ end
 
 
 
-
-function [dayMean , daySTDud] = getMeanSTD(inMat , offSET)
-
-dayMean = mean(inMat);
-
-daySTD = std(inMat);
-
-daySTDu = dayMean + (daySTD*offSET);
-daySTDd = dayMean - (daySTD*offSET);
-
-daySTDud(1,:) = daySTDu;
-daySTDud(2,:) = daySTDd;
-
-end
-
-
-
-function [freqBand_fitG , freqBand_fitW] = getBandDat(normG , HZg, normW , HZw, bAND)
+function [freqBand_fitG , freqBand_fitW , gRAW , wRAW] = getBandDat(normG , HZg, normW , HZw, bAND)
 
 switch bAND
     case 't'
@@ -955,6 +959,9 @@ gbB_pdSix = fitdist(gbBetaU,'Kernel','Width',0.05);
 freqBand_fitG = pdf(gbB_pdSix,xVALS);
 wuB_pdSix = fitdist(wuBetaU,'Kernel','Width',0.05);
 freqBand_fitW = pdf(wuB_pdSix,xVALS);
+
+gRAW = gbBetaU;
+wRAW = wuBetaU;
 
 end
 
