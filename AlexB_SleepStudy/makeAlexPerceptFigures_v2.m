@@ -36,8 +36,8 @@ switch figureNUM
         mSunful(mSunful > 2.3000e+09) = nan;
         mSunful = normalize(mSunful, 'range');
         smSunful = smoothdata(mSunful,'rloess',20,'omitnan');
-        firstDayTime6At6p = [find(tmData.hour(:,2) == 6,1,'first')+144 ...
-            find(tmData.hour(:,2) == 18,1,'first')+144] ; 
+        firstDayTime8At8p = [find(tmData.hour(:,2) == 8,1,'first')+144 ...
+            find(tmData.hour(:,2) == 20,1,'first')+144] ; 
 
         maxVale = max(smSunful);
 
@@ -47,8 +47,8 @@ switch figureNUM
         cMAP = cividis;
 %         [reMAP1] = reMapCmap(smSunful,cMAP,smSunful,0,'median');
         [reMAP] = reMapCmap(tmData,cMAP,smSunful,1,'timeBased');
-        lightCM = reMAP(10,:);
-        darkCM = reMAP(246,:);
+        lightCM = cMAP(246,:);
+        darkCM = cMAP(10,:);
         scatter(1:length(smSunful),smSunful,[],reMAP,'filled')
         ylim([0 round(maxVale + 0.1,1)])
         yticks([0 round((maxVale + 0.1)/2,2) round(maxVale + 0.1,1)])
@@ -93,12 +93,12 @@ switch figureNUM
         outText.FontWeight = "bold";
 
         % Add 6AM to 6PM markers
-        xl6a = xline(firstDayTime6At6p(1),'--','6AM','LabelVerticalAlignment','bottom',...
+        xl6a = xline(firstDayTime8At8p(1),'--','8AM','LabelVerticalAlignment','bottom',...
             'LabelHorizontalAlignment','center');
         xl6a.Color = cMAP(246,:);
-        xl6p = xline(firstDayTime6At6p(2),'--','6PM','LabelVerticalAlignment','bottom',...
+        xl6p = xline(firstDayTime8At8p(2),'--','8PM','LabelVerticalAlignment','bottom',...
             'LabelHorizontalAlignment','center');
-        xl6p.Color = cMAP(10,:);
+        xl6p.Color = cMAP(50,:);
 
         % Add grey patch code [above and below]
         % First find matching IN and OUT of bed days
