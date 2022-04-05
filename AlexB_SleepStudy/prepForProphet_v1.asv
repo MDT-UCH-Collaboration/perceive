@@ -12,7 +12,18 @@ hemisphere = 'L';
 % [apData] = getPatDat(subjectID , hemisphere , 'ActALL');
 % [cleanApT] = trim144Apdata(tmData , apData);
 
-allTIME = tmData.timeDATA = 
+allTIME = tmData.actTime;
+tmData.actTime(6,3) = tmData.actTime(5,3) + minutes(10);
+% Clean up time data
+unFurlTime = allTime(:);
+
+
+nLFP = tmData.LFP;
+unfurlLFP = nLFP(:);
+mSunful = unfurlLFP - (min(unfurlLFP));
+mSunful(mSunful > 2.3000e+09) = nan;
+mSunful = normalize(mSunful, 'range');
+smSunful = smoothdata(mSunful,'rloess',20,'omitnan');
 
 
 end

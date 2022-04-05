@@ -553,6 +553,15 @@ switch figureNUM
         title('Event Frequency bands')
 
     case 2
+         % Make prophet plot
+         proph = readtable('SPPD3_L_Forcast.csv');
+         % ds x-axis
+         % y-hat y axis - dark blue line
+         % data y axis - black points
+         % y-hat upper/lower - light blue patch
+
+
+         % SVM - for predicting sleep/wake from LFP
 
 
 

@@ -12,10 +12,10 @@ hemisphere = 'L';
 % [apData] = getPatDat(subjectID , hemisphere , 'ActALL');
 % [cleanApT] = trim144Apdata(tmData , apData);
 
-allTIME = tmData.timeDATA;
-
+allTIME = tmData.actTime;
+allTIME(6,3) = tmData.actTime(5,3) + minutes(10);
 % Clean up time data
-
+unFurlTime = allTIME(:);
 
 
 nLFP = tmData.LFP;
@@ -24,6 +24,10 @@ mSunful = unfurlLFP - (min(unfurlLFP));
 mSunful(mSunful > 2.3000e+09) = nan;
 mSunful = normalize(mSunful, 'range');
 smSunful = smoothdata(mSunful,'rloess',20,'omitnan');
+
+% to save
+prophtable = table(unFurlTime,smSunful,'VariableNames',{'ds','y'});
+writetable(prophtable,'SPPD3_L_Prophet.csv')
 
 
 end
