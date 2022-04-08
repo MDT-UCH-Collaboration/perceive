@@ -1,4 +1,4 @@
-function [] = makeAlexPerceptFigures_v2(figureNUM,subID,hemi)
+function [] = prepAlexPerceptFigures_v1(figureNUM)
 %UNTITLED Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -12,22 +12,15 @@ close all
 %. 1 Fix Figure 1A
 %. 2 Add x-label to 1E [Frequency Hz]
 %. 3 Add xline d t a b g
-
-% subID = '3'
-% hemi = 'L'
+figSave = ['Fig',num2str(figureNUM)];
+figDATA = struct;
 
 switch figureNUM
     case 1
 
-        % Set up Figure window
-        % 4 ROWS | 4 COLUMNS
-        % ROW 1 - Cols 1-3 = LFP plot | Col 4 Heat plot
-        mainFig = figure;
-        set(mainFig,'Position', [1485 311 1128 863]);
-        tiledlayout(3,4,"Padding","tight");
         % Load data
-        subjectID = subID;
-        hemisphere = hemi;
+        subjectID = '3';
+        hemisphere = 'L';
         [tmData] = getPatDat(subjectID , hemisphere , 'TimeLine');
         [evData] = getPatDat(subjectID , hemisphere , 'Events');
         [apData] = getPatDat(subjectID , hemisphere , 'ActALL');
@@ -36,9 +29,9 @@ switch figureNUM
         nLFP = tmData.LFP;
         unfurlLFP = nLFP(:);
         mSunful = unfurlLFP - (min(unfurlLFP));
-        mSunful(mSunful > 2.2999e+09) = nan;
+        mSunful(mSunful > 2.3000e+09) = nan;
         mSunful = normalize(mSunful, 'range');
-        smSunful = smoothdata(mSunful,'rloess',10,'omitnan');
+        smSunful = smoothdata(mSunful,'rloess',20,'omitnan');
         firstDayTime8At8p = [find(tmData.hour(:,2) == 8,1,'first')+144 ...
             find(tmData.hour(:,2) == 20,1,'first')+144] ; 
 
@@ -48,21 +41,9 @@ switch figureNUM
         nexttile([1 4])
 
         cMAP = cividis;
-%         [reMAP1] = reMapCmap(smSunful,cMAP,smSunful,0,'median');
         [reMAP] = reMapCmap(tmData,cMAP,smSunful,1,'timeBased');
         lightCM = cMAP(246,:);
         darkCM = cMAP(10,:);
-        scatter(1:length(smSunful),smSunful,[],reMAP,'filled')
-        ylim([0 round(maxVale + 0.1,1)])
-        yticks([0 round((maxVale + 0.1)/2,2) round(maxVale + 0.1,1)])
-        yticklabels([0 round((maxVale + 0.1)/2,2) round(maxVale + 0.1,1)])
-        ylabel('Scaled power')
-        dayStarts = round(linspace(1,length(smSunful)-144,length(smSunful)/144));
-        xticks(dayStarts);
-        xticklabels(1:length(smSunful)/144)
-        xlim([1, length(smSunful)])
-        xlabel('Days of recording')
-        set(gca,'TickLength',[0 .001])
 
         [inBEDx , inBEDdays] = findBEDinds('inbed' , evData , tmData);
 
@@ -142,7 +123,25 @@ switch figureNUM
                 'FaceAlpha',0.4,'EdgeColor','none')
         end
 
-        title(['Patient ',subID])
+
+        figDATA.(figSave).Panel1.Plan = ['''scatter(1:length(smSunful),smSunful,[],reMAP,''filled'')',...
+            ' ','set(gca,''TickLength'',[0 .001])'];
+        figDATA.(figSave).Panel1.LFP = smSunful;
+        figDATA.(figSave).Panel1.LFPcmp = reMAP;
+        figDATA.(figSave).Panel1.maxVale = maxVale;
+        figDATA.(figSave).Panel1.ylim = [0 round(maxVale + 0.1,1)];
+        figDATA.(figSave).Panel1.yticks = [0 round((maxVale + 0.1)/2,2) round(maxVale + 0.1,1)];
+        figDATA.(figSave).Panel1.yticklabels = [0 round((maxVale + 0.1)/2,2) round(maxVale + 0.1,1)];
+        figDATA.(figSave).Panel1.ylabel = 'Scaled power';
+        figDATA.(figSave).Panel1.xticks = round(linspace(1,length(smSunful)-144,length(smSunful)/144));
+        figDATA.(figSave).Panel1.xticklabels = 1:length(smSunful)/144;
+        figDATA.(figSave).Panel1.xlim = [1, length(smSunful)];
+        figDATA.(figSave).Panel1.xlabel = 'Days of recording';
+
+      
+ 
+    
+
 
         % PLOT 2 ##########################################################
         nexttile([1 4])
@@ -275,12 +274,6 @@ switch figureNUM
 
             for ii = 1:length(dnBlocks)
                 tmpBlock = dnBlocks{ii};
-
-                if length(tmpBlock) == 1
-                    continue
-                end
-
-
                 [R,P] = corrcoef(smSunful(tmpBlock),nRmACTr(tmpBlock));
                 if dn == 1
                     dayData(ii,1) = R(2,1);
@@ -289,14 +282,10 @@ switch figureNUM
                     nightData(ii,1) = R(2,1);
                     nightData(ii,2) = P(2,1);
                 end
+
+
             end
         end
-        nightNloc = isnan(nightData(:,2));
-        nightData = nightData(~nightNloc,:);
-        nightBlocks = nightBlocks(~nightNloc);
-        dayNloc = isnan(dayData(:,2));
-        dayData = dayData(~dayNloc,:);
-        dayBlocks = dayBlocks(~dayNloc);
 
         % Interpolate and mean/sd blocks
         for si = 1:2 % daynight blocks
@@ -370,13 +359,8 @@ switch figureNUM
         gbHz = evData.GoingToBed.Frequency;
         gbFFTt = gbFFT(1:82,:);
         gbHzt = gbHz(1:82,:);
-        if isfield(evData,'GettingOutOfBed')
-            wuFFT = evData.GettingOutOfBed.FFTBinData;
-            wuHz = evData.GettingOutOfBed.Frequency;
-        else
-            wuFFT = evData.WakingUp.FFTBinData;
-            wuHz = evData.WakingUp.Frequency;
-        end
+        wuFFT = evData.WakingUp.FFTBinData;
+        wuHz = evData.WakingUp.Frequency;
         wuHzt = wuHz(1:82,:);
         wuFFTt = wuFFT(1:82,:);
         % Smooth - individually
@@ -740,8 +724,7 @@ switch reMapS
 
             tmpDat = combMHu(di);
 
-%             tmLoc = find(timMatf == tmpDat);
-            [~,tmLoc] = min(abs(timMatf - tmpDat));
+            tmLoc = find(timMatf == tmpDat);
 
             cmapLoc = round((tmLoc/144)*256);
 
@@ -758,40 +741,14 @@ end
 
 function [outIND , dayOUTall] = findBEDinds(sTATE , evDAT , tlDAT)
 
-% check for repeats ***************************************
-
 if matches(sTATE,'inbed')
     evDAY = evDAT.GoingToBed.Day;
     evHOUR = evDAT.GoingToBed.Hour;
     evMIN = evDAT.GoingToBed.Minute;
 else
-    if isfield(evDAT,'GettingOutOfBed')
-        evDAY = evDAT.GettingOutOfBed.Day;
-        evHOUR = evDAT.GettingOutOfBed.Hour;
-        evMIN = evDAT.GettingOutOfBed.Minute;
-    else
-        evDAY = evDAT.WakingUp.Day;
-        evHOUR = evDAT.WakingUp.Hour;
-        evMIN = evDAT.WakingUp.Minute;
-    end
-end
-
-evDAYc = unique(evDAY);
-if length(evDAY) ~= length(evDAYc)
-
-    evDAYn = zeros(length(evDAYc),1);
-    evHOURn = zeros(length(evDAYc),1);
-    evMINn = zeros(length(evDAYc),1);
-    for ci = 1:length(evDAYc)
-        tmpCD = evDAYc(ci);
-        tmpDI = find(tmpCD == evDAY,1,'first');
-        evDAYn(ci) = tmpCD;
-        evHOURn(ci) = evHOUR(tmpDI);
-        evMINn(ci) = evMIN(tmpDI);
-    end
-    evDAY = evDAYn;
-    evHOUR = evHOURn;
-    evMIN = evMINn;
+    evDAY = evDAT.WakingUp.Day;
+    evHOUR = evDAT.WakingUp.Hour;
+    evMIN = evDAT.WakingUp.Minute;
 end
 
 tlDAY = tlDAT.day(:);
@@ -806,27 +763,18 @@ for ei = 1:length(evDAY)
     tmpHOUR = evHOUR(ei);
     tmpMIN = evMIN(ei);
     tldayFind = ismember(tlDAY,tmpDAY);
-    % If day doesn't match then skip
-    if sum(tldayFind) == 0
-        continue
-    else
-        tlhourFind = ismember(tlHOUR,tmpHOUR) & tldayFind;
-        dayOUTall(ei) = tmpDAY;
-        tlminFind = find(ismember(tlMIN,tmpMIN) & tlhourFind);
-        if isempty(tlminFind)
-            hourINDS = find(tlhourFind);
-            hourTRIM = tlMIN(tlhourFind);
-            [~ , minLOC] = min(abs(hourTRIM - tmpMIN));
-            tlminFind = hourINDS(minLOC);
-        end
-        outIND(ei) = tlminFind;
+    tlhourFind = ismember(tlHOUR,tmpHOUR) & tldayFind;
+    dayOUTall(ei) = tmpDAY;
+    tlminFind = find(ismember(tlMIN,tmpMIN) & tlhourFind);
+    if isempty(tlminFind)
+        hourINDS = find(tlhourFind);
+        hourTRIM = tlMIN(tlhourFind);
+        [~ , minLOC] = min(abs(hourTRIM - tmpMIN));
+        tlminFind = hourINDS(minLOC);
     end
-
+    outIND(ei) = tlminFind;
 
 end
-% clean up outIND and dayOUTall
-outIND = outIND(outIND ~= 0);
-dayOUTall = dayOUTall(dayOUTall ~= 0);
 
 
 end
