@@ -34,12 +34,14 @@ betapwr = downsample(betapwr, dwnsamp);
 x = length(betapwr); 
 runtab = repmat(temp.RunNum(i), x, 1); 
 chantab = repmat(temp.ChanID(i), x, 1); 
-localtab = array2table(betapwr); 
-localtab.Run = runtab; 
-localtab.Chan = chantab; 
-datatab = [datatab; localtab]; 
+localb = array2table(betapwr); 
+
+
 end 
 
+ 
 end
-allChan = datatab; 
+
+Tmaster.Properties.VariableNames = {'Identifiers', 'Values'}; 
+allChan = Tmaster;
 end 
