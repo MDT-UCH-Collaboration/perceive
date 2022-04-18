@@ -1,6 +1,6 @@
 function [] = ritalinLFPprocess_v2(analysis)
 
-cd('C:\Users\John\Documents\GitHub\perceive\RitalinLFP_casereport')
+cd('C:\Users\Admin\Documents\Github\perceive\RitalinLFP_casereport')
 preFILE = 'Report_Json_Session_Report_20220317T110442.json';
 prejs = jsondecode(fileread(preFILE));
 
