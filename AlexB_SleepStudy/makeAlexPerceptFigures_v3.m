@@ -375,16 +375,25 @@ switch figureNUM
             % 3. Add STD
             nexttile(11)
 
-            gbFFT = evData.GoingToBed.FFTBinData;
-            gbHz = evData.GoingToBed.Frequency;
+            if isfield(evData,'GoingToBed')
+                gbFFT = evData.GoingToBed.FFTBinData;
+                gbHz = evData.GoingToBed.Frequency;
+            elseif isfield(evData,'ToBed')
+                gbFFT = evData.ToBed.FFTBinData;
+                gbHz = evData.ToBed.Frequency;
+            end
             gbFFTt = gbFFT(1:82,:);
             gbHzt = gbHz(1:82,:);
+
             if isfield(evData,'GettingOutOfBed')
                 wuFFT = evData.GettingOutOfBed.FFTBinData;
                 wuHz = evData.GettingOutOfBed.Frequency;
-            else
+            elseif isfield(evData,'WakingUp')
                 wuFFT = evData.WakingUp.FFTBinData;
                 wuHz = evData.WakingUp.Frequency;
+            else
+                wuFFT = evData.AwakeInMorning.FFTBinData;
+                wuHz = evData.AwakeInMorning.Frequency;
             end
             wuHzt = wuHz(1:82,:);
             wuFFTt = wuFFT(1:82,:);
@@ -777,18 +786,28 @@ function [outIND , dayOUTall] = findBEDinds(sTATE , evDAT , tlDAT)
 % check for repeats ***************************************
 
 if matches(sTATE,'inbed')
-    evDAY = evDAT.GoingToBed.Day;
-    evHOUR = evDAT.GoingToBed.Hour;
-    evMIN = evDAT.GoingToBed.Minute;
+    if isfield(evDAT,'GoingToBed')
+        evDAY = evDAT.GoingToBed.Day;
+        evHOUR = evDAT.GoingToBed.Hour;
+        evMIN = evDAT.GoingToBed.Minute;
+    else
+        evDAY = evDAT.ToBed.Day;
+        evHOUR = evDAT.ToBed.Hour;
+        evMIN = evDAT.ToBed.Minute;
+    end
 else
     if isfield(evDAT,'GettingOutOfBed')
         evDAY = evDAT.GettingOutOfBed.Day;
         evHOUR = evDAT.GettingOutOfBed.Hour;
         evMIN = evDAT.GettingOutOfBed.Minute;
-    else
+    elseif isfield(evDAT,'WakingUp')
         evDAY = evDAT.WakingUp.Day;
         evHOUR = evDAT.WakingUp.Hour;
         evMIN = evDAT.WakingUp.Minute;
+    else
+        evDAY = evDAT.AwakeInMorning.Day;
+        evHOUR = evDAT.AwakeInMorning.Hour;
+        evMIN = evDAT.AwakeInMorning.Minute;
     end
 end
 
@@ -835,7 +854,11 @@ for ei = 1:length(evDAY)
             [~ , minLOC] = min(abs(hourTRIM - tmpMIN));
             tlminFind = hourINDS(minLOC);
         end
-        outIND(ei) = tlminFind;
+        if isempty(tlminFind)
+            continue
+        else
+            outIND(ei) = tlminFind;
+        end
     end
 
 

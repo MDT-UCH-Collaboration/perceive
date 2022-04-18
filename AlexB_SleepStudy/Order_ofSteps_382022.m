@@ -18,8 +18,8 @@ load("PatParms.mat","patParams");
 
 %% Step 3 - Events
 % One case
-pat2use = 9;
-side = 2; % for bilateral: 1 = 'L'
+pat2use = 11;
+side = 1; % for bilateral: 1 = 'L'
 
 mainDIR = 'D:\Dropbox\Publications_Meta\InProgress\ABaumgartner_Percept2020';
 userDIRs = [mainDIR,'\Data\SPPD'];
@@ -53,7 +53,7 @@ perceive_sleepTandE_v6('overSAT',overSAT,'subID',patID,...
 
 %% Step 4 - Timeline
 % One case
-pat2use = 9;
+pat2use = 12;
 side = 2; % for bilateral: 1 = 'L'
 
 mainDIR = 'D:\Dropbox\Publications_Meta\InProgress\ABaumgartner_Percept2020';
@@ -86,6 +86,19 @@ jsoN = jsonNAMEs;
 perceive_sleepTandE_v6('overSAT',overSAT,'subID',patID,...
     'saveDIR',saveDIR,'stagE',2,'userDIR',userDIR,...
     "actDIR",actDloc,'hemiS',hemiS,"tabLOC",tabLOC,"jsonDAT",jsoN)
+
+%% Step 5 - Run PyActrigraphy
+% 1. Copy paste - raw CSV from Actiwatch to
+% 'D:\Dropbox\Publications_Meta\InProgress\ABaumgartner_Percept2020\ACTrawPy'
+% 2. Execute python scrip - 'pyActOut.ipynb'
+
+
+%% Step 6 - Process PyActigraphy
+ml = 'D:\Dropbox\Publications_Meta\InProgress\ABaumgartner_Percept2020\';
+sl = 'D:\Dropbox\Publications_Meta\InProgress\ABaumgartner_Percept2020\testSav';
+processACTpyData(ml,sl)
+
+%% Step U - something weird happened to the first 2 days of Pat#11
 
 
 %% Step 5 - Plot
