@@ -2,16 +2,39 @@ function [] = makeAlexPerceptFigures_v3(figureNUM,subID,hemi,evFlag)
 %UNTITLED Summary of this function goes here
 %   Detailed explanation goes here
 
+rostLOC = 'D:\Dropbox\Publications_Meta\InProgress\ABaumgartner_Percept2020';
+cd(rostLOC)
+rostER = readtable('SubRoster.csv');
+
 mainLOC = 'D:\Dropbox\Publications_Meta\InProgress\ABaumgartner_Percept2020\testSav';
 cd(mainLOC)
 addpath('C:\Users\John\Documents\GitHub\perceive\AlexB_SleepStudy');
 addpath('C:\Users\John\Documents\GitHub\perceive\AlexB_SleepStudy\matplotlib03232022');
 close all
 
+% Create and load summary key
+
+
+
 % To do
 %. 1 Fix Figure 1A
 %. 2 Add x-label to 1E [Frequency Hz]
 %. 3 Add xline d t a b g
+
+
+% 
+% 1.	Histograms of beta power separated night and day
+% 2.	Correlation with stimulation amplitude
+% 3.	Summary the cross correlation
+% 4.	Summary of time temporal shuffle data
+% 5.	Some kind analysis of the influence peak marker
+% a.	Correlation (magnitude of beta)
+% b.	Cross correlation with actigraphy
+% c.	Temporal modeling 
+% 6.	Subset of patients with neuroimaging – correlate with location of contact
+% 
+% 1.	Unique plot for 1-2 patients bilateral recording
+
 
 % subID = '3'
 % hemi = 'L'
@@ -605,6 +628,251 @@ switch figureNUM
 
 
         % SVM - for predicting sleep/wake from LFP
+
+    case 3
+
+        subjectID = subID;
+        hemisphere = hemi;
+        [tmData] = getPatDat(subjectID , hemisphere , 'TimeLine');
+
+        if evFlag
+            [evData] = getPatDat(subjectID , hemisphere , 'Events');
+        end
+
+        [apData] = getPatDat(subjectID , hemisphere , 'ActALL');
+        [cleanApT] = trim144Apdata(tmData , apData);
+
+        nLFP = tmData.LFP;
+        unfurlLFP = nLFP(:);
+        mSunful = unfurlLFP - (min(unfurlLFP));
+        mSunful(mSunful > 2.2999e+09) = nan;
+        mSunful = normalize(mSunful, 'range');
+        smSunful = smoothdata(mSunful,'rloess',10,'omitnan');
+
+        % Method one for creating histograms
+        % 1. Use Actigraphy night and day to index into LFP
+        % Sleep Wake State
+        % Ronnenberg: 1 = Sleep
+        % Crespo: 1 = Wake
+        % Invert Ronneberg
+        reonUF = cleanApT.ronenbSW(:);
+        nonNanInd1 = ~isnan(reonUF);
+        reonUnfurli = ~reonUF(nonNanInd1);
+        reonUFi = reonUF;
+        reonUFi(nonNanInd1) = reonUnfurli;
+        % Get Crespo
+        cresUF = cleanApT.crespoSW(:);
+        % Find agreement
+        pairRC = [reonUFi , cresUF];
+        nanInd2 = isnan(pairRC(:,1));
+        % Find nonNans
+        pairMatch = pairRC(:,1) == pairRC(:,2);
+        swFinMat = pairRC(:,1);
+        swFinMat(pairMatch) = pairRC(pairMatch,1);
+        swFinMat(~pairMatch) = nan;
+        swFinMat(nanInd2) = nan;
+
+        dayLFPs = smSunful(swFinMat == 1);
+%         allHour = tmData.hour(:);
+%         dayHour = allHour(swFinMat == 1);
+        nightLFPs = smSunful(swFinMat == 0);
+%         nightHour = allHour(swFinMat == 0);
+%         dayNightDat = [dayLFPs;nightLFPs];
+%         dayNightID = [repmat({'day'},size(dayLFPs)) ; repmat({'night'},size(nightLFPs))];
+%         dayNightHour = [dayHour ; nightHour];
+
+%         tbl = table(dayNightDat , dayNightID , dayNightHour,'VariableNames',{'LFP','DN','Hour'});
+% 
+%         x = categorical(tbl.DN,{'day','night'});
+%         y = tbl.LFP;
+%         swarmchart(x,y,20,'filled');
+
+        close all
+        dayHist = histogram(dayLFPs);
+        
+        dayHist.Normalization = "probability";
+        dayHist.BinWidth = 0.025;
+        dayHist.EdgeColor = 'none';
+        dayHist.FaceColor = 'blue';
+        dayHist.FaceAlpha = 0.1;
+        
+        hold on
+        dayStairs = stairs([0 ,dayHist.BinEdges],[0 , dayHist.Values , 0],'k');
+        dayStairs.Color = 'blue';
+
+        nightHist = histogram(nightLFPs);
+        nightHist.Normalization = "probability";
+        nightHist.BinWidth = 0.025;
+        nightHist.EdgeColor = 'none';
+        nightHist.FaceColor = 'red';
+        nightHist.FaceAlpha = 0.1;
+        nightStairs = stairs([0 ,nightHist.BinEdges],[0, nightHist.Values , 0],'k');
+        nightStairs.Color = 'red';
+
+        ylim([0 0.25])
+        yticks([0 0.125 0.25])
+        ylabel('Prob. density')
+        xlim([0 1])
+        xticks([0 0.5 1])
+        xlabel('Scaled LFP')
+        legend({'Awake','','Sleep',''})
+       
+        axis square
+%         nightSwarm = swarmchart(nightLFPs);
+
+
+    case 4
+        % Collect data for all patients indicated in CASE 3
+        
+        hemiID = zeros(height(rostER),1);
+        hemiLab = cell(height(rostER),1);
+        subLab = cell(height(rostER),1);
+        subID = zeros(height(rostER),1);
+        lfpPEak = zeros(height(rostER),1);
+        awakeLFP = cell(height(rostER),1);
+        asleepLFP = cell(height(rostER),1);
+        mdLFPawk = zeros(height(rostER),1);
+        for ri = 1:height(rostER)
+
+            tmpSUB = num2str(rostER.subID(ri));
+            tmpHEMI = upper(rostER.hemI{ri});
+            hemiLab{ri} = tmpHEMI;
+            subLab{ri} = tmpSUB;
+            [tmData] = getPatDat(tmpSUB , tmpHEMI , 'TimeLine');
+
+            [apData] = getPatDat(tmpSUB , tmpHEMI , 'ActALL');
+            [cleanApT] = trim144Apdata(tmData , apData);
+
+            lfpPEak(ri) = tmData.senseFreq;
+
+            nLFP = tmData.LFP;
+            unfurlLFP = nLFP(:);
+            mSunful = unfurlLFP - (min(unfurlLFP));
+            mSunful(mSunful > 2.2999e+09) = nan;
+            mSunful = normalize(mSunful, 'range');
+
+            mdLFPawk(ri) = median(mSunful);
+
+            reonUF = cleanApT.ronenbSW(:);
+            nonNanInd1 = ~isnan(reonUF);
+            reonUnfurli = ~reonUF(nonNanInd1);
+            reonUFi = reonUF;
+            reonUFi(nonNanInd1) = reonUnfurli;
+            % Get Crespo
+            cresUF = cleanApT.crespoSW(:);
+            % Find agreement
+            pairRC = [reonUFi , cresUF];
+            nanInd2 = isnan(pairRC(:,1));
+            % Find nonNans
+            pairMatch = pairRC(:,1) == pairRC(:,2);
+            swFinMat = pairRC(:,1);
+            swFinMat(pairMatch) = pairRC(pairMatch,1);
+            swFinMat(~pairMatch) = nan;
+            swFinMat(nanInd2) = nan;
+
+            dayLFPs = mSunful(swFinMat == 1);
+            nightLFPs = mSunful(swFinMat == 0);
+
+            awakeLFP{ri} = dayLFPs;
+            asleepLFP{ri} = nightLFPs;
+
+            if matches(tmpHEMI,'R')
+                hemiID(ri) = 1;
+            end
+            subID(ri) = rostER.subID(ri);
+            
+        end
+
+        % Unpack, normalize, and repack
+        allDATA = [];
+        allpat = [];
+        allAA = {};
+        for spI = 1:height(awakeLFP)
+
+            % awake
+            allDATA = [allDATA ; awakeLFP{spI}];
+            allpat = [allpat ; repmat(spI,size(awakeLFP{spI}))];
+            allAA = [allAA ; repmat({'awake'},size(awakeLFP{spI}))];
+            % asleep
+            allDATA = [allDATA ; asleepLFP{spI}];
+            allpat = [allpat ; repmat(spI,size(asleepLFP{spI}))];
+            allAA = [allAA ; repmat({'asleep'},size(asleepLFP{spI}))];
+
+        end
+        allDATAnorm = normalize(allDATA, 'range');
+
+        % repack
+        awakeLFP2 = cell(height(awakeLFP),1);
+        asleepLFP2 = cell(height(asleepLFP),1);
+        medianAW = zeros(height(awakeLFP),1);
+        medianAS = zeros(height(awakeLFP),1);
+        for spI2 = 1:height(awakeLFP)
+            awakeTmp = ismember(allpat,spI2) & matches(allAA,'awake');
+            asleepTmp = ismember(allpat,spI2) & matches(allAA,'asleep');
+
+            awakeLFP2{spI2} = allDATAnorm(awakeTmp);
+            medianAW(spI2) = median(awakeLFP2{spI2},'omitnan');
+            asleepLFP2{spI2} = allDATAnorm(asleepTmp);
+            medianAS(spI2) = median(asleepLFP2{spI2},'omitnan'); 
+        end
+
+        % Left first
+%         [~ , hemiSortI] = sort(hemiID);
+%         lhemiSlfpAW =  awakeLFP(hemiSortI);
+%         lhemiSlfpAS =  asleepLFP(hemiSortI);
+%         peakSORTh = lfpPEak(hemiSortI);
+
+        % Sort by max norm power
+        [~ , mdPwrI] = sort(mdLFPawk,'descend');
+
+        % Beta peak sort
+%         [~ , peakSortI] = sort(hemiSortI);
+        lhPkSlfpAW =  awakeLFP2(mdPwrI);
+        lhPkSlfpAS =  asleepLFP2(mdPwrI);
+        medAWs = medianAW(mdPwrI);
+        medASs = medianAS(mdPwrI);
+        hemiSor = hemiLab(mdPwrI);
+        subSor = subLab(mdPwrI);
+        yAXtk = height(lhPkSlfpAS)*2:-2:1;
+
+        for spI = 1:height(lhPkSlfpAS)
+
+            aSLeepX = lhPkSlfpAS{spI};
+            aSLeepY = repmat(yAXtk(spI),size(aSLeepX));
+            aSleepSC = swarmchart(aSLeepX,aSLeepY,10,'filled');
+            aSleepSC.XJitter = 'none';
+            aSleepSC.YJitter = 'density';
+            aSleepSC.YJitterWidth = 0.9;
+            aSleepSC.MarkerFaceAlpha = 0.3;
+            aSleepSC.MarkerEdgeColor = "none";
+            aSleepSC.MarkerFaceColor = [0 0.447 0.741];
+            hold on
+            aAwakeX = lhPkSlfpAW{spI};
+            aAwakeY = repmat(yAXtk(spI)-1,size(aAwakeX));
+            aAwakeSC = swarmchart(aAwakeX,aAwakeY,10,'filled');
+            aAwakeSC.XJitter = 'none';
+            aAwakeSC.YJitter = 'density';
+            aAwakeSC.YJitterWidth = 0.9;
+            aAwakeSC.MarkerFaceAlpha = 0.3;
+            aAwakeSC.MarkerEdgeColor = "none";
+            aAwakeSC.MarkerFaceColor = [0.929 0.694 0.125];
+
+        end
+        plot(medASs,yAXtk,'LineStyle','-','LineWidth',2,'Color',[0 0.447 0.741]);
+        scatter(medASs,transpose(yAXtk),100,[0 0.447 0.741],'filled');
+        plot(medAWs,yAXtk-1,'LineStyle','-','LineWidth',2,'Color',[0.929 0.694 0.125]);
+        scatter(medAWs,transpose(yAXtk)-1,100,[0.929 0.694 0.125],'filled');
+        xlim([0 1])
+        ylim([0 33])
+
+        axis square
+        xticks([0 0.5 1])
+        xlabel('Scaled LFP')
+        ylabel('All subjects and hemipsheres')
+        yticks(2:2:32)
+        subHemiLabs = cellfun(@(x,y) [x , y], subSor , hemiSor, 'UniformOutput',false);
+        yticklabels(subHemiLabs)
+
 
 
 
