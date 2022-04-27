@@ -1,4 +1,4 @@
-function [] = makeAlexPerceptFigures_v3(figureNUM,subID,hemi,evFlag)
+function [] = makeAlexPerceptFigures_v4(figureNUM,subID,hemi,evFlag)
 %UNTITLED Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -22,18 +22,16 @@ close all
 %. 3 Add xline d t a b g
 
 
-%
-% 1.	Histograms of beta power separated night and day
-% 1b.   Calculate percent overlap in histograms
-% 2.	Correlation with stimulation amplitude
-% 3.	Summary the cross correlation
-% 4.	Summary of time temporal shuffle data
-% 5.	Some kind analysis of the influence peak marker
-% a.	Correlation (magnitude of beta)
-% c.	Temporal modeling
+% 1a.   Calculate percent overlap in histograms [complement to Figure 2] -
+% 1b.   Need stats for Figure 2
+% 2.	Summary the cross correlation - Summary by night/day block
+% 3a.	circe dieum - Summary of time temporal shuffle data - One value per subject
+% 3b.   circe dieum - Summary of variance explained - One value per subject
+% 3c.   heat plot of all ? [z-scored lfp]
 % 6.	Subset of patients with neuroimaging – correlate with location of contact
 %
 % 1.	Unique plot for 1-2 patients bilateral recording
+% 2.    Unique plot for subject with switched Contact
 
 
 % subID = '3'
@@ -1116,6 +1114,8 @@ switch figureNUM
         awakeLFP = cell(height(rostER),1);
         asleepLFP = cell(height(rostER),1);
         mdLFPawk = zeros(height(rostER),1);
+        awakeSTM = zeros(height(rostER),1);
+        asleepSTM = zeros(height(rostER),1);
         for ri = 1:height(rostER)
 
             tmpSUB = num2str(rostER.subID(ri));
@@ -1134,6 +1134,10 @@ switch figureNUM
             mSunful = unfurlLFP - (min(unfurlLFP));
             mSunful(mSunful > 2.2999e+09) = nan;
             mSunful = normalize(mSunful, 'range');
+
+            % Stim data
+            stimDat = tmData.Stim;
+            unfurlSTM = stimDat(:);
 
             mdLFPawk(ri) = median(mSunful,'omitnan');
 
@@ -1156,6 +1160,11 @@ switch figureNUM
 
             dayLFPs = mSunful(swFinMat == 1);
             nightLFPs = mSunful(swFinMat == 0);
+
+            daySTIM = unfurlSTM(swFinMat == 1);
+            nightSTIM = unfurlSTM(swFinMat == 0);
+            awakeSTM(ri) = mean(daySTIM(daySTIM ~= 0),'omitnan');
+            asleepSTM(ri) = mean(nightSTIM(nightSTIM ~= 0),'omitnan');
 
             awakeLFP{ri} = dayLFPs;
             asleepLFP{ri} = nightLFPs;
@@ -1305,14 +1314,124 @@ switch figureNUM
 
         axis square
         
+        allSTM = mean([awakeSTM , asleepSTM],2);
+        % Correlate with STIM
+        % 1. Correlate Diff with STIM
+        coefficients3 = polyfit(medOffset, allSTM, 1);
+        % Create a new x axis with exactly 1000 points (or whatever you want).
+        xFit3 = linspace(min(medOffset), max(medOffset), 1000);
+        % Get the estimated yFit value for each of those 1000 new x locations.
+        yFit3 = polyval(coefficients3 , xFit3);
+
+        
+        figure;
+        dp2 = plot(medOffset,allSTM,'o');
+        dp2.MarkerFaceColor = 'k';
+        dp2.MarkerEdgeColor = 'k';
+        dp2.MarkerSize = 10;
+        hold on
+        plot(xFit3, yFit3, 'k--', 'LineWidth', 2);
+        ylim([0 7])
+        yticks([0 3 6])
+        ylabel('Average stimulation (mA)')
+        xlim([0 0.35])
+        xticks([0 0.175 0.35])
+        xlabel('Scaled LFP delta between Asleep and Awake')
+        [r3,p3] = corr(allSTM,medOffset);
+        text(0.28, 6, ['p = ',num2str(round(p3,3))])
+        text(0.28, 5.6, ['r = ',num2str(round(r3,3))])
+        title('Correlation between median difference in LFP and stimulation')
+
+        axis square
+       
 
 
 
 
 
 
-        % INDIVIDUAL SESSION?
+        % INDIVIDUAL SESSION? for Cross Cor Analysis
 
+
+    case 7
+
+        my_favourite_colour     = [0.8500 0.3250 0.0980];
+        subjectID = subID;
+        hemisphere = hemi;
+        [tmData] = getPatDat(subjectID , hemisphere , 'TimeLine');
+
+        time_stamps = tmData.actTime(:);
+
+        nLFP = tmData.LFP;
+        unfurlLFP = nLFP(:);
+        mSunful = unfurlLFP - (min(unfurlLFP));
+        mSunful(mSunful > 2.2999e+09) = nan;
+
+        values = mSunful;
+
+        figure
+        set(gcf,'Units','Normalized','Position',[.2 .4 .6 .25])
+        plot_zscored_timeseries(time_stamps, values, my_favourite_colour)
+
+        figure
+        set(gcf,'Units','Normalized','Position',[.3 .3 .4 .3])
+
+        time_res        = 1; % time resolution (in hours) for periodogram
+        max_period      = 72; % Maximum period of 1 week = 168 hours
+        do_normalise    = true; % Whether to normalise the periodogram
+
+        % Calculate periodogram
+        [psd_estimate, time_periods] = circadian_periodogram(time_stamps, values, time_res, max_period);
+
+        % Plot the periodogram
+        plot_periodogram(psd_estimate, time_periods, do_normalise, my_favourite_colour)
+
+        time_res        = 1;
+        n_shuffles      = 200;
+        shuffle_type    = 'circshift';
+
+        % Get the proportion of variance explained by time of day
+        var_explained = variance_explained_by_timeofday(time_stamps, values, time_res);
+
+        % Get the variance explained for shuffled data n_shuffles times to see whether var_explained is significant
+        [~, var_explained_p] = get_shuffled_var_explained(time_stamps, values, time_res, n_shuffles, shuffle_type);
+
+        % Plot a fit based on time of day to the data across days
+        figure
+        plot_timeofday_fit(time_stamps, values, time_res, my_favourite_colour)
+
+        % Add the variance explained by time of day & p-val to the figure title
+        title(['Var explained by TOD: ' num2str(var_explained) ', p =' num2str(var_explained_p)])
+
+        figure
+        plot_timeofday_fit(time_stamps, values, time_res, my_favourite_colour,'polar')
+
+        time_res    = 1;
+        stat        = 'mean';
+
+        figure
+        circadian_rose(time_stamps, values, time_res, stat, my_favourite_colour)
+
+        time_res            = 1; % Temporal resolution of time bins (= heatmap pixels)
+        percentile_cutoff   = 2; % For the colour scale of the heatmap, ignore the top and bottom x% of data
+
+        [circadian_matrix, ~] = make_circadian_matrix(time_stamps, values, time_res);
+
+        figure
+        plot_circadian_matrix(circadian_matrix, percentile_cutoff, my_favourite_colour);
+
+        close all
+
+        circadian_summary_figure(time_stamps, values,time_res)
+
+%         % Get shuffled data points
+%         shuffled_data_points    = within_day_shuffle(time_stamps, values, 'circshift');
+% 
+%         [circadian_matrix, time_edges] = make_circadian_matrix(time_stamps, shuffled_data_points, time_res);
+% 
+% 
+%         figure
+%         plot_circadian_matrix(circadian_matrix, percentile_cutoff, my_favourite_colour);
 
 
 
