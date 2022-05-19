@@ -52,6 +52,11 @@ patParams.P12.L.OverSat = true;
 patParams.P12.L.json = 'Report_Json_Session_Report_20220412T132512.json';
 patParams.P12.R.OverSat = true;
 patParams.P12.R.json = 'Report_Json_Session_Report_20220412T132512.json';
+%% 13
+patParams.P13.L.OverSat = true;
+patParams.P13.L.json = 'Report_Json_Session_Report_20220516T141025.json';
+patParams.P13.R.OverSat = true;
+patParams.P13.R.json = 'Report_Json_Session_Report_20220516T141025.json';
 %% Final step
 
 dateCreate = datestr(now);

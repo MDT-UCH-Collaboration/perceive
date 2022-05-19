@@ -1,15 +1,29 @@
-function [] = makeAlexPerceptFigures_v4(figureNUM,subID,hemi,evFlag)
+function [] = makeAlexPerceptFigures_v4(figureNUM,subID,hemi,evFlag,dirPRE)
 %UNTITLED Summary of this function goes here
 %   Detailed explanation goes here
 
-rostLOC = 'D:\Dropbox\Publications_Meta\InProgress\ABaumgartner_Percept2020';
+
+switch dirPRE
+    case 1 % Home Desktop
+        dPrefix = 'D:\Dropbox\';
+        gPrefix = 'C:\Users\John\';
+    case 2 % Work Desktop
+        dPrefix = 'C:\Users\Admin\Dropbox\';
+        gPrefix = 'C:\Users\Admin\';
+    case 3
+
+
+end
+
+
+rostLOC = [dPrefix,'Publications_Meta\InProgress\ABaumgartner_Percept2020'];
 cd(rostLOC)
 rostER = readtable('SubRoster.csv');
 
-mainLOC = 'D:\Dropbox\Publications_Meta\InProgress\ABaumgartner_Percept2020\testSav';
+mainLOC = [dPrefix,'Publications_Meta\InProgress\ABaumgartner_Percept2020\testSav'];
 cd(mainLOC)
-addpath('C:\Users\John\Documents\GitHub\perceive\AlexB_SleepStudy');
-addpath('C:\Users\John\Documents\GitHub\perceive\AlexB_SleepStudy\matplotlib03232022');
+addpath([gPrefix,'Documents\GitHub\perceive\AlexB_SleepStudy']);
+addpath([gPrefix,'Documents\GitHub\perceive\AlexB_SleepStudy\matplotlib03232022']);
 close all
 
 % Create and load summary key
@@ -21,12 +35,11 @@ close all
 %. 2 Add x-label to 1E [Frequency Hz]
 %. 3 Add xline d t a b g
 
-
-% 1a.   Calculate percent overlap in histograms [complement to Figure 2] -
-% 1b.   Need stats for Figure 2
 % 2.	Summary the cross correlation - Summary by night/day block
+
 % 3a.	circe dieum - Summary of time temporal shuffle data - One value per subject
 % 3b.   circe dieum - Summary of variance explained - One value per subject
+
 % 3c.   heat plot of all ? [z-scored lfp]
 % 6.	Subset of patients with neuroimaging – correlate with location of contact
 %
@@ -629,6 +642,9 @@ switch figureNUM
 
     case 3
 
+        cMAP = cividis;
+        lightCM = cMAP(246,:);
+        darkCM = cMAP(10,:);
         subjectID = subID;
         hemisphere = hemi;
         [tmData] = getPatDat(subjectID , hemisphere , 'TimeLine');
@@ -691,21 +707,21 @@ switch figureNUM
         dayHist.Normalization = "probability";
         dayHist.BinWidth = 0.025;
         dayHist.EdgeColor = 'none';
-        dayHist.FaceColor = 'blue';
+        dayHist.FaceColor = lightCM;
         dayHist.FaceAlpha = 0.1;
 
         hold on
         dayStairs = stairs([0 ,dayHist.BinEdges],[0 , dayHist.Values , 0],'k');
-        dayStairs.Color = 'blue';
+        dayStairs.Color = lightCM;
 
         nightHist = histogram(nightLFPs);
         nightHist.Normalization = "probability";
         nightHist.BinWidth = 0.025;
         nightHist.EdgeColor = 'none';
-        nightHist.FaceColor = 'red';
+        nightHist.FaceColor = darkCM;
         nightHist.FaceAlpha = 0.1;
         nightStairs = stairs([0 ,nightHist.BinEdges],[0, nightHist.Values , 0],'k');
-        nightStairs.Color = 'red';
+        nightStairs.Color = darkCM;
 
         ylim([0 0.25])
         yticks([0 0.125 0.25])
@@ -1313,7 +1329,7 @@ switch figureNUM
         title('Correlation between median difference in LFP and Peak Frequency')
 
         axis square
-        
+
         allSTM = mean([awakeSTM , asleepSTM],2);
         % Correlate with STIM
         % 1. Correlate Diff with STIM
@@ -1323,7 +1339,7 @@ switch figureNUM
         % Get the estimated yFit value for each of those 1000 new x locations.
         yFit3 = polyval(coefficients3 , xFit3);
 
-        
+
         figure;
         dp2 = plot(medOffset,allSTM,'o');
         dp2.MarkerFaceColor = 'k';
@@ -1343,17 +1359,156 @@ switch figureNUM
         title('Correlation between median difference in LFP and stimulation')
 
         axis square
-       
 
 
 
 
-
-
+    case 7 % Cross correlation
         % INDIVIDUAL SESSION? for Cross Cor Analysis
+        hemiID = zeros(height(rostER),1);
+        hemiLab = cell(height(rostER),1);
+        subLab = cell(height(rostER),1);
+        subID = zeros(height(rostER),1);
+        lfpPEak = zeros(height(rostER),1);
+        awakeLFP = cell(height(rostER),1);
+        asleepLFP = cell(height(rostER),1);
+        mdLFPawk = zeros(height(rostER),1);
+        for ri = 1:height(rostER)
+
+            tmpSUB = num2str(rostER.subID(ri));
+            tmpHEMI = upper(rostER.hemI{ri});
+            hemiLab{ri} = tmpHEMI;
+            subLab{ri} = tmpSUB;
+            [tmData] = getPatDat(tmpSUB , tmpHEMI , 'TimeLine');
+
+            [apData] = getPatDat(tmpSUB , tmpHEMI , 'ActALL');
+            [cleanApT] = trim144Apdata(tmData , apData);
+
+            lfpPEak(ri) = tmData.senseFreq;
+
+            nLFP = tmData.LFP;
+            unfurlLFP = nLFP(:);
+            mSunful = unfurlLFP - (min(unfurlLFP));
+            mSunful(mSunful > 2.2999e+09) = nan;
+            mSunful = normalize(mSunful, 'range');
+
+            mdLFPawk(ri) = median(mSunful,'omitnan');
+
+            reonUF = cleanApT.ronenbSW(:);
+            nonNanInd1 = ~isnan(reonUF);
+            reonUnfurli = ~reonUF(nonNanInd1);
+            reonUFi = reonUF;
+            reonUFi(nonNanInd1) = reonUnfurli;
+            % Get Crespo
+            cresUF = cleanApT.crespoSW(:);
+            % Find agreement
+            pairRC = [reonUFi , cresUF];
+            nanInd2 = isnan(pairRC(:,1));
+            % Find nonNans
+            pairMatch = pairRC(:,1) == pairRC(:,2);
+            swFinMat = pairRC(:,1);
+            swFinMat(pairMatch) = pairRC(pairMatch,1);
+            swFinMat(~pairMatch) = nan;
+            swFinMat(nanInd2) = nan;
+
+            dayLFPs = mSunful(swFinMat == 1);
+            nightLFPs = mSunful(swFinMat == 0);
+
+            awakeLFP{ri} = dayLFPs;
+            asleepLFP{ri} = nightLFPs;
+
+            if matches(tmpHEMI,'R')
+                hemiID(ri) = 1;
+            end
+            subID(ri) = rostER.subID(ri);
+
+        end
+
+        test = 1;
 
 
-    case 7
+
+
+
+
+    case 8 % Histogram overlap
+
+        hemiLab = cell(height(rostER),1);
+        subLab = cell(height(rostER),1);
+        perOVER = nan(height(rostER),1);
+        % Loop through subjects / hemispheres
+        for ri = 1:height(rostER)
+
+            tmpSUB = num2str(rostER.subID(ri));
+            tmpHEMI = upper(rostER.hemI{ri});
+            hemiLab{ri} = tmpHEMI;
+            subLab{ri} = tmpSUB;
+            [tmData] = getPatDat(tmpSUB , tmpHEMI , 'TimeLine');
+            [apData] = getPatDat(tmpSUB , tmpHEMI , 'ActALL');
+            [cleanApT] = trim144Apdata(tmData , apData);
+
+            nLFP = tmData.LFP;
+            unfurlLFP = nLFP(:);
+            mSunful = unfurlLFP - (min(unfurlLFP));
+            mSunful(mSunful > 2.2999e+09) = nan;
+            mSunful = normalize(mSunful, 'range');
+            smSunful = smoothdata(mSunful,'rloess',10,'omitnan');
+
+            % Method one for creating histograms
+            % 1. Use Actigraphy night and day to index into LFP
+            % Sleep Wake State
+            % Ronnenberg: 1 = Sleep
+            % Crespo: 1 = Wake
+            % Invert Ronneberg
+            reonUF = cleanApT.ronenbSW(:);
+            nonNanInd1 = ~isnan(reonUF);
+            reonUnfurli = ~reonUF(nonNanInd1);
+            reonUFi = reonUF;
+            reonUFi(nonNanInd1) = reonUnfurli;
+            % Get Crespo
+            cresUF = cleanApT.crespoSW(:);
+            % Find agreement
+            pairRC = [reonUFi , cresUF];
+            nanInd2 = isnan(pairRC(:,1));
+            % Find nonNans
+            pairMatch = pairRC(:,1) == pairRC(:,2);
+            swFinMat = pairRC(:,1);
+            swFinMat(pairMatch) = pairRC(pairMatch,1);
+            swFinMat(~pairMatch) = nan;
+            swFinMat(nanInd2) = nan;
+
+            dayLFPs = smSunful(swFinMat == 1);
+            nightLFPs = smSunful(swFinMat == 0);
+
+            bothHistograms = [nightLFPs; dayLFPs];
+            minCounts = min(bothHistograms, [], 1);
+            maxCounts = max(bothHistograms, [], 1);
+            perOVER(ri) = minCounts ./ maxCounts;
+
+        end
+
+        % PLOT STUFF
+        absPERO = abs(perOVER);
+        [perOVsort , sIND] = sort(absPERO,'ascend');
+        hemiLsort = hemiLab(sIND);
+        subLsort = subLab(sIND);
+
+        scatter(perOVsort,1:length(perOVsort),50,"black","filled");
+        hold on
+        scatter(perOVsort(12), 12, 50, "red","filled")
+        xlim([0 0.5])
+        xticks([0 0.25 0.5])
+        xlabel("Fraction overlap between Night/Day LFP")
+        ylabel("Subject | Hemisphere ID")
+        ylim([0 17])
+        yticks(1:length(perOVsort))
+        hemiSubL = cellfun(@(x,y) [x , y], subLsort, hemiLsort,'UniformOutput',false);
+        yticklabels(hemiSubL);
+
+        axis square
+
+
+    case 9 % CARPE DIEM
 
         my_favourite_colour     = [0.8500 0.3250 0.0980];
         subjectID = subID;
@@ -1424,14 +1579,14 @@ switch figureNUM
 
         circadian_summary_figure(time_stamps, values,time_res)
 
-%         % Get shuffled data points
-%         shuffled_data_points    = within_day_shuffle(time_stamps, values, 'circshift');
-% 
-%         [circadian_matrix, time_edges] = make_circadian_matrix(time_stamps, shuffled_data_points, time_res);
-% 
-% 
-%         figure
-%         plot_circadian_matrix(circadian_matrix, percentile_cutoff, my_favourite_colour);
+        %         % Get shuffled data points
+        %         shuffled_data_points    = within_day_shuffle(time_stamps, values, 'circshift');
+        %
+        %         [circadian_matrix, time_edges] = make_circadian_matrix(time_stamps, shuffled_data_points, time_res);
+        %
+        %
+        %         figure
+        %         plot_circadian_matrix(circadian_matrix, percentile_cutoff, my_favourite_colour);
 
 
 

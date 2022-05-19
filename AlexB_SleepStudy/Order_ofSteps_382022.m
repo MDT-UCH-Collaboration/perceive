@@ -9,7 +9,7 @@
 
 %% Step 1
 % Process actigraphy
-actigraphyProcess(subID)
+actigraphyProcess(subID,1)
 
 %% Step 2
 % Load in Pat struct
@@ -18,14 +18,16 @@ load("PatParms.mat","patParams");
 
 %% Step 3 - Events
 % One case
-pat2use = 11;
-side = 1; % for bilateral: 1 = 'L'
+pat2use = 13;
+side = 2; % for bilateral: 1 = 'L'
 
-mainDIR = 'D:\Dropbox\Publications_Meta\InProgress\ABaumgartner_Percept2020';
+% mainDIR = 'D:\Dropbox\Publications_Meta\InProgress\ABaumgartner_Percept2020';
+mainDIR = 'C:\Users\Admin\Dropbox\Publications_Meta\InProgress\ABaumgartner_Percept2020';
 userDIRs = [mainDIR,'\Data\SPPD'];
 userDIRe = '\JSON_LFP';
 % saveDIRs = [mainDIR,'\Data\SPPD'];
-saveDIRe = 'D:\Dropbox\Publications_Meta\InProgress\ABaumgartner_Percept2020\testSav';
+% saveDIRe = 'D:\Dropbox\Publications_Meta\InProgress\ABaumgartner_Percept2020\testSav';
+saveDIRe = 'C:\Users\Admin\Dropbox\Publications_Meta\InProgress\ABaumgartner_Percept2020\testSav';
 tabLOC = [mainDIR,'\summarydataTab.csv'];
 actDloc = [mainDIR,'\Data\SPPD'];
 
@@ -53,14 +55,16 @@ perceive_sleepTandE_v6('overSAT',overSAT,'subID',patID,...
 
 %% Step 4 - Timeline
 % One case
-pat2use = 12;
+pat2use = 13;
 side = 2; % for bilateral: 1 = 'L'
 
-mainDIR = 'D:\Dropbox\Publications_Meta\InProgress\ABaumgartner_Percept2020';
+% mainDIR = 'D:\Dropbox\Publications_Meta\InProgress\ABaumgartner_Percept2020';
+mainDIR = 'C:\Users\Admin\Dropbox\Publications_Meta\InProgress\ABaumgartner_Percept2020';
 userDIRs = [mainDIR,'\Data\SPPD'];
 userDIRe = '\JSON_LFP';
 % saveDIRs = [mainDIR,'\Data\SPPD'];
-saveDIRe = 'D:\Dropbox\Publications_Meta\InProgress\ABaumgartner_Percept2020\testSav';
+% saveDIRe = 'D:\Dropbox\Publications_Meta\InProgress\ABaumgartner_Percept2020\testSav';
+saveDIRe = 'C:\Users\Admin\Dropbox\Publications_Meta\InProgress\ABaumgartner_Percept2020\testSav';
 tabLOC = [mainDIR,'\summarydataTab.csv'];
 actDloc = [mainDIR,'\Data\SPPD'];
 
