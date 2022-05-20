@@ -1365,14 +1365,21 @@ switch figureNUM
 
     case 7 % Cross correlation
         % INDIVIDUAL SESSION? for Cross Cor Analysis
+        % BREAK DOWN BY DAY/NIGHT ??????? -------------- 5/20/2022
         hemiID = zeros(height(rostER),1);
         hemiLab = cell(height(rostER),1);
         subLab = cell(height(rostER),1);
         subID = zeros(height(rostER),1);
         lfpPEak = zeros(height(rostER),1);
         awakeLFP = cell(height(rostER),1);
+        awakeACT = cell(height(rostER),1);
         asleepLFP = cell(height(rostER),1);
+        asleepACT = cell(height(rostER),1);
         mdLFPawk = zeros(height(rostER),1);
+        asleepDTW = nan(height(rostER),1);
+        awakeDTW = nan(height(rostER),1);
+        awakeDTWall = cell(height(rostER),1);
+        asleepDTWall = cell(height(rostER),1);
         for ri = 1:height(rostER)
 
             tmpSUB = num2str(rostER.subID(ri));
@@ -1395,8 +1402,10 @@ switch figureNUM
             mdLFPawk(ri) = median(mSunful,'omitnan');
 
             reonUF = cleanApT.ronenbSW(:);
+            cosALL = cleanApT.cosinar(:);
             nonNanInd1 = ~isnan(reonUF);
             reonUnfurli = ~reonUF(nonNanInd1);
+ 
             reonUFi = reonUF;
             reonUFi(nonNanInd1) = reonUnfurli;
             % Get Crespo
@@ -1411,11 +1420,72 @@ switch figureNUM
             swFinMat(~pairMatch) = nan;
             swFinMat(nanInd2) = nan;
 
+            % Set up Cosinar
+            cosAllnan = cosALL;
+            cosAllnan(nanInd2) = nan;
+
+
+
+
+            % BREAK INTO SEGMENTS BY night/day
+            [dayBlocks , nightBlocks] = getBlocks(swFinMat);
+            nightData = nan(length(nightBlocks),1);
+            dayData = nan(length(dayBlocks),1);
+            for dn = 1:2
+                if dn == 1
+                    dnBlocks = dayBlocks;
+                else
+                    dnBlocks = nightBlocks;
+                end
+
+                for ii = 1:length(dnBlocks)
+                    tmpBlock = dnBlocks{ii};
+
+                    if length(tmpBlock) == 1
+                        continue
+                    end
+
+                    if any(isnan(mSunful(tmpBlock))) || any(isnan(cosAllnan(tmpBlock)))
+                        continue
+                    else
+                        [distO] = dtw(mSunful(tmpBlock),cosAllnan(tmpBlock));
+                        if dn == 1
+                            dayData(ii) = distO;
+                        else
+                            nightData(ii) = distO;
+                        end
+                    end
+                end
+            end
+            nightNloc = isnan(nightData);
+            nightData = nightData(~nightNloc);
+            dayNloc = isnan(dayData);
+            dayData = dayData(~dayNloc);
+
+            awakeDTWall{ri} = dayData;
+            asleepDTWall{ri} = nightData;
+
             dayLFPs = mSunful(swFinMat == 1);
+            dayACTs = cosAllnan(swFinMat == 1);
             nightLFPs = mSunful(swFinMat == 0);
+            nightACTs = cosAllnan(swFinMat == 0);
 
             awakeLFP{ri} = dayLFPs;
+            awakeACT{ri} = dayACTs;
             asleepLFP{ri} = nightLFPs;
+            asleepACT{ri} = nightACTs;
+
+            nightActN = nightACTs(~(isnan(nightACTs) | isnan(nightLFPs)));
+            nightLfpN = nightLFPs(~(isnan(nightACTs) | isnan(nightLFPs)));
+
+            dayActN = dayACTs(~(isnan(dayACTs) | isnan(dayLFPs)));
+            dayLfpN = dayLFPs(~(isnan(dayACTs) | isnan(dayLFPs)));
+
+            distNIGHT = dtw(nightLfpN,nightActN);
+            distDAY = dtw(dayLfpN,dayActN);
+
+            asleepDTW(ri) = distNIGHT;
+            awakeDTW(ri) = distDAY;
 
             if matches(tmpHEMI,'R')
                 hemiID(ri) = 1;
@@ -1424,7 +1494,44 @@ switch figureNUM
 
         end
 
-        test = 1;
+        allDTW = [asleepDTW ; awakeDTW];
+        allDTWnorm = normalize(allDTW,'range');
+        allDTW2 = abs(reshape(allDTWnorm,length(asleepDTW),2));
+        scatter(allDTW2(:,1),allDTW2(:,2),40,'k','filled');
+        ylabel('Scaled Asleep DTW Distance');
+        xlabel('Scaled Awake DTW Distance');
+        xlim([0 0.25])
+        ylim([0 1])
+
+        % STATS
+
+        % PLOT RAIN cloud from individual data
+        % Unpack night
+        asleepINDv = cell2mat(asleepDTWall);
+
+        % Kernal Density
+        [f_asl,xi_asl] = ksdensity(asleepINDv);
+        figure
+        plot(xi_asl,f_asl*1000);
+        hold on
+
+        % Boxplot
+        b = boxchart(ones(size(xi_asl))*-0.5,xi_asl);
+        b.Orientation = 'horizontal';
+        b.BoxWidth = 0.25;
+
+        % SwarmChart
+        aSLeepX = lhPkSlfpAS{spI};
+        aSLeepY = repmat(yAXtk1(spI),size(aSLeepX));
+        aSleepSC = swarmchart(aSLeepX,aSLeepY,10,'filled');
+        aSleepSC.XJitter = 'none';
+        aSleepSC.YJitter = 'rand';
+        aSleepSC.YJitterWidth = 0.4;
+        aSleepSC.MarkerFaceAlpha = 0.2;
+        aSleepSC.MarkerEdgeColor = "none";
+        aSleepSC.MarkerFaceColor = [0 0.447 0.741];
+
+        axis square
 
 
 
