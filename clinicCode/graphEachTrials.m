@@ -1,4 +1,4 @@
-function [] = graphEachTrials(startindex, js, leng, channel)
+function [] = graphEachTrials(startindex, js, leng, channel, maxval)
 
 
 ifcounter = 0;          %used to put each trial in a new column
@@ -26,12 +26,21 @@ for m = 1:locallength
         end
     end
     smy = smoothdata(y, 1, "sgolay", 250); %y is now smooth
+    %max = max(y, [], 1);
     plot(f, smy);
-    title(["Three trials for", legendChan{m}])
-    xlim([0 60])
+    title([legendChan{m}])
+    xlim([0 40])
+    ylim([0 maxval*1.1])
     xline(13);
     xline(30);
     ifcounter = 0;
+    sgtitle("Run comparison by Channel")
+    xticks([0 20 40])
+    yticks([0 round(maxval*0.5, 2) round(maxval,2)])
+    xlabel("Frequency (Hz)")
+    ylabel("uVp")
+    
+    
 end
 end
 
