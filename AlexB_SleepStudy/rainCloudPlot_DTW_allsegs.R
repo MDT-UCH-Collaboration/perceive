@@ -31,20 +31,14 @@ ggplot(dat_long, aes(x = "", y = rt, fill = factor(language))) +
   geom_boxplot(width = rain_height, alpha = 0.4, show.legend = FALSE, 
                outlier.shape = NA,
                position = position_nudge(x = -rain_height*2)) +
-  
-  
   # mean and SE point in the cloud
   stat_summary(fun.data = "mean_se",mapping = aes(color = factor(language)), show.legend = FALSE,
                position = position_nudge(x = rain_height * 3)) +  
-  
-  
-  
   # adjust layout
   scale_x_discrete(name = "", expand = c(rain_height*3, 0, 0, 0.7)) +
   scale_y_continuous(name = "Reaction time (ms)",
                      breaks = seq(200, 800, 100), 
                      limits = c(200, 800)) +
-
   coord_flip() +
   facet_wrap(~factor(condition, 
                      levels = c("word", "nonword"), 
