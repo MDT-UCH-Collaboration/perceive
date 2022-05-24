@@ -98,8 +98,8 @@ perceive_sleepTandE_v6('overSAT',overSAT,'subID',patID,...
 
 
 %% Step 6 - Process PyActigraphy
-ml = 'D:\Dropbox\Publications_Meta\InProgress\ABaumgartner_Percept2020\';
-sl = 'D:\Dropbox\Publications_Meta\InProgress\ABaumgartner_Percept2020\testSav';
+ml = 'C:\Users\Admin\Dropbox\Publications_Meta\InProgress\ABaumgartner_Percept2020\';
+sl = 'C:\Users\Admin\Dropbox\Publications_Meta\InProgress\ABaumgartner_Percept2020\testSav';
 processACTpyData(ml,sl)
 
 %% Step U - something weird happened to the first 2 days of Pat#11
