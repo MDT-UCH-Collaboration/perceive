@@ -35,11 +35,6 @@ close all
 %. 2 Add x-label to 1E [Frequency Hz]
 %. 3 Add xline d t a b g
 
-% 2.	Summary the cross correlation - Summary by night/day block
-
-% 3a.	circe dieum - Summary of time temporal shuffle data - One value per subject
-% 3b.   circe dieum - Summary of variance explained - One value per subject
-
 % 3c.   heat plot of all ? [z-scored lfp]
 % 6.	Subset of patients with neuroimaging – correlate with location of contact
 %
@@ -1366,6 +1361,11 @@ switch figureNUM
     case 7 % Cross correlation
         % INDIVIDUAL SESSION? for Cross Cor Analysis
         % BREAK DOWN BY DAY/NIGHT ??????? -------------- 5/20/2022
+
+        cMAP = cividis;
+        lightCM = cMAP(246,:);
+        darkCM = cMAP(10,:);
+
         hemiID = zeros(height(rostER),1);
         hemiLab = cell(height(rostER),1);
         subLab = cell(height(rostER),1);
@@ -1423,9 +1423,6 @@ switch figureNUM
             % Set up Cosinar
             cosAllnan = cosALL;
             cosAllnan(nanInd2) = nan;
-
-
-
 
             % BREAK INTO SEGMENTS BY night/day
             [dayBlocks , nightBlocks] = getBlocks(swFinMat);
@@ -1512,24 +1509,74 @@ switch figureNUM
         % Kernal Density
         [f_asl,xi_asl] = ksdensity(asleepINDv);
         figure
-        plot(xi_asl,f_asl*1000);
-        hold on
+        kline = plot(xi_asl,f_asl*1000);
+        kline.Color = darkCM;
 
+        xMAP = [1:length(xi_asl) , fliplr(xi_asl)];
+        yMAP = [zeros(1,length(xi_asl)) , fliplr(f_asl*1000)];
+        hold on
+        % Patch
+        kpatch = patch(xMAP,yMAP,darkCM);
+        kpatch.FaceAlpha = 0.4;
+        
         % Boxplot
-        b = boxchart(ones(size(xi_asl))*-0.5,xi_asl);
-        b.Orientation = 'horizontal';
-        b.BoxWidth = 0.25;
+        asb = boxchart(ones(size(xi_asl))*-0.5,xi_asl);
+        asb.Orientation = 'horizontal';
+        asb.BoxWidth = 0.25;
+        asb.BoxFaceColor = darkCM;
 
         % SwarmChart
-        aSLeepX = lhPkSlfpAS{spI};
-        aSLeepY = repmat(yAXtk1(spI),size(aSLeepX));
+        aSLeepX = xi_asl;
+        aSLeepY = ones(size(xi_asl))*-0.2;
         aSleepSC = swarmchart(aSLeepX,aSLeepY,10,'filled');
         aSleepSC.XJitter = 'none';
-        aSleepSC.YJitter = 'rand';
-        aSleepSC.YJitterWidth = 0.4;
-        aSleepSC.MarkerFaceAlpha = 0.2;
+        aSleepSC.YJitter = 'density';
+        aSleepSC.YJitterWidth = 0.2;
+        aSleepSC.MarkerFaceAlpha = 0.6;
         aSleepSC.MarkerEdgeColor = "none";
-        aSleepSC.MarkerFaceColor = [0 0.447 0.741];
+        aSleepSC.MarkerFaceColor = darkCM;
+
+        % Day data
+        awakeINDv = cell2mat(awakeDTWall);
+
+        % Kernal Density
+        [f_aw,xi_asw] = ksdensity(awakeINDv);
+        aw_kline = plot(xi_asw,f_aw*1000);
+        aw_kline.Color = lightCM;
+        aw_xMAP = [1:length(xi_asw) , fliplr(xi_asw)];
+        aw_yMAP = [zeros(1,length(xi_asw)) , fliplr(f_aw*1000)];
+        % Patch
+        aw_kpatch = patch(aw_xMAP,aw_yMAP,lightCM);
+        aw_kpatch.FaceAlpha = 0.4;
+        % Boxplot
+        awb = boxchart(ones(size(xi_asw))*-0.77,xi_asw);
+        awb.Orientation = 'horizontal';
+        awb.BoxWidth = 0.25;
+        awb.BoxFaceColor = lightCM;
+
+        % SwarmChart
+        aWakeX = xi_asw;
+        aWakeY = ones(size(xi_asw))*-0.2;
+        aWakeSC = swarmchart(aWakeX,aWakeY,10,'filled');
+        aWakeSC.XJitter = 'none';
+        aWakeSC.YJitter = 'density';
+        aWakeSC.YJitterWidth = 0.2;
+        aWakeSC.MarkerFaceAlpha = 0.6;
+        aWakeSC.MarkerEdgeColor = "none";
+        aWakeSC.MarkerFaceColor = lightCM;
+
+        bxMIN = min([awb.YData , asb.YData]);
+        bxMAX = max([awb.YData , asb.YData]);
+        bxRange = bxMAX - bxMIN;
+        bufferFac = round(bxRange*0.02);
+
+        xlim([bxMIN - bufferFac bxMAX + bufferFac])
+        xticks([ceil(linspace(bxMIN - bufferFac, bxMAX - 1  + bufferFac, 5))]);
+
+        xlabel('Minimum distance between LFP and Actigraphy')
+
+        ylim([-1 1])
+        yticks([0 0.5 1])
 
         axis square
 
@@ -1617,86 +1664,107 @@ switch figureNUM
 
     case 9 % CARPE DIEM
 
-        my_favourite_colour     = [0.8500 0.3250 0.0980];
-        subjectID = subID;
-        hemisphere = hemi;
-        [tmData] = getPatDat(subjectID , hemisphere , 'TimeLine');
+        cMAP = cividis;
+        lightCM = cMAP(246,:);
+        darkCM = cMAP(10,:);
 
-        time_stamps = tmData.actTime(:);
-
-        nLFP = tmData.LFP;
-        unfurlLFP = nLFP(:);
-        mSunful = unfurlLFP - (min(unfurlLFP));
-        mSunful(mSunful > 2.2999e+09) = nan;
-
-        values = mSunful;
-
-        figure
-        set(gcf,'Units','Normalized','Position',[.2 .4 .6 .25])
-        plot_zscored_timeseries(time_stamps, values, my_favourite_colour)
-
-        figure
-        set(gcf,'Units','Normalized','Position',[.3 .3 .4 .3])
+        hemiID = zeros(height(rostER),1);
+        hemiLab = cell(height(rostER),1);
+        subLab = cell(height(rostER),1);
+        subID = zeros(height(rostER),1);
+        lfpPEak = zeros(height(rostER),1);
+        cirLFP = zeros(height(rostER),2);
+        cirACT = zeros(height(rostER),2);
 
         time_res        = 1; % time resolution (in hours) for periodogram
-        max_period      = 72; % Maximum period of 1 week = 168 hours
         do_normalise    = true; % Whether to normalise the periodogram
-
-        % Calculate periodogram
-        [psd_estimate, time_periods] = circadian_periodogram(time_stamps, values, time_res, max_period);
-
-        % Plot the periodogram
-        plot_periodogram(psd_estimate, time_periods, do_normalise, my_favourite_colour)
-
-        time_res        = 1;
         n_shuffles      = 200;
         shuffle_type    = 'circshift';
 
-        % Get the proportion of variance explained by time of day
-        var_explained = variance_explained_by_timeofday(time_stamps, values, time_res);
+        for ri = 1:height(rostER)
 
-        % Get the variance explained for shuffled data n_shuffles times to see whether var_explained is significant
-        [~, var_explained_p] = get_shuffled_var_explained(time_stamps, values, time_res, n_shuffles, shuffle_type);
+            tmpSUB = num2str(rostER.subID(ri));
+            tmpHEMI = upper(rostER.hemI{ri});
+            hemiLab{ri} = tmpHEMI;
+            subLab{ri} = tmpSUB;
+            [tmData] = getPatDat(tmpSUB , tmpHEMI , 'TimeLine');
 
-        % Plot a fit based on time of day to the data across days
-        figure
-        plot_timeofday_fit(time_stamps, values, time_res, my_favourite_colour)
+            [apData] = getPatDat(tmpSUB , tmpHEMI , 'ActALL');
+            [cleanApT] = trim144Apdata(tmData , apData);
 
-        % Add the variance explained by time of day & p-val to the figure title
-        title(['Var explained by TOD: ' num2str(var_explained) ', p =' num2str(var_explained_p)])
+            lfpPEak(ri) = tmData.senseFreq;
 
-        figure
-        plot_timeofday_fit(time_stamps, values, time_res, my_favourite_colour,'polar')
+            nLFP = tmData.LFP;
+            unfurlLFP = nLFP(:);
+            mSunful = unfurlLFP - (min(unfurlLFP));
+            mSunful(mSunful > 2.2999e+09) = nan;
+            mSunful = normalize(mSunful, 'range');
 
-        time_res    = 1;
-        stat        = 'mean';
+            reonUF = cleanApT.ronenbSW(:);
+            cosALL = cleanApT.cosinar(:);
+            nonNanInd1 = ~isnan(reonUF);
+            reonUnfurli = ~reonUF(nonNanInd1);
+ 
+            reonUFi = reonUF;
+            reonUFi(nonNanInd1) = reonUnfurli;
+            % Get Crespo
+            cresUF = cleanApT.crespoSW(:);
+            % Find agreement
+            pairRC = [reonUFi , cresUF];
+            nanInd2 = isnan(pairRC(:,1));
 
-        figure
-        circadian_rose(time_stamps, values, time_res, stat, my_favourite_colour)
+            % Set up Cosinar
+            cosAllnan = cosALL;
+            cosAllnan(nanInd2) = nan;
 
-        time_res            = 1; % Temporal resolution of time bins (= heatmap pixels)
-        percentile_cutoff   = 2; % For the colour scale of the heatmap, ignore the top and bottom x% of data
+            % Get time axis
+            time_stamps = tmData.actTime(:);
+ 
+%             nightActN = nightACTs(~(isnan(nightACTs) | isnan(nightLFPs)));
+%             nightLfpN = nightLFPs(~(isnan(nightACTs) | isnan(nightLFPs)));
 
-        [circadian_matrix, ~] = make_circadian_matrix(time_stamps, values, time_res);
+%             dayActN = dayACTs(~(isnan(dayACTs) | isnan(dayLFPs)));
+%             dayLfpN = dayLFPs(~(isnan(dayACTs) | isnan(dayLFPs)));
 
-        figure
-        plot_circadian_matrix(circadian_matrix, percentile_cutoff, my_favourite_colour);
+            % Run capre dieum 
+            % Calculate periodogram
+%             LFPvar_exp = variance_explained_by_timeofday(time_stamps, mSunful, time_res);
+%             ACTvar_exp = variance_explained_by_timeofday(time_stamps, cosAllnan, time_res);
 
-        close all
+            [cirLFP(ri,1), cirLFP(ri,2)] = get_shuffled_var_explained(time_stamps, mSunful, time_res, n_shuffles, shuffle_type);
+            [cirACT(ri, 1), cirACT(ri, 2)] = get_shuffled_var_explained(time_stamps, cosAllnan, time_res, n_shuffles, shuffle_type);
 
-        circadian_summary_figure(time_stamps, values,time_res)
+            if matches(tmpHEMI,'R')
+                hemiID(ri) = 1;
+            end
+            subID(ri) = rostER.subID(ri);
 
-        %         % Get shuffled data points
-        %         shuffled_data_points    = within_day_shuffle(time_stamps, values, 'circshift');
-        %
-        %         [circadian_matrix, time_edges] = make_circadian_matrix(time_stamps, shuffled_data_points, time_res);
-        %
-        %
-        %         figure
-        %         plot_circadian_matrix(circadian_matrix, percentile_cutoff, my_favourite_colour);
+        end
 
+        % plot stuff
+        % sigLFPo = cirLFP(:,2) < 0.05 & cirACT(:,2) > 0.05;
+        sigACTo = cirACT(:,2) < 0.05 & cirLFP(:,2) > 0.05;
+        sigLAb = cirLFP(:,2) < 0.05 & cirACT(:,2) < 0.05;
 
+        scatter(cirLFP(:,1),cirACT(:,1),50,'k');
+        hold on
+        scatter(cirLFP(sigACTo,1),cirACT(sigACTo,1),50,[0.5 0.5 0.5],'filled');
+        scatter(cirLFP(sigLAb,1),cirACT(sigLAb,1),50,'k','filled');
 
+        xlim([0 1])
+        xticks([0 0.5 1])
+        ylim([0.95 1])
+        yticks([0.95 0.975 1])
+        xlabel('LFP variance explained by time of day fit')
+        ylabel('Actigraphy variance explained by time of day fit')
+
+        [rho,pval] = corr(cirLFP(:,1),cirACT(:, 1),'type','Pearson');
+
+        text(0.8,0.997,'r = 0.47')
+        text(0.8,0.995,'p = 0.06')
+
+        axis square
+   
 end
 
 
