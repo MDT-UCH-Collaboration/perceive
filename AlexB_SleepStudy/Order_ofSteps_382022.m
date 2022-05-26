@@ -13,7 +13,7 @@ actigraphyProcess(subID,1)
 
 %% Step 2
 % Load in Pat struct
-cd('D:\Dropbox\Publications_Meta\InProgress\ABaumgartner_Percept2020')
+cd('C:\Users\Admin\Dropbox\Publications_Meta\InProgress\ABaumgartner_Percept2020')
 load("PatParms.mat","patParams");
 
 %% Step 3 - Events
