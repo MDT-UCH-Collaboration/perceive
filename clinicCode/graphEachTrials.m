@@ -5,6 +5,7 @@ ifcounter = 0;          %used to put each trial in a new column
 y = zeros(4096,3);      %length fits output from pspectruum, 3 columns for each trial
 locallength = length(channel);
 
+%clean up contact names 
 legendChan = cell(6);
 oldchar = {'LEFT', 'RIGHT', '0', '1', '2', '3', '4', '5', '_', 'AND'};
 newchar = {''};
@@ -34,7 +35,7 @@ for m = 1:locallength
     xline(13);
     xline(30);
     ifcounter = 0;
-    sgtitle("Run comparison by Channel")
+    sgtitle("Run Comparison by Channel")
     xticks([0 20 40])
     yticks([0 round(maxval*0.5, 2) round(maxval,2)])
     xlabel("Frequency (Hz)")
