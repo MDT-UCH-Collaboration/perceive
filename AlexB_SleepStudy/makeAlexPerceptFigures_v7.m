@@ -1,4 +1,4 @@
-function [] = makeAlexPerceptFigures_v6(figureNUM,subID,hemi,evFlag,dirPRE)
+function [] = makeAlexPerceptFigures_v7(figureNUM,subID,hemi,evFlag,dirPRE)
 %UNTITLED Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -16,7 +16,7 @@ switch dirPRE
 
 end
 
-
+% makeAlexPerceptFigures_v6(3,'3','L',1,3)
 rostLOC = [dPrefix,'Publications_Meta\InProgress\ABaumgartner_Percept2020'];
 cd(rostLOC)
 rostER = readtable('SubRoster.csv');
