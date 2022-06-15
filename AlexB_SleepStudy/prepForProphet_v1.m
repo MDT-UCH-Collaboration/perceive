@@ -2,33 +2,50 @@ function [] = prepForProphet_v1()
 %UNTITLED2 Summary of this function goes here
 %   Detailed explanation goes here
 mainLOC = 'D:\Dropbox\Publications_Meta\InProgress\ABaumgartner_Percept2020\testSav';
-cd(mainLOC)
+
 addpath('C:\Users\John\Documents\GitHub\perceive\AlexB_SleepStudy');
 addpath('C:\Users\John\Documents\GitHub\perceive\AlexB_SleepStudy\matplotlib03232022');
 
-subjectID = '3';
-hemisphere = 'L';
-[tmData] = getPatDat(subjectID , hemisphere , 'TimeLine');
-% [apData] = getPatDat(subjectID , hemisphere , 'ActALL');
-% [cleanApT] = trim144Apdata(tmData , apData);
+rostLOC = 'D:\Dropbox\Publications_Meta\InProgress\ABaumgartner_Percept2020';
+cd(rostLOC)
+rostER = readtable('SubRoster.csv');
+cd(mainLOC)
 
-allTIME = tmData.actTime;
-allTIME(6,3) = tmData.actTime(5,3) + minutes(10);
-% Clean up time data
-unFurlTime = allTIME(:);
+for ri = 1:height(rostER)
 
+    tmpSUB = num2str(rostER.subID(ri));
+    tmpHEMI = upper(rostER.hemI{ri});
 
-nLFP = tmData.LFP;
-unfurlLFP = nLFP(:);
-mSunful = unfurlLFP - (min(unfurlLFP));
-mSunful(mSunful > 2.3000e+09) = nan;
-mSunful = normalize(mSunful, 'range');
-smSunful = smoothdata(mSunful,'rloess',20,'omitnan');
+    [tmData] = getPatDat(tmpSUB , tmpHEMI , 'TimeLine');
+    % [apData] = getPatDat(subjectID , hemisphere , 'ActALL');
+    % [cleanApT] = trim144Apdata(tmData , apData);
 
-% to save
-prophtable = table(unFurlTime,smSunful,'VariableNames',{'ds','y'});
-writetable(prophtable,'SPPD3_L_Prophet.csv')
+    allTIME = tmData.actTime;
+    allTIME(6,3) = tmData.actTime(5,3) + minutes(10);
+    % Clean up time data
+    unFurlTime = allTIME(:);
 
+    nLFP = tmData.LFP;
+    unfurlLFP = nLFP(:);
+    mSunful = unfurlLFP - (min(unfurlLFP));
+    mSunful(mSunful > 2.3000e+09) = nan;
+    mSunful = normalize(mSunful, 'range');
+    smSunful = smoothdata(mSunful,'rloess',20,'omitnan');
+
+    nanIND = isnan(smSunful);
+    smSunfuln = smSunful(~nanIND);
+    ufTime = unFurlTime(~nanIND);
+
+    natIND = isnat(ufTime);
+    smSunfulnn = smSunfuln(~natIND);
+    ufTimen = ufTime(~natIND);
+
+    % to save
+    prophtable = table(ufTimen,smSunfulnn,'VariableNames',{'ds','y'});
+    prName = ['SPPD' , tmpSUB, '_' , tmpHEMI  , '_Prophet.csv'];
+    writetable(prophtable,prName);
+
+end
 
 end
 

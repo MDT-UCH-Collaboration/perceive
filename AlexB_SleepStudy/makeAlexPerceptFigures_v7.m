@@ -635,11 +635,30 @@ switch figureNUM
 
     case 2
         % Make prophet plot
-        proph = readtable('SPPD3_L_Forcast.csv');
+        rawData = readtable('SPPD3_L_Prophet.csv');
+        proph = readtable('SPPD3_L_Prophet_FOR.csv');
         % ds x-axis
         % y-hat y axis - dark blue line
         % data y axis - black points
         % y-hat upper/lower - light blue patch
+
+        proDS = transpose(proph.ds);
+        yhatLOW = transpose(proph.yhat_lower);
+        yhatUP = transpose(proph.yhat_upper);
+
+        pYbound = patch([proDS fliplr(proDS)],...
+            [yhatLOW fliplr(yhatUP)],[0.0588 1 1]);
+        pYbound.EdgeColor = 'none';
+        pYbound.FaceAlpha = 0.5;
+        hold on
+        s = scatter(rawData.ds,rawData.y,20,'k','filled');
+        s.MarkerFaceAlpha = 0.6;
+
+        yhat = plot(proph.ds,proph.yhat,'blue');
+        yhat.LineWidth = 2;
+        ylim([0 1])
+        ylabel('Scaled LFP')
+        legend({'Estimate bounds','Raw LFP','Prediction'})
 
 
         % SVM - for predicting sleep/wake from LFP
@@ -650,6 +669,9 @@ switch figureNUM
         lightCM = cMAP(246,:);
         darkCM = cMAP(10,:);
 
+        allpatData = [];
+        allpatBand = {};
+        allpatState = {};
         for ri = 1:height(rostER)
             close all
             tmpSUB = num2str(rostER.subID(ri));
@@ -657,6 +679,10 @@ switch figureNUM
             [evData] = getPatDat(tmpSUB , tmpHEMI , 'Events');
 
             if ~isstruct(evData)
+                continue
+            end
+
+            if rostER.eventUSE == 0
                 continue
             end
 
@@ -680,8 +706,6 @@ switch figureNUM
                 wuFFT = evData.AwakeInMorning.FFTBinData;
                 wuHz = evData.AwakeInMorning.Frequency;
             end
-            wuHzt = wuHz(1:82,:);
-            wuFFTt = wuFFT(1:82,:);
 
             wuHzt = wuHz(1:82,:);
             wuFFTt = wuFFT(1:82,:);
@@ -713,64 +737,70 @@ switch figureNUM
             gNormF = allNormF(:,1:size(gFFTs,2));
             wNormF = allNormF(:,size(gFFTs,2)+1:end);
 
-            % ttest2(gNormF(:),wNormF(:))
+            [~ , ~, gT , wT] = getBandDat(gNormF , gbHzt, wNormF , wuHzt, 't');
+            [~ , ~, gA , wA] = getBandDat(gNormF , gbHzt, wNormF , wuHzt, 'a');
+            [~ , ~, gB , wB] = getBandDat(gNormF , gbHzt, wNormF , wuHzt, 'b');
+            [~ , ~, gG , wG] = getBandDat(gNormF , gbHzt, wNormF , wuHzt, 'g');
 
-            gMean = mean(gNormF,2);
-            wMean = mean(wNormF,2);
+            % Prep for kruskal wallis / ANOVA
+            gALL = [gT ; gA ; gB ; gG];
+            wALL = [wT ; wA ; wB ; wG];
 
-            gSTD = std(gNormF,[],2);
-            gSTDu = transpose(gMean + (gSTD));
-            gSTDd = transpose(gMean - (gSTD));
+            allDATA = [gALL ; wALL];
+            bandIDsG = [repmat({'T'},size(gT)) ; repmat({'A'},size(gA)) ;...
+                repmat({'B'},size(gB)) ; repmat({'G'},size(gG))];
+            bandIDsW = [repmat({'T'},size(wT)) ; repmat({'A'},size(wA)) ;...
+                repmat({'B'},size(wB)) ; repmat({'G'},size(wG))];
+            bandIDs2 = [bandIDsG ; bandIDsW];
+            groupIDs = [repmat({'GO'},size(gALL)) ; repmat({'GET'},size(wALL))];
 
-            wSTD = std(wNormF,[],2);
-            wSTDu = transpose(wMean + (wSTD));
-            wSTDd = transpose(wMean - (wSTD));
-
-            lp1 = plot(gMean,'LineWidth',2.5);
-            lp1.Color = lightCM;
-            hold on
-
-            pch1 = patch([1:length(gMean) fliplr(1:length(gMean))],...
-                [gSTDd fliplr(gSTDu)],'k');
-
-            pch1.FaceColor = lightCM;
-            pch1.FaceAlpha = 0.3;
-            pch1.EdgeColor = 'none';
-
-            lp2 = plot(wMean,'LineWidth',2.5); % Get into bed
-            lp2.Color = darkCM;
-
-            pch2 = patch([1:length(wMean) fliplr(1:length(wMean))],...
-                [wSTDd fliplr(wSTDu)],'k');
-
-            pch2.FaceColor = darkCM;
-            pch2.FaceAlpha = 0.3;
-            pch2.EdgeColor = 'none';
-
-            xlt = xline(7,'-','theta');
-            xlt.LabelVerticalAlignment = 'middle';
-            xlt.LabelHorizontalAlignment = 'center';
-
-            xla = xline(12,'-','alpha');
-            xla.LabelVerticalAlignment = 'middle';
-            xla.LabelHorizontalAlignment = 'center';
-
-            xlb = xline(29,'-','beta');
-            xlb.LabelVerticalAlignment = 'middle';
-            xlb.LabelHorizontalAlignment = 'center';
-
-            xlim([0 70])
-            yticks([0 0.25 0.5 0.75])
-            ylim([0 0.75])
-            ylabel('Scaled power')
-            text(40,0.1,'\textit{p} = 1.18e-07','Interpreter','latex')
-            legend('Going to bed: mean','Going to bed: SD',...
-                'Wake up: mean','Wake up: SD')
-            title([tmpSUB , ' ', tmpHEMI])
-            xlabel('Frequency (Hz)')
+            allpatData = [allpatData ; allDATA];
+            allpatBand = [allpatBand ; bandIDs2];
+            allpatState = [allpatState ; groupIDs];
 
 
         end
+
+        [~,~,stats]  = anovan(allpatData,{allpatBand,allpatState},'model',2,...
+            'varnames',{'BAND','ToD'},'display','off');
+        %                 end
+        [results,~,~,gnames] = multcompare(stats,"Dimension",[1 2],'display','off');
+
+        tbl = array2table(results,"VariableNames", ...
+            ["Group A","Group B","Lower Limit","A-B","Upper Limit","P-value"]);
+        tbl.("Group A")=gnames(tbl.("Group A"));
+        tbl.("Group B")=gnames(tbl.("Group B"));
+
+%         [goGs, goGm] = std(allpatData(matches(allpatState,'GO') & matches(allpatBand,'G')));
+%         [geGs, geGm] = std(allpatData(matches(allpatState,'GET') & matches(allpatBand,'G')));
+%         [goBs, goBm] = std(allpatData(matches(allpatState,'GO') & matches(allpatBand,'B')));
+%         [geBs, geBm] = std(allpatData(matches(allpatState,'GET') & matches(allpatBand,'B')));
+%         [goAs, goAm] = std(allpatData(matches(allpatState,'GO') & matches(allpatBand,'A')));
+%         [geAs, geAm] = std(allpatData(matches(allpatState,'GET') & matches(allpatBand,'A')));
+%         [goTs, goTm] = std(allpatData(matches(allpatState,'GO') & matches(allpatBand,'T')));
+%         [geTs, geTm] = std(allpatData(matches(allpatState,'GET') & matches(allpatBand,'T')));
+
+        tbl = table(allpatData,allpatBand,allpatState,'VariableNames',{'data','band','state'});
+
+        bandOrder = {'T','A','B','G'};
+        tbl.band = categorical(tbl.band,bandOrder);
+
+        b = boxchart(tbl.band,tbl.data,'GroupByColor',tbl.state);
+        b(1).JitterOutliers = 'on';
+        b(2).JitterOutliers = 'on';
+        b(1).MarkerStyle = '.';
+        b(1).MarkerColor = lightCM;
+        b(2).MarkerColor = darkCM;
+        b(1).BoxFaceColor = lightCM;
+        b(2).BoxFaceColor = darkCM;
+        b(2).MarkerStyle = '.';
+        ylabel('Scaled LFP Power')
+        xticklabels({'Theta','Alpha','Beta','Gamma'})
+        ylim([0 1])
+        legend({'Morning','Night'})
+        yticks([0 0.5 1])
+        axis square
+
 
     case 4
 
@@ -1708,15 +1738,25 @@ switch figureNUM
 
         end
 
+
+
+
         % plot stuff
         % sigLFPo = cirLFP(:,2) < 0.05 & cirACT(:,2) > 0.05;
         sigACTo = cirACT(:,2) < 0.05 & cirLFP(:,2) > 0.05;
         sigLAb = cirLFP(:,2) < 0.05 & cirACT(:,2) < 0.05;
 
-        scatter(cirLFP(:,1),cirACT(:,1),50,'k');
-        hold on
-        scatter(cirLFP(sigACTo,1),cirACT(sigACTo,1),50,[0.5 0.5 0.5],'filled');
-        scatter(cirLFP(sigLAb,1),cirACT(sigLAb,1),50,'k','filled');
+        s1 = scatter(zeros(length(cirLFP),1),cirLFP(:,1),100,'k','filled')
+        s1.MarkerFaceAlpha = 0.5;
+        hold on 
+        s2 = scatter(ones(length(cirACT),1),cirACT(:,1),100,'b','filled')
+        s2.MarkerFaceAlpha = 0.2;
+        xlim([-0.2 1.2])
+
+%         scatter(cirLFP(:,1),cirACT(:,1),50,'k');
+%         hold on
+%         scatter(cirLFP(sigACTo,1),cirACT(sigACTo,1),50,[0.5 0.5 0.5],'filled');
+%         scatter(cirLFP(sigLAb,1),cirACT(sigLAb,1),50,'k','filled');
 
         xlim([0 1])
         xticks([0 0.5 1])
@@ -1726,6 +1766,12 @@ switch figureNUM
         ylabel('Actigraphy variance explained by time of day fit')
 
         [rho,pval] = corr(cirLFP(:,1),cirACT(:, 1),'type','Pearson');
+
+        % rho = 0.25
+        % pval = 0.3
+        % lfp variance by day mean = 0.477 / sd 0.20
+        % act variance by day mean = 0.98 / sd 0.01
+
 
         text(0.8,0.997,'r = 0.47')
         text(0.8,0.995,'p = 0.06')
