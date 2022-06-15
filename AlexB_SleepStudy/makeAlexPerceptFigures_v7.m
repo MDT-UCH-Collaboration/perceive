@@ -92,6 +92,8 @@ switch figureNUM
         lightCM = cMAP(246,:);
         darkCM = cMAP(10,:);
         scatter(1:length(smSunful),smSunful,[],reMAP,'filled')
+%         colormap(cividis)
+%         colorbar
         ylim([0 round(maxVale + 0.1,1)])
         yticks([0 round((maxVale + 0.1)/2,2) round(maxVale + 0.1,1)])
         yticklabels([0 round((maxVale + 0.1)/2,2) round(maxVale + 0.1,1)])
@@ -138,10 +140,10 @@ switch figureNUM
         end
 
         % Add 6AM to 6PM markers
-        xl6a = xline(firstDayTime8At8p(1),'--','8AM','LabelVerticalAlignment','bottom',...
+        xl6a = xline(firstDayTime8At8p(1),'--','8AM','LabelVerticalAlignment','top',...
             'LabelHorizontalAlignment','center');
         xl6a.Color = cMAP(246,:);
-        xl6p = xline(firstDayTime8At8p(2),'--','8PM','LabelVerticalAlignment','bottom',...
+        xl6p = xline(firstDayTime8At8p(2),'--','8PM','LabelVerticalAlignment','top',...
             'LabelHorizontalAlignment','center');
         xl6p.Color = cMAP(50,:);
 
@@ -453,7 +455,7 @@ switch figureNUM
 
 
 
-            if ~matches(subID,'6')
+ 
 
                 % Normalize - [upack and repack]
                 gwBoth = [gFFTs , wFFTs];
@@ -556,7 +558,7 @@ switch figureNUM
                 tbl.("Group B")=gnames(tbl.("Group B"));
 
                 % Get max
-                maxALL = round(max([gbTheta , wuTheta , gbAlpha , wuAlpha ,...
+                maxALL = ceil(max([gbTheta , wuTheta , gbAlpha , wuAlpha ,...
                     gbBeta, wuBeta,gbGamma , wuGamma]));
                 ylinOFF1 = linspace(maxALL,round(maxALL*4),4);
                 ylinOFF2 = linspace(0,maxALL*3,4);
@@ -566,7 +568,7 @@ switch figureNUM
                 hold on
                 % PLOT 1
                 plot(xVALS,gbTheta + xVALSoff(1),'Color',lightCM,'LineWidth',2)
-                plot(xVALS,wuTheta,'Color',darkCM,'LineWidth',2)
+                plot(xVALS,wuTheta + xVALSoff(1),'Color',darkCM,'LineWidth',2)
                 yline(ylinES(1),'-','theta','LabelVerticalAlignment','bottom')
                 % Stat
                 pVALt = tbl.("P-value")(matches(tbl.("Group A"),'BAND=T,ToD=GO') &...
@@ -577,10 +579,10 @@ switch figureNUM
                     pNUM = num2str(round(pVALt,2,'significant'));
                     ptextT = ['p = ',pNUM];
                 end
-                text(0.3,ylinES(1)-3.5,ptextT)
+                text(0.58,ylinES(1)-3.5,ptextT)
                 % PLOT 2
                 plot(xVALS,gbAlpha + xVALSoff(2),'Color',lightCM,'LineWidth',2)
-                plot(xVALS,wuAlpha+8.5,'Color',darkCM,'LineWidth',2)
+                plot(xVALS,wuAlpha + xVALSoff(2),'Color',darkCM,'LineWidth',2)
                 yline(ylinES(2),'-','alpha','LabelVerticalAlignment','bottom')
                 % Stat
                 pVALa = tbl.("P-value")(matches(tbl.("Group A"),'BAND=A,ToD=GO') &...
@@ -591,10 +593,10 @@ switch figureNUM
                     pNUM = num2str(round(pVALa,2,'significant'));
                     ptextA = ['p = ',pNUM];
                 end
-                text(0.3,ylinES(2)-3.5,ptextA)
+                text(0.58,ylinES(2)-3.5,ptextA)
                 % PLOT 3
                 plot(xVALS,gbBeta + xVALSoff(3),'Color',lightCM,'LineWidth',2)
-                plot(xVALS,wuBeta+17,'Color',darkCM,'LineWidth',2)
+                plot(xVALS,wuBeta + xVALSoff(3),'Color',darkCM,'LineWidth',2)
                 yline(ylinES(3),'-','beta','LabelVerticalAlignment','bottom')
                 % Stat
                 pVALb = tbl.("P-value")(matches(tbl.("Group A"),'BAND=B,ToD=GO') &...
@@ -605,11 +607,11 @@ switch figureNUM
                     pNUM = num2str(round(pVALb,2,'significant'));
                     ptextB = ['p = ',pNUM];
                 end
-                text(0.3,ylinES(3)-3.5,ptextB)
+                text(0.58,ylinES(3)-3.5,ptextB)
                 % PLOT 4
                 plot(xVALS,gbGamma + xVALSoff(4),'Color',lightCM,'LineWidth',2)
-                plot(xVALS,wuGamma+25.5,'Color',darkCM,'LineWidth',2)
-                yline(ylinES(4)+2,'-','gamma','LabelVerticalAlignment','bottom')
+                plot(xVALS,wuGamma + xVALSoff(4),'Color',darkCM,'LineWidth',2)
+                yline(ylinES(4),'-','gamma','LabelVerticalAlignment','bottom')
                 % Stat
                 pVALg = tbl.("P-value")(matches(tbl.("Group A"),'BAND=G,ToD=GO') &...
                     matches(tbl.("Group B"),'BAND=G,ToD=GET'));
@@ -619,17 +621,17 @@ switch figureNUM
                     pNUM = num2str(round(pVALg,2,'significant'));
                     ptextG = ['p = ',pNUM];
                 end
-                text(0.3,ylinES(4)-3.5,ptextG)
+                text(0.58,ylinES(4)-3.5,ptextG)
 
                 xlim([0 0.7])
-                ylim([0 35.5])
+                ylim([0 30])
                 yticks(linspace(1,7,3))
 
                 xlabel('Scaled power')
                 ylabel('Probability density')
                 title('Event Frequency bands')
 
-            end
+ 
 
         end
 
