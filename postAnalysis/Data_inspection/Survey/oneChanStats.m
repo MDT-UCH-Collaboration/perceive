@@ -22,7 +22,7 @@ powerdata = temp.PF_Data{i};
 %find freq vales of interest
 fbeta = powerdata.Frequency > flb & powerdata.Frequency < fub;
 betapwr = powerdata.Power(fbeta);
-betapwr = abs(log10(betapwr));
+betapwr = log10(abs(betapwr));
 betapwr = downsample(betapwr, dwnsamp);
 x = length(betapwr); 
 if i == 1 
