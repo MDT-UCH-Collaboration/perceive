@@ -12,7 +12,7 @@
 
 %%%%% CURRENT file runs the code on Patient 4
 
-subjectFILE = 'pt4_0819_r_survey.json';
+subjectFILE = 'pt5_0209_l_survey.json';
 
 js = jsondecode(fileread(subjectFILE));
 

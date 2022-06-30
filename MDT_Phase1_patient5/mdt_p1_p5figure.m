@@ -1,0 +1,74 @@
+function [] = mdt_p1_p5figure(dbdir)
+
+% C:\Users\John\Documents\GitHub\perceive\MDT_Phase1_patient5
+cd(dbdir)
+
+load("patient5_LeftBSS.mat","outTABLE")
+
+
+uniChan = unique(outTABLE.ChanID);
+
+allmeans = zeros(height(outTABLE.PF_Data{1}),length(uniChan));
+chanID = {'1-3','1-2','2-3','0-1','0-3','0-2'};
+for ci = 1:length(uniChan)
+
+    tmpChan = uniChan{ci};
+    chanInd = matches(outTABLE.ChanID,tmpChan);
+    chanTab = outTABLE(chanInd,:);
+
+    allsess = zeros(height(chanTab.PF_Data{1}),3);
+    for ri = 1:3
+        allsess(:,ri) = chanTab.PF_Data{ri}.Power;
+    end
+    meanSess = mean(allsess,2);
+    allmeans(:,ci) = meanSess;
+
+end
+
+freqXaxis = outTABLE.PF_Data{1}.Frequency;
+
+% smooth data
+allmeanSM = smoothdata(allmeans,'gaussian',150);
+% Trim to 60
+allmeanSM60 = allmeanSM(freqXaxis <= 60,:);
+freqAxis60 = freqXaxis(freqXaxis <= 60);
+
+% Reorder legend by max beta
+albetaP = zeros(6,1);
+for bi = 1:6
+    tmpAsm = allmeanSM60(:,bi);
+    tmpBeta = tmpAsm(freqAxis60 >= 13 & freqAxis60 <= 30);
+    albetaP(bi) = max(tmpBeta);
+end
+[~,maxBsort] = sort(albetaP);
+
+length = 6;
+red = [1, 0, 0];
+pink = [255, 192, 203]/255;
+colors_p = [linspace(red(1),pink(1),length)', linspace(red(2),pink(2),length)', linspace(red(3),pink(3),length)'];
+colors_pI = flipud(colors_p);
+
+for pi = 1:6
+    plot(freqAxis60,allmeanSM60(:,maxBsort(pi)),"Color",colors_pI(pi,:),'LineWidth',2)
+    hold on
+end
+
+% Plot xline for beta and theta
+xline([13 30],'-',{'beta',' '})
+xline([4 8],'--',{'theta',' '})
+
+legend(chanID(maxBsort))
+
+xticks([0 30 60])
+xlabel('Frequency (Hz)')
+
+yticks([0 0.12 0.25])
+ylabel('uPv')
+
+axis square
+
+
+
+
+
+end
