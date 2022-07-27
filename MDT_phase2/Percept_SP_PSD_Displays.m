@@ -1,6 +1,8 @@
 clear variables;clc; close all
 
+%opens dialog box to select files 
 d = uigetdir();
+%accesses all the jsons in that folder 
 files = dir(fullfile(d,'*.json'));
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%
@@ -56,6 +58,8 @@ subplot(2,1,1)
 title('Lead 2: Monopolar Configuration')
 
 function plot_chan_data(val,fignum,subplotnum,config)
+%NOTE: this re-writes the past file's data and creates 
+%separate plots for however many files are there 
     channels = {};
     for x = 1:length(val.BrainSenseTimeDomain)
         data = val.BrainSenseTimeDomain(x).TimeDomainData;

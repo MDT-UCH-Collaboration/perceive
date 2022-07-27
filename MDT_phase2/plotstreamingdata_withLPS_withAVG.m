@@ -18,15 +18,17 @@ i = length(val1.BrainSenseTimeDomain);
 channels = {};
 
 
-%% Plot into figure 1-3
+% Plot into figure 1-3
 for x = 1:i
     data = val1.BrainSenseTimeDomain(x).TimeDomainData;
     channels{x} = val1.BrainSenseTimeDomain(x).Channel;
     
+    %plot raw LFP
     figure(1)
     subplot(i,1,x)
     plot(data);
     
+    %plot spectrogram
     figure(2)
     subplot(i,1,x)
     [s_L,f_L,t_L, P_L]=spectrogram(data*.015,window,overlap,nfft,fs);
@@ -39,6 +41,7 @@ for x = 1:i
     colorbar off
     ylim([0,100])
     
+    %plot transform of LFP
     figure(3)
     [pxx,fxx] = pwelch(data, hanning(250), 125, 256, 250, 'onesided');   % psd estimate
     semilogy(fxx,sqrt(pxx).*rms(hanning(250)).*sqrt(2).*2.*250/256, 'LineWidth',3) % markervec{markervecindex},
@@ -128,7 +131,7 @@ for x = 1:i
     p1 = sqrt(pxx1).*rms(hanning(250)).*sqrt(2).*2.*250/256;
     p2 = sqrt(pxx2).*rms(hanning(250)).*sqrt(2).*2.*250/256;
     p3 = sqrt(pxx3).*rms(hanning(250)).*sqrt(2).*2.*250/256;
-    semilogy(fxx,mean(vertcat(p1',p2',p3')), 'LineWidth',3) % markervec{markervecindex},
+    semilogy(fxx1,mean(vertcat(p1',p2',p3')), 'LineWidth',3) % markervec{markervecindex},
     hold on
     
     
