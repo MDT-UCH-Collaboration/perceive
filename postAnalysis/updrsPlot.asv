@@ -7,7 +7,7 @@ end
 
 upTab = readtable('updrsSum.xlsx');
 
-%% NEW for 8/5/2022
+%%
 
 offD = matches(upTab.cond,'OFF');
 entD = matches(upTab.cond,'Entry');
@@ -83,9 +83,9 @@ for mi = 1:length(motorS)
     xticks(1:5)
     xticklabels({'OFF','Entry','MBP30','MBP60','MBP90'})
 
-    ylim([ylimS(mi,1) ylimS(mi,2)])
-    yticks(0:yTks(mi,1):yTks(mi,2))
-    yticklabels(0:yTks(mi,1):yTks(mi,2))
+    ylim([ylimS(1,mi) ylimS(2,mi)])
+    yticks(-1:yTks(1,mi):yTks(2,mi))
+    yticklabels([0 6 12 18])
 
     if matches(motorS{mi}(1),'B')
         motorSY = 'Bradykinesia';
@@ -106,7 +106,7 @@ for mi = 1:length(motorS)
 end
 
 
-%% OLD DON'T USE
+%%
 
 
 line([zeros(1,sum(offD)) ; ones(1,sum(offD))] ,...
