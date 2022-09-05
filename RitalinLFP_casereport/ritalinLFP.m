@@ -1,6 +1,6 @@
 %% Read JSON File
 cd('C:\Users\johna\Desktop\ritalin_LFP\PRE')
-subjectFILE = 'Report_Json_Session_Report_20220317T110442.json';
+subjectFILE = 'Report_Json_Session_Report_20220317T114335.json';
 js = jsondecode(fileread(subjectFILE));
 %%
 channels = unique({js.LfpMontageTimeDomain.Channel}, 'stable');
