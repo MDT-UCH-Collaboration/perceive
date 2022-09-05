@@ -1891,6 +1891,15 @@ switch figureNUM
 
         axis square
 
+    case 10 % discussion figure
+
+        % Need peak frequency 
+        % A 3/1 - 3/11
+
+
+        % Need contacts
+        % B 3/11 - 3/2X
+
 end
 
 
