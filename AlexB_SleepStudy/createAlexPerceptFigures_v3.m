@@ -3,10 +3,10 @@ function [] = createAlexPerceptFigures_v3(figNUM)
 % mainLOC = 'D:\Dropbox\Publications_Meta\InProgress\ABaumgartner_Percept2020\testSav';
 % sleepPlotHelp_fun(mainLOC , num2str(9))
 
-mainLOC = 'D:\Dropbox\Publications_Meta\InProgress\ABaumgartner_Percept2020\testSav';
+mainLOC = 'E:\Dropbox\Publications_Meta\InProgress\ABaumgartner_Percept2020\testSav';
 cd(mainLOC)
-addpath('C:\Users\John\Documents\GitHub\perceive\AlexB_SleepStudy');
-addpath('C:\Users\John\Documents\GitHub\perceive\AlexB_SleepStudy\matplotlib03232022');
+addpath('C:\Users\Admin\Documents\GitHub\perceive\AlexB_SleepStudy');
+addpath('C:\Users\Admin\Documents\Github\perceive\AlexB_SleepStudy\matplotlib03232022');
 
 %% Figure 1A - Timeline plot of single patient entire sequence - LFP
 close all
