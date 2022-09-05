@@ -1900,6 +1900,19 @@ switch figureNUM
         % Need contacts
         % B 3/11 - 3/2X
 
+
+    case 11 % prophet plot
+
+        subjectID = subID;
+        hemisphere = hemi;
+        [prophetFor, prophetY] = getPropDat(subjectID , hemisphere , 'ProphetFOR');
+
+        plot(prophetY.y,'ko')
+        hold on
+        plot(prophetFor.yhat)
+        
+
+
 end
 
 
@@ -1920,7 +1933,30 @@ end
 
 
 
+function [prohData,yData] = getPropDat(cID , hID , tID)
 
+
+matDir = dir('*.csv');
+matNames = {matDir.name};
+matEls = split(matNames,'_');
+
+cIDs1 = matEls(:,:,1);
+cIDs2 = extractAfter(cIDs1,4);
+
+hIDs = matEls(:,:,2);
+
+tIDs1 = matEls(:,:,3);
+tIDs2 = extractBefore(tIDs1,'.');
+
+% ProphetFor
+prophetLog = matches(cIDs2,cID) & matches(hIDs,hID) & matches(tIDs2,tID);
+prohData = readtable(matNames{prophetLog});
+
+yLog = matches(cIDs2,cID) & matches(hIDs,hID) & matches(tIDs2,'Prophet');
+yData = readtable(matNames{yLog});
+
+
+end
 
 
 
@@ -1955,6 +1991,22 @@ elseif matches(tID,'Events')
         load(matNames{matLog},'outEVENTS');
         tmpDaOUT = outEVENTS;
     end
+elseif matches(tID, 'ProphetFOR')
+    matDir = dir('*.csv');
+    matNames = {matDir.name};
+    matEls = split(matNames,'_');
+
+    cIDs1 = matEls(:,:,1);
+    cIDs2 = extractAfter(cIDs1,4);
+
+    hIDs = matEls(:,:,2);
+
+    tIDs1 = matEls(:,:,3);
+    tIDs2 = extractBefore(tIDs1,'.');
+
+    matLog = matches(cIDs2,cID) & matches(hIDs,hID) & matches(tIDs2,tID);
+    outMAT = readtable(matNames{matLog});
+    tmpDaOUT = outMAT;
 else
     matLog = matches(cIDs2,cID) & matches(tIDs2,tID);
     load(matNames{matLog},'rawActSlWk')
