@@ -777,7 +777,7 @@ switch figureNUM
             %             allpatBand = [allpatBand ; bandIDs2];
             %             allpatState = [allpatState ; groupIDs];
 
-            [~,~,stats]  = anovan(allDATA,{bandIDs2,groupIDs},'model',2,...
+            [output2,tablEEE,stats]  = anovan(allDATA,{bandIDs2,groupIDs},'model',2,...
                 'varnames',{'BAND','ToD'},'display','off');
             %                 end
             [results,~,~,gnames] = multcompare(stats,"Dimension",[1 2],'display','off');
