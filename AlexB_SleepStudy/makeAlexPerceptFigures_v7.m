@@ -92,8 +92,8 @@ switch figureNUM
         lightCM = cMAP(246,:);
         darkCM = cMAP(10,:);
         scatter(1:length(smSunful),smSunful,[],reMAP,'filled')
-%         colormap(cividis)
-%         colorbar
+        %         colormap(cividis)
+        %         colorbar
         ylim([0 round(maxVale + 0.1,1)])
         yticks([0 round((maxVale + 0.1)/2,2) round(maxVale + 0.1,1)])
         yticklabels([0 round((maxVale + 0.1)/2,2) round(maxVale + 0.1,1)])
@@ -455,183 +455,183 @@ switch figureNUM
 
 
 
- 
 
-                % Normalize - [upack and repack]
-                gwBoth = [gFFTs , wFFTs];
-                allNunpk = gwBoth(:);
-                allNorm1 = normalize(allNunpk, 'range');
-                allNormF = reshape(allNorm1,size(gwBoth));
 
-                gNormF = allNormF(:,1:size(gFFTs,2));
-                wNormF = allNormF(:,size(gFFTs,2)+1:end);
+            % Normalize - [upack and repack]
+            gwBoth = [gFFTs , wFFTs];
+            allNunpk = gwBoth(:);
+            allNorm1 = normalize(allNunpk, 'range');
+            allNormF = reshape(allNorm1,size(gwBoth));
 
-                % ttest2(gNormF(:),wNormF(:))
+            gNormF = allNormF(:,1:size(gFFTs,2));
+            wNormF = allNormF(:,size(gFFTs,2)+1:end);
 
-                gMean = mean(gNormF,2);
-                wMean = mean(wNormF,2);
+            % ttest2(gNormF(:),wNormF(:))
 
-                gSTD = std(gNormF,[],2);
-                gSTDu = transpose(gMean + (gSTD));
-                gSTDd = transpose(gMean - (gSTD));
+            gMean = mean(gNormF,2);
+            wMean = mean(wNormF,2);
 
-                wSTD = std(wNormF,[],2);
-                wSTDu = transpose(wMean + (wSTD));
-                wSTDd = transpose(wMean - (wSTD));
+            gSTD = std(gNormF,[],2);
+            gSTDu = transpose(gMean + (gSTD));
+            gSTDd = transpose(gMean - (gSTD));
 
-                lp1 = plot(gMean,'LineWidth',2.5);
-                lp1.Color = lightCM;
-                hold on
+            wSTD = std(wNormF,[],2);
+            wSTDu = transpose(wMean + (wSTD));
+            wSTDd = transpose(wMean - (wSTD));
 
-                pch1 = patch([1:length(gMean) fliplr(1:length(gMean))],...
-                    [gSTDd fliplr(gSTDu)],'k');
+            lp1 = plot(gMean,'LineWidth',2.5);
+            lp1.Color = lightCM;
+            hold on
 
-                pch1.FaceColor = lightCM;
-                pch1.FaceAlpha = 0.3;
-                pch1.EdgeColor = 'none';
+            pch1 = patch([1:length(gMean) fliplr(1:length(gMean))],...
+                [gSTDd fliplr(gSTDu)],'k');
 
-                lp2 = plot(wMean,'LineWidth',2.5); % Get into bed
-                lp2.Color = darkCM;
+            pch1.FaceColor = lightCM;
+            pch1.FaceAlpha = 0.3;
+            pch1.EdgeColor = 'none';
 
-                pch2 = patch([1:length(wMean) fliplr(1:length(wMean))],...
-                    [wSTDd fliplr(wSTDu)],'k');
+            lp2 = plot(wMean,'LineWidth',2.5); % Get into bed
+            lp2.Color = darkCM;
 
-                pch2.FaceColor = darkCM;
-                pch2.FaceAlpha = 0.3;
-                pch2.EdgeColor = 'none';
+            pch2 = patch([1:length(wMean) fliplr(1:length(wMean))],...
+                [wSTDd fliplr(wSTDu)],'k');
 
-                xlt = xline(7,'-','theta');
-                xlt.LabelVerticalAlignment = 'middle';
-                xlt.LabelHorizontalAlignment = 'center';
+            pch2.FaceColor = darkCM;
+            pch2.FaceAlpha = 0.3;
+            pch2.EdgeColor = 'none';
 
-                xla = xline(12,'-','alpha');
-                xla.LabelVerticalAlignment = 'middle';
-                xla.LabelHorizontalAlignment = 'center';
+            xlt = xline(7,'-','theta');
+            xlt.LabelVerticalAlignment = 'middle';
+            xlt.LabelHorizontalAlignment = 'center';
 
-                xlb = xline(29,'-','beta');
-                xlb.LabelVerticalAlignment = 'middle';
-                xlb.LabelHorizontalAlignment = 'center';
+            xla = xline(12,'-','alpha');
+            xla.LabelVerticalAlignment = 'middle';
+            xla.LabelHorizontalAlignment = 'center';
 
-                %         xline(8,'theta','LabelVerticalAlignment','middle','LabelOrientation','aligned')
-                %         xline(12,'alpha','LabelVerticalAlignment','middle','LabelOrientation','aligned')
-                %         xline(29,'beta','LabelVerticalAlignment','middle','LabelOrientation','aligned')
-                %         xline(60,'gamma','LabelVerticalAlignment','middle','LabelOrientation','aligned')
+            xlb = xline(29,'-','beta');
+            xlb.LabelVerticalAlignment = 'middle';
+            xlb.LabelHorizontalAlignment = 'center';
 
-                xlim([0 70])
-                yticks([0 0.25 0.5 0.75])
-                ylim([0 0.75])
-                ylabel('Scaled power')
-                text(40,0.1,'\textit{p} = 1.18e-07','Interpreter','latex')
-                legend('Going to bed: mean','Going to bed: SD',...
-                    'Wake up: mean','Wake up: SD')
-                title('Patient Event Markers')
-                xlabel('Frequency (Hz)')
+            %         xline(8,'theta','LabelVerticalAlignment','middle','LabelOrientation','aligned')
+            %         xline(12,'alpha','LabelVerticalAlignment','middle','LabelOrientation','aligned')
+            %         xline(29,'beta','LabelVerticalAlignment','middle','LabelOrientation','aligned')
+            %         xline(60,'gamma','LabelVerticalAlignment','middle','LabelOrientation','aligned')
 
-                nexttile(12)
-                xVALS = -0.1:0.001:1;
+            xlim([0 70])
+            yticks([0 0.25 0.5 0.75])
+            ylim([0 0.75])
+            ylabel('Scaled power')
+            text(40,0.1,'\textit{p} = 1.18e-07','Interpreter','latex')
+            legend('Going to bed: mean','Going to bed: SD',...
+                'Wake up: mean','Wake up: SD')
+            title('Patient Event Markers')
+            xlabel('Frequency (Hz)')
 
-                [gbTheta , wuTheta, gT , wT] = getBandDat(gNormF , gbHzt, wNormF , wuHzt, 't');
-                [gbAlpha , wuAlpha, gA , wA] = getBandDat(gNormF , gbHzt, wNormF , wuHzt, 'a');
-                [gbBeta , wuBeta, gB , wB] = getBandDat(gNormF , gbHzt, wNormF , wuHzt, 'b');
-                [gbGamma , wuGamma, gG , wG] = getBandDat(gNormF , gbHzt, wNormF , wuHzt, 'g');
+            nexttile(12)
+            xVALS = -0.1:0.001:1;
 
-                % Prep for kruskal wallis / ANOVA
-                gALL = [gT ; gA ; gB ; gG];
-                wALL = [wT ; wA ; wB ; wG];
-                allDATA = [gALL ; wALL];
-                bandIDsG = [repmat({'T'},size(gT)) ; repmat({'A'},size(gA)) ;...
-                    repmat({'B'},size(gB)) ; repmat({'G'},size(gG))];
-                bandIDsW = [repmat({'T'},size(wT)) ; repmat({'A'},size(wA)) ;...
-                    repmat({'B'},size(wB)) ; repmat({'G'},size(wG))];
-                bandIDs2 = [bandIDsG ; bandIDsW];
-                groupIDs = [repmat({'GO'},size(gALL)) ; repmat({'GET'},size(wALL))];
+            [gbTheta , wuTheta, gT , wT] = getBandDat(gNormF , gbHzt, wNormF , wuHzt, 't');
+            [gbAlpha , wuAlpha, gA , wA] = getBandDat(gNormF , gbHzt, wNormF , wuHzt, 'a');
+            [gbBeta , wuBeta, gB , wB] = getBandDat(gNormF , gbHzt, wNormF , wuHzt, 'b');
+            [gbGamma , wuGamma, gG , wG] = getBandDat(gNormF , gbHzt, wNormF , wuHzt, 'g');
 
-                %                 if length(bandIDs2) == length(groupIDs)
-                [~,~,stats]  = anovan(allDATA,{bandIDs2,groupIDs},'model',2,...
-                    'varnames',{'BAND','ToD'},'display','off');
-                %                 end
-                [results,~,~,gnames] = multcompare(stats,"Dimension",[1 2],'display','off');
+            % Prep for kruskal wallis / ANOVA
+            gALL = [gT ; gA ; gB ; gG];
+            wALL = [wT ; wA ; wB ; wG];
+            allDATA = [gALL ; wALL];
+            bandIDsG = [repmat({'T'},size(gT)) ; repmat({'A'},size(gA)) ;...
+                repmat({'B'},size(gB)) ; repmat({'G'},size(gG))];
+            bandIDsW = [repmat({'T'},size(wT)) ; repmat({'A'},size(wA)) ;...
+                repmat({'B'},size(wB)) ; repmat({'G'},size(wG))];
+            bandIDs2 = [bandIDsG ; bandIDsW];
+            groupIDs = [repmat({'GO'},size(gALL)) ; repmat({'GET'},size(wALL))];
 
-                tbl = array2table(results,"VariableNames", ...
-                    ["Group A","Group B","Lower Limit","A-B","Upper Limit","P-value"]);
-                tbl.("Group A")=gnames(tbl.("Group A"));
-                tbl.("Group B")=gnames(tbl.("Group B"));
+            %                 if length(bandIDs2) == length(groupIDs)
+            [~,~,stats]  = anovan(allDATA,{bandIDs2,groupIDs},'model',2,...
+                'varnames',{'BAND','ToD'},'display','off');
+            %                 end
+            [results,~,~,gnames] = multcompare(stats,"Dimension",[1 2],'display','off');
 
-                % Get max
-                maxALL = ceil(max([gbTheta , wuTheta , gbAlpha , wuAlpha ,...
-                    gbBeta, wuBeta,gbGamma , wuGamma]));
-                ylinOFF1 = linspace(maxALL,round(maxALL*4),4);
-                ylinOFF2 = linspace(0,maxALL*3,4);
-                offSET1 = [0 0.5 1 1.5];
-                ylinES = ylinOFF1 + offSET1;
-                xVALSoff = ylinOFF2 + offSET1;
-                hold on
-                % PLOT 1
-                plot(xVALS,gbTheta + xVALSoff(1),'Color',lightCM,'LineWidth',2)
-                plot(xVALS,wuTheta + xVALSoff(1),'Color',darkCM,'LineWidth',2)
-                yline(ylinES(1),'-','theta','LabelVerticalAlignment','bottom')
-                % Stat
-                pVALt = tbl.("P-value")(matches(tbl.("Group A"),'BAND=T,ToD=GO') &...
-                    matches(tbl.("Group B"),'BAND=T,ToD=GET'));
-                if pVALt == 0
-                    ptextT = 'p < 0.0001';
-                else
-                    pNUM = num2str(round(pVALt,2,'significant'));
-                    ptextT = ['p = ',pNUM];
-                end
-                text(0.58,ylinES(1)-3.5,ptextT)
-                % PLOT 2
-                plot(xVALS,gbAlpha + xVALSoff(2),'Color',lightCM,'LineWidth',2)
-                plot(xVALS,wuAlpha + xVALSoff(2),'Color',darkCM,'LineWidth',2)
-                yline(ylinES(2),'-','alpha','LabelVerticalAlignment','bottom')
-                % Stat
-                pVALa = tbl.("P-value")(matches(tbl.("Group A"),'BAND=A,ToD=GO') &...
-                    matches(tbl.("Group B"),'BAND=A,ToD=GET'));
-                if pVALt == 0
-                    ptextA = 'p < 0.0001';
-                else
-                    pNUM = num2str(round(pVALa,2,'significant'));
-                    ptextA = ['p = ',pNUM];
-                end
-                text(0.58,ylinES(2)-3.5,ptextA)
-                % PLOT 3
-                plot(xVALS,gbBeta + xVALSoff(3),'Color',lightCM,'LineWidth',2)
-                plot(xVALS,wuBeta + xVALSoff(3),'Color',darkCM,'LineWidth',2)
-                yline(ylinES(3),'-','beta','LabelVerticalAlignment','bottom')
-                % Stat
-                pVALb = tbl.("P-value")(matches(tbl.("Group A"),'BAND=B,ToD=GO') &...
-                    matches(tbl.("Group B"),'BAND=B,ToD=GET'));
-                if pVALb == 0
-                    ptextB = 'p < 0.0001';
-                else
-                    pNUM = num2str(round(pVALb,2,'significant'));
-                    ptextB = ['p = ',pNUM];
-                end
-                text(0.58,ylinES(3)-3.5,ptextB)
-                % PLOT 4
-                plot(xVALS,gbGamma + xVALSoff(4),'Color',lightCM,'LineWidth',2)
-                plot(xVALS,wuGamma + xVALSoff(4),'Color',darkCM,'LineWidth',2)
-                yline(ylinES(4),'-','gamma','LabelVerticalAlignment','bottom')
-                % Stat
-                pVALg = tbl.("P-value")(matches(tbl.("Group A"),'BAND=G,ToD=GO') &...
-                    matches(tbl.("Group B"),'BAND=G,ToD=GET'));
-                if pVALg == 0
-                    ptextG = 'p < 0.0001';
-                else
-                    pNUM = num2str(round(pVALg,2,'significant'));
-                    ptextG = ['p = ',pNUM];
-                end
-                text(0.58,ylinES(4)-3.5,ptextG)
+            tbl = array2table(results,"VariableNames", ...
+                ["Group A","Group B","Lower Limit","A-B","Upper Limit","P-value"]);
+            tbl.("Group A")=gnames(tbl.("Group A"));
+            tbl.("Group B")=gnames(tbl.("Group B"));
 
-                xlim([0 0.7])
-                ylim([0 30])
-                yticks(linspace(1,7,3))
+            % Get max
+            maxALL = ceil(max([gbTheta , wuTheta , gbAlpha , wuAlpha ,...
+                gbBeta, wuBeta,gbGamma , wuGamma]));
+            ylinOFF1 = linspace(maxALL,round(maxALL*4),4);
+            ylinOFF2 = linspace(0,maxALL*3,4);
+            offSET1 = [0 0.5 1 1.5];
+            ylinES = ylinOFF1 + offSET1;
+            xVALSoff = ylinOFF2 + offSET1;
+            hold on
+            % PLOT 1
+            plot(xVALS,gbTheta + xVALSoff(1),'Color',lightCM,'LineWidth',2)
+            plot(xVALS,wuTheta + xVALSoff(1),'Color',darkCM,'LineWidth',2)
+            yline(ylinES(1),'-','theta','LabelVerticalAlignment','bottom')
+            % Stat
+            pVALt = tbl.("P-value")(matches(tbl.("Group A"),'BAND=T,ToD=GO') &...
+                matches(tbl.("Group B"),'BAND=T,ToD=GET'));
+            if pVALt == 0
+                ptextT = 'p < 0.0001';
+            else
+                pNUM = num2str(round(pVALt,2,'significant'));
+                ptextT = ['p = ',pNUM];
+            end
+            text(0.58,ylinES(1)-3.5,ptextT)
+            % PLOT 2
+            plot(xVALS,gbAlpha + xVALSoff(2),'Color',lightCM,'LineWidth',2)
+            plot(xVALS,wuAlpha + xVALSoff(2),'Color',darkCM,'LineWidth',2)
+            yline(ylinES(2),'-','alpha','LabelVerticalAlignment','bottom')
+            % Stat
+            pVALa = tbl.("P-value")(matches(tbl.("Group A"),'BAND=A,ToD=GO') &...
+                matches(tbl.("Group B"),'BAND=A,ToD=GET'));
+            if pVALt == 0
+                ptextA = 'p < 0.0001';
+            else
+                pNUM = num2str(round(pVALa,2,'significant'));
+                ptextA = ['p = ',pNUM];
+            end
+            text(0.58,ylinES(2)-3.5,ptextA)
+            % PLOT 3
+            plot(xVALS,gbBeta + xVALSoff(3),'Color',lightCM,'LineWidth',2)
+            plot(xVALS,wuBeta + xVALSoff(3),'Color',darkCM,'LineWidth',2)
+            yline(ylinES(3),'-','beta','LabelVerticalAlignment','bottom')
+            % Stat
+            pVALb = tbl.("P-value")(matches(tbl.("Group A"),'BAND=B,ToD=GO') &...
+                matches(tbl.("Group B"),'BAND=B,ToD=GET'));
+            if pVALb == 0
+                ptextB = 'p < 0.0001';
+            else
+                pNUM = num2str(round(pVALb,2,'significant'));
+                ptextB = ['p = ',pNUM];
+            end
+            text(0.58,ylinES(3)-3.5,ptextB)
+            % PLOT 4
+            plot(xVALS,gbGamma + xVALSoff(4),'Color',lightCM,'LineWidth',2)
+            plot(xVALS,wuGamma + xVALSoff(4),'Color',darkCM,'LineWidth',2)
+            yline(ylinES(4),'-','gamma','LabelVerticalAlignment','bottom')
+            % Stat
+            pVALg = tbl.("P-value")(matches(tbl.("Group A"),'BAND=G,ToD=GO') &...
+                matches(tbl.("Group B"),'BAND=G,ToD=GET'));
+            if pVALg == 0
+                ptextG = 'p < 0.0001';
+            else
+                pNUM = num2str(round(pVALg,2,'significant'));
+                ptextG = ['p = ',pNUM];
+            end
+            text(0.58,ylinES(4)-3.5,ptextG)
 
-                xlabel('Scaled power')
-                ylabel('Probability density')
-                title('Event Frequency bands')
+            xlim([0 0.7])
+            ylim([0 30])
+            yticks(linspace(1,7,3))
 
- 
+            xlabel('Scaled power')
+            ylabel('Probability density')
+            title('Event Frequency bands')
+
+
 
         end
 
@@ -673,9 +673,12 @@ switch figureNUM
         lightCM = cMAP(246,:);
         darkCM = cMAP(10,:);
 
-%         allpatData = [];
-%         allpatBand = {};
-%         allpatState = {};
+        %         allpatData = [];
+        %         allpatBand = {};
+        %         allpatState = {};
+        allDATAbb = [];
+        allConds = {};
+        allBands = {};
         allSTATS = {};
         for ri = 1:height(rostER)
             close all
@@ -770,9 +773,9 @@ switch figureNUM
             bandIDs2 = [bandIDsG ; bandIDsW];
             groupIDs = [repmat({'GO'},size(gALL)) ; repmat({'GET'},size(wALL))];
 
-%             allpatData = [allpatData ; allDATA];
-%             allpatBand = [allpatBand ; bandIDs2];
-%             allpatState = [allpatState ; groupIDs];
+            %             allpatData = [allpatData ; allDATA];
+            %             allpatBand = [allpatBand ; bandIDs2];
+            %             allpatState = [allpatState ; groupIDs];
 
             [~,~,stats]  = anovan(allDATA,{bandIDs2,groupIDs},'model',2,...
                 'varnames',{'BAND','ToD'},'display','off');
@@ -798,47 +801,50 @@ switch figureNUM
             end
 
             allSTATS{ri} = tblstats(logical(keepIDS),:);
+            allDATAbb = [allDATAbb ; allDATA];
+            allConds = [allConds ; groupIDs];
+            allBands = [allBands ; bandIDs2];
 
         end
 
-%         [~,~,stats]  = anovan(allpatData,{allpatBand,allpatState},'model',2,...
-%             'varnames',{'BAND','ToD'},'display','off');
-%         %                 end
-%         [results,~,~,gnames] = multcompare(stats,"Dimension",[1 2],'display','off');
-% 
-%         tblstats = array2table(results,"VariableNames", ...
-%             ["Group A","Group B","Lower Limit","A-B","Upper Limit","P-value"]);
-%         tblstats.("Group A")=gnames(tblstats.("Group A"));
-%         tblstats.("Group B")=gnames(tblstats.("Group B"));
+        %         [~,~,stats]  = anovan(allpatData,{allpatBand,allpatState},'model',2,...
+        %             'varnames',{'BAND','ToD'},'display','off');
+        %         %                 end
+        %         [results,~,~,gnames] = multcompare(stats,"Dimension",[1 2],'display','off');
+        %
+        %         tblstats = array2table(results,"VariableNames", ...
+        %             ["Group A","Group B","Lower Limit","A-B","Upper Limit","P-value"]);
+        %         tblstats.("Group A")=gnames(tblstats.("Group A"));
+        %         tblstats.("Group B")=gnames(tblstats.("Group B"));
 
-%         [goGs, goGm] = std(allpatData(matches(allpatState,'GO') & matches(allpatBand,'G')));
-%         [geGs, geGm] = std(allpatData(matches(allpatState,'GET') & matches(allpatBand,'G')));
-%         [goBs, goBm] = std(allpatData(matches(allpatState,'GO') & matches(allpatBand,'B')));
-%         [geBs, geBm] = std(allpatData(matches(allpatState,'GET') & matches(allpatBand,'B')));
-%         [goAs, goAm] = std(allpatData(matches(allpatState,'GO') & matches(allpatBand,'A')));
-%         [geAs, geAm] = std(allpatData(matches(allpatState,'GET') & matches(allpatBand,'A')));
-%         [goTs, goTm] = std(allpatData(matches(allpatState,'GO') & matches(allpatBand,'T')));
-%         [geTs, geTm] = std(allpatData(matches(allpatState,'GET') & matches(allpatBand,'T')));
+        %         [goGs, goGm] = std(allpatData(matches(allpatState,'GO') & matches(allpatBand,'G')));
+        %         [geGs, geGm] = std(allpatData(matches(allpatState,'GET') & matches(allpatBand,'G')));
+        %         [goBs, goBm] = std(allpatData(matches(allpatState,'GO') & matches(allpatBand,'B')));
+        %         [geBs, geBm] = std(allpatData(matches(allpatState,'GET') & matches(allpatBand,'B')));
+        %         [goAs, goAm] = std(allpatData(matches(allpatState,'GO') & matches(allpatBand,'A')));
+        %         [geAs, geAm] = std(allpatData(matches(allpatState,'GET') & matches(allpatBand,'A')));
+        %         [goTs, goTm] = std(allpatData(matches(allpatState,'GO') & matches(allpatBand,'T')));
+        %         [geTs, geTm] = std(allpatData(matches(allpatState,'GET') & matches(allpatBand,'T')));
 
-%         tbldata = table(allpatData,allpatBand,allpatState,'VariableNames',{'data','band','state'});
-% 
-%         bandOrder = {'T','A','B','G'};
-%         tbldata.band = categorical(tbldata.band,bandOrder);
+        %         tbldata = table(allpatData,allpatBand,allpatState,'VariableNames',{'data','band','state'});
+        %
+        %         bandOrder = {'T','A','B','G'};
+        %         tbldata.band = categorical(tbldata.band,bandOrder);
 
         allSTATS2 = allSTATS(cellfun(@(x) ~isempty(x), allSTATS, 'UniformOutput',true));
 
         tabRowIDS = rostER(cellfun(@(x) ~isempty(x), allSTATS, 'UniformOutput',true),:);
-        
+
         % Change colors
-        coloRRSIG = [0.0196    0.0196    0.0196 ; 
-                    0    0.3098    1.0000 ;
-                    0.1922    0.6863    0.8314 ;
-                    0.5647    0.1765    0.2549];
+        coloRRSIG = [0.0196    0.0196    0.0196 ;
+            0    0.3098    1.0000 ;
+            0.1922    0.6863    0.8314 ;
+            0.5647    0.1765    0.2549];
         % Lighten for non-sig
         coloRRnSIG = [0.7569    0.7569    0.7569 ;
-                    0.7490    0.8275    1.0000 ;
-                    0.7961    0.9216    0.9569 ;
-                    0.9255    0.7608    0.7922];
+            0.7490    0.8275    1.0000 ;
+            0.7961    0.9216    0.9569 ;
+            0.9255    0.7608    0.7922];
         % Put space between subjects
         yvaleC = 1;
         for aai = 1:length(allSTATS2)
@@ -857,7 +863,7 @@ switch figureNUM
                 end
 
                 if tmpC.("A-B")(bi) < 0
-                    
+
                     if pf
                         scatter(tmpC.("A-B")(bi),yvaleC,40,useCols(bi,:),'filled')
                         line([tmpC.("A-B")(bi) 0],[yvaleC yvaleC],'Color',useCols(bi,:),'LineWidth',2)
@@ -866,7 +872,7 @@ switch figureNUM
                         line([tmpC.("A-B")(bi) 0],[yvaleC yvaleC],'Color',useCols(bi,:),'LineWidth',0.5)
                     end
                 else
-                    
+
                     if pf
                         scatter(tmpC.("A-B")(bi),yvaleC,40,useCols(bi,:),'filled')
                         line([0 tmpC.("A-B")(bi)],[yvaleC yvaleC],'Color',useCols(bi,:),'LineWidth',2)
@@ -900,6 +906,30 @@ switch figureNUM
         xticks([-1.25 -1 -0.5 0 0.5 1])
         xlim([-1.25 1])
         xlabel('Mean difference between Going to Sleep and Awaking')
+        axis square
+
+
+        figure;
+        datTab = table(allDATAbb,allBands,allConds,'VariableNames',{'Data','Bands','Conditions'});
+        bands = ["T","A","B","G"]; x = categorical(datTab.Bands,bands);
+        datTab.cIND = zeros(height(datTab),1);
+        datTab.cIND(matches(datTab.Conditions,"GET")) = 1;
+        c = categorical(datTab.cIND,[0,1]);
+        b = boxchart(x,datTab.Data,'GroupByColor',c);
+
+                b(1).JitterOutliers = 'on';
+                b(2).JitterOutliers = 'on';
+                b(1).MarkerStyle = '.';
+                b(2).MarkerColor = lightCM;
+                b(1).MarkerColor = darkCM;
+                b(2).BoxFaceColor = lightCM;
+                b(1).BoxFaceColor = darkCM;
+                b(2).MarkerStyle = '.';
+                ylabel('Scaled LFP Power')
+                xticklabels({'Theta','Alpha','Beta','Gamma'})
+                ylim([0 5])
+
+
         axis square
 
 
@@ -1340,10 +1370,10 @@ switch figureNUM
         dp3.MarkerSize = 10;
 
 
-%         dp2 = plot(medOffset,allSTM,'o');
-%         dp2.MarkerFaceColor = 'k';
-%         dp2.MarkerEdgeColor = 'k';
-%         dp2.MarkerSize = 10;
+        %         dp2 = plot(medOffset,allSTM,'o');
+        %         dp2.MarkerFaceColor = 'k';
+        %         dp2.MarkerEdgeColor = 'k';
+        %         dp2.MarkerSize = 10;
         hold on
         plot(xFit3, yFit3, 'k--', 'LineWidth', 2);
         ylim([0 7])
@@ -1861,15 +1891,15 @@ switch figureNUM
 
         s1 = scatter(zeros(length(cirLFP),1),cirLFP(:,1),100,'k','filled')
         s1.MarkerFaceAlpha = 0.5;
-        hold on 
+        hold on
         s2 = scatter(ones(length(cirACT),1),cirACT(:,1),100,'b','filled')
         s2.MarkerFaceAlpha = 0.2;
         xlim([-0.2 1.2])
 
-%         scatter(cirLFP(:,1),cirACT(:,1),50,'k');
-%         hold on
-%         scatter(cirLFP(sigACTo,1),cirACT(sigACTo,1),50,[0.5 0.5 0.5],'filled');
-%         scatter(cirLFP(sigLAb,1),cirACT(sigLAb,1),50,'k','filled');
+        %         scatter(cirLFP(:,1),cirACT(:,1),50,'k');
+        %         hold on
+        %         scatter(cirLFP(sigACTo,1),cirACT(sigACTo,1),50,[0.5 0.5 0.5],'filled');
+        %         scatter(cirLFP(sigLAb,1),cirACT(sigLAb,1),50,'k','filled');
 
         xlim([0 1])
         xticks([0 0.5 1])
@@ -1893,7 +1923,7 @@ switch figureNUM
 
     case 10 % discussion figure
 
-        % Need peak frequency 
+        % Need peak frequency
         % A 3/1 - 3/11
 
 
@@ -1910,7 +1940,214 @@ switch figureNUM
         plot(prophetY.y,'ko')
         hold on
         plot(prophetFor.yhat)
-        
+
+
+    case 12 % Prophet plot 2
+
+        cd('E:\Dropbox\Publications_Meta\InProgress\ABaumgartner_Percept2020\prophetOUT')
+
+        % rawData = readtable("SPPD3_L_Prophet.csv");
+        % forDdata = readtable("SPPD3_L_forcast.csv");
+
+        csvDir = dir('*.csv');
+        csvDirn = {csvDir.name};
+
+        csvParts = split(csvDirn,'_');
+        sppdComb = cellfun(@(x,y) [x,'_',y],csvParts(:,:,1),csvParts(:,:,2),'UniformOutput',false );
+        conditionS = csvParts(:,:,3);
+
+        sppdUnique = unique(sppdComb);
+
+        mseOUT = zeros(1,length(sppdUnique));
+        for si = 1:length(sppdUnique)
+
+            sppdIND = matches(sppdComb, sppdUnique{si});
+
+            sppINDc = conditionS(sppdIND);
+
+            for ci = 1:2
+                tmpFC = sppINDc{ci};
+                if contains(tmpFC,'Prophet')
+                    rawFileN = [sppdUnique{si},'_',sppINDc{ci}];
+                    rawData = readtable(rawFileN);
+                else
+                    forFileN = [sppdUnique{si},'_',sppINDc{ci}];
+                    forDdata = readtable(forFileN);
+                end
+
+            end
+
+            % MSE
+            sharedINdsFOR = ismember(forDdata.ds,rawData.ds);
+            actual = rawData.y;
+            prediCTEd = forDdata.yhat(sharedINdsFOR);
+            mseOUT(si) = mse(actual, prediCTEd);
+
+        end
+
+        cd(mainLOC)
+        hemiID = zeros(height(rostER),1);
+        hemiLab = cell(height(rostER),1);
+        subLab = cell(height(rostER),1);
+        subID = zeros(height(rostER),1);
+        lfpPEak = zeros(height(rostER),1);
+        awakeLFP = cell(height(rostER),1);
+        asleepLFP = cell(height(rostER),1);
+        mdLFPawk = zeros(height(rostER),1);
+        awakeSTM = zeros(height(rostER),1);
+        asleepSTM = zeros(height(rostER),1);
+        for ri = 1:height(rostER)
+
+            tmpSUB = num2str(rostER.subID(ri));
+            tmpHEMI = upper(rostER.hemI{ri});
+            hemiLab{ri} = tmpHEMI;
+            subLab{ri} = tmpSUB;
+            [tmData] = getPatDat(tmpSUB , tmpHEMI , 'TimeLine');
+
+            [apData] = getPatDat(tmpSUB , tmpHEMI , 'ActALL');
+            [cleanApT] = trim144Apdata(tmData , apData);
+
+            lfpPEak(ri) = tmData.senseFreq;
+
+            nLFP = tmData.LFP;
+            unfurlLFP = nLFP(:);
+            mSunful = unfurlLFP - (min(unfurlLFP));
+            mSunful(mSunful > 2.2999e+09) = nan;
+            mSunful = normalize(mSunful, 'range');
+
+            % Stim data
+            stimDat = tmData.Stim;
+            unfurlSTM = stimDat(:);
+
+            mdLFPawk(ri) = median(mSunful,'omitnan');
+
+            reonUF = cleanApT.ronenbSW(:);
+            nonNanInd1 = ~isnan(reonUF);
+            reonUnfurli = ~reonUF(nonNanInd1);
+            reonUFi = reonUF;
+            reonUFi(nonNanInd1) = reonUnfurli;
+            % Get Crespo
+            cresUF = cleanApT.crespoSW(:);
+            % Find agreement
+            pairRC = [reonUFi , cresUF];
+            nanInd2 = isnan(pairRC(:,1));
+            % Find nonNans
+            pairMatch = pairRC(:,1) == pairRC(:,2);
+            swFinMat = pairRC(:,1);
+            swFinMat(pairMatch) = pairRC(pairMatch,1);
+            swFinMat(~pairMatch) = nan;
+            swFinMat(nanInd2) = nan;
+
+            dayLFPs = mSunful(swFinMat == 1);
+            nightLFPs = mSunful(swFinMat == 0);
+
+            daySTIM = unfurlSTM(swFinMat == 1);
+            nightSTIM = unfurlSTM(swFinMat == 0);
+            awakeSTM(ri) = mean(daySTIM(daySTIM ~= 0),'omitnan');
+            asleepSTM(ri) = mean(nightSTIM(nightSTIM ~= 0),'omitnan');
+
+            awakeLFP{ri} = dayLFPs;
+            asleepLFP{ri} = nightLFPs;
+
+            if matches(tmpHEMI,'R')
+                hemiID(ri) = 1;
+            end
+            subID(ri) = rostER.subID(ri);
+
+        end
+
+        % Unpack, normalize, and repack
+        allDATA = [];
+        allpat = [];
+        allAA = {};
+        for spI = 1:height(awakeLFP)
+
+            % awake
+            allDATA = [allDATA ; awakeLFP{spI}];
+            allpat = [allpat ; repmat(spI,size(awakeLFP{spI}))];
+            allAA = [allAA ; repmat({'awake'},size(awakeLFP{spI}))];
+            % asleep
+            allDATA = [allDATA ; asleepLFP{spI}];
+            allpat = [allpat ; repmat(spI,size(asleepLFP{spI}))];
+            allAA = [allAA ; repmat({'asleep'},size(asleepLFP{spI}))];
+
+        end
+        allDATAnorm = normalize(allDATA, 'range');
+
+        % repack
+        awakeLFP2 = cell(height(awakeLFP),1);
+        asleepLFP2 = cell(height(asleepLFP),1);
+        medianAW = zeros(height(awakeLFP),1);
+        iqrAW = zeros(height(awakeLFP),1);
+        medianAS = zeros(height(awakeLFP),1);
+        iqrAS = zeros(height(awakeLFP),1);
+        for spI2 = 1:height(awakeLFP)
+            awakeTmp = ismember(allpat,spI2) & matches(allAA,'awake');
+            asleepTmp = ismember(allpat,spI2) & matches(allAA,'asleep');
+
+            awakeLFP2{spI2} = allDATAnorm(awakeTmp);
+            medianAW(spI2) = median(awakeLFP2{spI2},'omitnan');
+            iqrAW(spI2) = iqr(awakeLFP2{spI2});
+            asleepLFP2{spI2} = allDATAnorm(asleepTmp);
+            medianAS(spI2) = median(asleepLFP2{spI2},'omitnan');
+            iqrAS(spI2) = iqr(asleepLFP2{spI2});
+        end
+
+        medOffset = medianAW - medianAS;
+
+        abvMED = mseOUT > median(mseOUT);
+        belMED = mseOUT < median(mseOUT);
+
+
+
+
+
+        cd('E:\Dropbox\Publications_Meta\InProgress\ABaumgartner_Percept2020\prophetOUT')
+        for si = 1:length(sppdUnique)
+
+            if ~belMED(si)
+
+                sppdIND = matches(sppdComb, sppdUnique{si});
+
+                sppINDc = conditionS(sppdIND);
+
+                for ci = 1:2
+                    tmpFC = sppINDc{ci};
+                    if contains(tmpFC,'Prophet')
+                        rawFileN = [sppdUnique{si},'_',sppINDc{ci}];
+                        rawData = readtable(rawFileN);
+                    else
+                        forFileN = [sppdUnique{si},'_',sppINDc{ci}];
+                        forDdata = readtable(forFileN);
+                    end
+
+                end
+
+
+                % Plot
+                figure;
+                plot(rawData.ds,rawData.y,'k.','MarkerSize',15)
+
+                hold on
+
+                plot(forDdata.ds,forDdata.yhat,'r-','MarkerSize',5)
+
+                yPAT = [transpose(forDdata.yhat_lower) , fliplr(transpose(forDdata.yhat_upper))];
+                xPAT = [transpose(forDdata.ds) , fliplr(transpose(forDdata.ds))];
+
+                p = patch(xPAT,yPAT,'r');
+                p.EdgeColor = 'none';
+                p.FaceAlpha = 0.2;
+                set(gcf,'Position',[ 549  821  1109  420])
+                title(['mse = ' num2str(mseOUT(si))])
+            end
+
+
+
+        end
+
+
+
 
 
 end
