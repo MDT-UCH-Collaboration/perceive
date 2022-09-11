@@ -2023,23 +2023,72 @@ switch figureNUM
         ax = gca;
         ax.TitleHorizontalAlignment = 'left';
 
+        time_res        = 1;
+        n_shuffles      = 200;
+        shuffle_type    = 'circshift';
 
 
-
-        time_res        = 1; % time resolution (in hours) for periodogram
-        max_period      = 18; % Maximum period of 1 week = 168 hours
-        do_normalise    = true; % Whether to normalise the periodogram
+        %         time_res        = 1; % time resolution (in hours) for periodogram
+        %         max_period      = 18; % Maximum period of 1 week = 168 hours
+        %         do_normalise    = true; % Whether to normalise the periodogram
 
         % Calculate periodogram
-        [psd_estimateL1, time_periodsL1] = circadian_periodogram(L1tia, L1lfpBns, time_res, max_period);
-        psdestL1n = psd_estimateL1 ./ mean(psd_estimateL1);
-        [psd_estimateR1, time_periodsR1] = circadian_periodogram(R1tia, R1lfpBns, time_res, max_period);
-        psdestR1n = psd_estimateR1 ./ mean(psd_estimateR1);
+%         [psd_estimateL1, time_periodsL1] = circadian_periodogram(L1tia, L1lfpBns, time_res, max_period);
+        %         psdestL1n = psd_estimateL1 ./ mean(psd_estimateL1);
+        %         [psd_estimateR1, time_periodsR1] = circadian_periodogram(R1tia, R1lfpBns, time_res, max_period);
+        %         psdestR1n = psd_estimateR1 ./ mean(psd_estimateR1);
+        %
+        %         [psd_estimateL2, time_periodsL2] = circadian_periodogram(L2tia, L2lfpBns, time_res, max_period);
+        %         psdestL2n = psd_estimateL2 ./ mean(psd_estimateL2);
+        %         [psd_estimateR2, time_periodsR2] = circadian_periodogram(R2tia, R2lfpBns, time_res, max_period);
+        %         psdestR2n = psd_estimateR2 ./ mean(psd_estimateR2);
+        var_expL1 = variance_explained_by_timeofday(L1tia, L1lfpBns, time_res);
+        var_expR1 = variance_explained_by_timeofday(R1tia, R1lfpBns, time_res);
+        var_expL2 = variance_explained_by_timeofday(L2tia, L2lfpBns, time_res);
+        var_expR2 = variance_explained_by_timeofday(R2tia, R2lfpBns, time_res);
+        [shuff_var_expL1, var_expl_pL1] = get_shuffled_var_explained(L1tia, L1lfpBns, time_res, n_shuffles, shuffle_type);
+        [shuff_var_expR1, var_expl_pR1] = get_shuffled_var_explained(R1tia, R1lfpBns, time_res, n_shuffles, shuffle_type);
+        [shuff_var_expL2, var_expl_pL2] = get_shuffled_var_explained(L2tia, L2lfpBns, time_res, n_shuffles, shuffle_type);
+        [shuff_var_expR2, var_expl_pR2] = get_shuffled_var_explained(R2tia, R2lfpBns, time_res, n_shuffles, shuffle_type);
 
-        [psd_estimateL2, time_periodsL2] = circadian_periodogram(L2tia, L2lfpBns, time_res, max_period);
-        psdestL2n = psd_estimateL2 ./ mean(psd_estimateL2);
-        [psd_estimateR2, time_periodsR2] = circadian_periodogram(R2tia, R2lfpBns, time_res, max_period);
-        psdestR2n = psd_estimateR2 ./ mean(psd_estimateR2);
+        fit_times   = hours(0:(1/60):24);
+
+
+        fit_objL1     = timeofday_fit(L1tia, L1lfpBns, time_res);
+%         timeofday_numL1   = hours(timeofday(L1tia));
+        fit_objR1     = timeofday_fit(R1tia, R1lfpBns, time_res);
+%         timeofday_numR1   = hours(timeofday(R1tia));
+        fit_objL2     = timeofday_fit(L2tia, L2lfpBns, time_res);
+%         timeofday_numL2   = hours(timeofday(L2tia));
+        fit_objR2     = timeofday_fit(R2tia, R2lfpBns, time_res);
+%         timeofday_numR2   = hours(timeofday(R2tia));
+
+        figure;
+        subplot(1,2,1)
+        scatter(timeofday(L1tia),L1lfpBns,6,'k','filled','MarkerFaceAlpha',0.5,'MarkerEdgeAlpha',0.5)
+        hold on
+        plot(fit_times,fit_objL1(hours(fit_times)),'k-','LineWidth',2)
+        scatter(timeofday(R1tia),R1lfpBns,6,'r','filled','MarkerFaceAlpha',0.5,'MarkerEdgeAlpha',0.5)
+        plot(fit_times,fit_objR1(hours(fit_times)),'r-','LineWidth',2)
+        yticks([0 0.5 1])
+        ylabel('Scaled LFP')
+
+        title(['Var L TOD: ' num2str(var_expL1) ', Var R TOD:' num2str(var_expR1)])
+
+        subplot(1,2,2)
+        scatter(timeofday(L2tia),L2lfpBns,6,'k','filled','MarkerFaceAlpha',0.5,'MarkerEdgeAlpha',0.5)
+        hold on
+        plot(fit_times,fit_objL2(hours(fit_times)),'k-','LineWidth',2)
+        scatter(timeofday(R2tia),R2lfpBns,6,'r','filled','MarkerFaceAlpha',0.5,'MarkerEdgeAlpha',0.5)
+        plot(fit_times,fit_objR2(hours(fit_times)),'r-','LineWidth',2)
+        yticks([0 0.5 1])
+        ylabel('Scaled LFP')
+        title(['Var L TOD: ' num2str(var_expL2) ', Var R TOD:' num2str(var_expR2)])
+
+
+
+
+        xlim(hours([0 24]))
 
         % Plot the periodogram
         figure;
