@@ -1,3 +1,6 @@
+
+
+
 %% Order of Scripts and Functions 
 % -----Revise date - 3/8/2022
 % Note: created
@@ -11,56 +14,32 @@ actigraphyProcess(subID,1)
 
 %% Step 2
 % Load in Pat struct
-cd('E:\Dropbox\Publications_Meta\InProgress\ABaumgartner_Percept2020')
-load("PatParmsDiscuss.mat","patParams");
+cd('C:\Users\Admin\Desktop\sppd11tesat')
+firstj = 'Report_Json_Session_Report_20220317T114335.json';
+jsonfir = jsondecode(fileread(firstj));
+
+secondj = 'Report_Json_Session_Report_20220329T143105.json';
+jsonsec = jsondecode(fileread(secondj));
 
 
 %% Step 4 - Timeline
-% One case
+% SPPD11 L First session
 pat2use = 11;
-side = 2; % for bilateral: 1 = 'L'
-numT = 'B';
+side = 'R';
+session = '2';
 
-% mainDIR = 'D:\Dropbox\Publications_Meta\InProgress\ABaumgartner_Percept2020';
-mainDIR = 'E:\Dropbox\Publications_Meta\InProgress\ABaumgartner_Percept2020\DisucssionFigure';
-userDIRs = [mainDIR,'\SPPD',num2str(pat2use),filesep,numT];
-userDIRe = '\JSON_LFP';
-% saveDIRs = [mainDIR,'\Data\SPPD'];
-% saveDIRe = 'D:\Dropbox\Publications_Meta\InProgress\ABaumgartner_Percept2020\testSav';
-saveDIRe = 'E:\Dropbox\Publications_Meta\InProgress\ABaumgartner_Percept2020\DisucssionFigure\finaltest';
+mainDIR = 'E:\Dropbox\Publications_Meta\InProgress\ABaumgartner_Percept2020';
+saveDIR = 'C:\Users\Admin\Desktop\sppd11tesat\saveOUT';
+userDIR = 'C:\Users\Admin\Desktop\sppd11tesat';
 tabLOC = [mainDIR,'\summarydataTab.csv'];
-actDloc = [mainDIR,'\SPPD'];
 
-patParsmsFs = fieldnames(patParams);
-patParsmsFs = replace(patParsmsFs,'P','');
-patPhaseFields = patParams.(['P',patParsmsFs{matches(patParsmsFs,num2str(pat2use))}]);
-% hemiFields = fieldnames(patFields);
-
-
-% if length(hemiFields) == 1
-patPhase = patPhaseFields.(numT); % for bilateral: 1 = 'L'
-hemiFields = fieldnames(patPhase);
-hemi = hemiFields{side}; % for bilateral: 1 = 'L'
-patTab = patPhase.(hemi);
-
-hemiS = hemi;
+hemiS = side;
 patID = pat2use;
-overSAT = patTab.OverSat;
-jsonNAMEs = patTab.json;
+jsoN = secondj;
 
-if matches(hemiS,'L')
-    hemidir = 'Left';
-else
-    hemidir = 'Right';
-end
-
-saveDIR = [saveDIRe , filesep, numT];
-userDIR = [userDIRs , userDIRe];
-jsoN = jsonNAMEs;
-
-perceive_sleepTandE_Discussion('overSAT',overSAT,'subID',patID,...
+perceive_sleepTandE_Discussion('overSAT',1,'subID',patID,...
     'saveDIR',saveDIR,'stagE',2,'userDIR',userDIR,...
-    'hemiS',hemiS,"tabLOC",tabLOC,"jsonDAT",jsoN)
+    'hemiS',hemiS,"tabLOC",tabLOC,"jsonDAT",jsoN,"sessNUM",session)
 
 %% Step 5 - Run PyActrigraphy
 % 1. Copy paste - raw CSV from Actiwatch to

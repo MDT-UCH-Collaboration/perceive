@@ -359,7 +359,7 @@ switch inPS.stagE
         if matches(inPS.hemiS,'L')
             fileNAME = ['SPPD',num2str(inPS.subID),'_L_S',char(inPS.sessNUM),'_TimeLine.csv'];
         else
-            fileNAME = ['SPPD',num2str(inPS.subID),'_R_S',char(inPS.sessNUM),'_TimeLine.csv'];
+            fileNAME = ['SPPD',num2str(inPS.subID),'_R_TimeLine.csv'];
         end
         writetable(outTable,fileNAME);
 
@@ -378,9 +378,9 @@ switch inPS.stagE
 
 
         if matches(inPS.hemiS,'L')
-            fileNAMEm = ['SPPD',num2str(inPS.subID),'_L_S',char(inPS.sessNUM),'_TimeLine.mat'];
+            fileNAMEm = ['SPPD',num2str(inPS.subID),'_L_TimeLine.mat'];
         else
-            fileNAMEm = ['SPPD',num2str(inPS.subID),'_R_S',char(inPS.sessNUM),'_TimeLine.mat'];
+            fileNAMEm = ['SPPD',num2str(inPS.subID),'_R_TimeLine.mat'];
         end
         save(fileNAMEm,'outMAT');
 
