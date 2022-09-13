@@ -2065,30 +2065,28 @@ switch figureNUM
 
         figure;
         subplot(1,2,1)
-        scatter(timeofday(L1tia),L1lfpBns,6,'k','filled','MarkerFaceAlpha',0.5,'MarkerEdgeAlpha',0.5)
+        % Left Stimulation 1
+        scatter(timeofday(L1tia),L1lfpBns,6,'k','filled','MarkerFaceAlpha',0.3,'MarkerEdgeAlpha',0.3)
         hold on
-        plot(fit_times,fit_objL1(hours(fit_times)),'k-','LineWidth',2)
-        scatter(timeofday(R1tia),R1lfpBns,6,'r','filled','MarkerFaceAlpha',0.5,'MarkerEdgeAlpha',0.5)
-        plot(fit_times,fit_objR1(hours(fit_times)),'r-','LineWidth',2)
+        plot(fit_times,fit_objL1(hours(fit_times)),'k-','LineWidth',2.5)
+        % Left Stimulation 2
+        scatter(timeofday(L2tia),L2lfpBns,6,'r','filled','MarkerFaceAlpha',0.3,'MarkerEdgeAlpha',0.3)
+        plot(fit_times,fit_objL2(hours(fit_times)),'r-','LineWidth',2.5)
         yticks([0 0.5 1])
         ylabel('Scaled LFP')
-
-        title(['Var L TOD: ' num2str(var_expL1) ', Var R TOD:' num2str(var_expR1)])
+        title(['Var L1 TOD: ' num2str(var_expL1) ', Var L2 TOD:' num2str(var_expL2)])
 
         subplot(1,2,2)
-        scatter(timeofday(L2tia),L2lfpBns,6,'k','filled','MarkerFaceAlpha',0.5,'MarkerEdgeAlpha',0.5)
+        scatter(timeofday(R1tia),R1lfpBns,6,'k','filled','MarkerFaceAlpha',0.3,'MarkerEdgeAlpha',0.3)
         hold on
-        plot(fit_times,fit_objL2(hours(fit_times)),'k-','LineWidth',2)
-        scatter(timeofday(R2tia),R2lfpBns,6,'r','filled','MarkerFaceAlpha',0.5,'MarkerEdgeAlpha',0.5)
-        plot(fit_times,fit_objR2(hours(fit_times)),'r-','LineWidth',2)
+        plot(fit_times,fit_objR1(hours(fit_times)),'k-','LineWidth',2.5)
+        scatter(timeofday(R2tia),R2lfpBns,6,'r','filled','MarkerFaceAlpha',0.3,'MarkerEdgeAlpha',0.3)
+        plot(fit_times,fit_objR2(hours(fit_times)),'r-','LineWidth',2.5)
         yticks([0 0.5 1])
         ylabel('Scaled LFP')
-        title(['Var L TOD: ' num2str(var_expL2) ', Var R TOD:' num2str(var_expR2)])
+        title(['Var R1 TOD: ' num2str(var_expR1) ', Var R2 TOD:' num2str(var_expR2)])
 
-
-
-
-        xlim(hours([0 24]))
+%         xlim(hours([0 24]))
 
         % Plot the periodogram
         figure;
