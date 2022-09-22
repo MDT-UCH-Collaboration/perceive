@@ -1,16 +1,20 @@
-function [] = mdt_p1_p5figure(dbdir)
+function [] = mdt_p1_p5figure(dbdir,patid)
 
 % C:\Users\John\Documents\GitHub\perceive\MDT_Phase1_patient5
 cd(dbdir)
 
-load("patient5_LeftBSS.mat","outTABLE")
 
+if patid == 5
+    load("patient5_LeftBSS.mat","outTABLE")
+elseif patid == 4
+    load("patient4_RightBSS.mat","outTABLE")
+end
 
 uniChan = unique(outTABLE.ChanID);
 
-allmeans = zeros(height(outTABLE.PF_Data{1}),length(uniChan));
+allmeans = zeros(height(outTABLE.PF_Data{1}),size(uniChan,1));
 chanID = {'1-3','1-2','2-3','0-1','0-3','0-2'};
-for ci = 1:length(uniChan)
+for ci = 1:size(uniChan,1)
 
     tmpChan = uniChan{ci};
     chanInd = matches(outTABLE.ChanID,tmpChan);
@@ -62,8 +66,9 @@ legend(chanID(maxBsort))
 xticks([0 30 60])
 xlabel('Frequency (Hz)')
 
-yticks([0 0.12 0.25])
-ylabel('uPv')
+ylim([0 1.15])
+yticks([0 0.5 1 1.15])
+ylabel('Normalized uPv')
 
 axis square
 
