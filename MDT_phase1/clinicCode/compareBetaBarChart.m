@@ -30,7 +30,7 @@ end
 figure
 bar(maxBetas)
 %set(gca,'xticklabel',{'03', '13', '02', '01', '12', '23'})
-set(gca,'xticklabel', {channels})
+set(gca,'xticklabel', channel)
 hold on
 errorbar(1:6, maxBetas, ystd)
 title("Comparing max Betas (std)")
