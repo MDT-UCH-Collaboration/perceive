@@ -7,4 +7,4 @@ js = jsondecode(fileread(jsonFiles));
 
 %%
 dbdir = 'C:\Users\Admin\Documents\Github\perceive\MDT_phase1\MDT_Phase1_patient5'
-mdt_p1_p5figure(dbdir,4)
+mdt_p1_p5figure_divColor(dbdir,4)
