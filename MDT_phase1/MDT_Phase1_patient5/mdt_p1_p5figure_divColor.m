@@ -1,4 +1,4 @@
-function [] = mdt_p1_p5figure(dbdir,patid)
+function [] = mdt_p1_p5figure_divColor(dbdir,patid)
 
 % C:\Users\John\Documents\GitHub\perceive\MDT_Phase1_patient5
 cd(dbdir)
