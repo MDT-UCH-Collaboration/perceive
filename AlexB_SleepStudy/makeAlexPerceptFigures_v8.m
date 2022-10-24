@@ -9,7 +9,7 @@ switch dirPRE
         gPrefix = 'C:\Users\Admin\';
     case 2 % Work Desktop
         dPrefix = 'D:\Dropbox\';
-        gPrefix = 'D:\';
+        gPrefix = 'C:\Users\Admin\';
     case 3
         dPrefix = 'C:\Users\johna\Dropbox\';
         gPrefix = 'C:\Users\johna\';
@@ -1566,6 +1566,9 @@ switch figureNUM
         scatter(ones(length(asleepDTW),1),asleepDTW,100,darkCM,'filled')
         awMED = median(awakeDTW);
         asMED = median(asleepDTW);
+
+        % STATS
+         [a,b,c] = ttest2(asleepDTW,awakeDTW);
 
         line([-0.2 0.2], [awMED awMED],'Color',lightCM,'LineWidth',3)
         line([0.8 1.2], [asMED asMED],'Color',darkCM,'LineWidth',3)
