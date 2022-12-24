@@ -1568,20 +1568,6 @@ switch figureNUM
 
                 case 4
 
-                    allpdss = pdss;
-                    % Correlate with STIM
-                    % 1. Correlate Diff with STIM
-                    coefficients3 = polyfit(medOffset, allpdss, 1);
-                    subplot(2,2,4)
-                    dp2 = plot(medOffset(hemiID == 1),pdss(hemiID == 1),'ro');
-                    hold on
-                    dp3 = plot(medOffset(hemiID == 0),pdss(hemiID == 0),'ko');
-                    ylab2u = 'PDSS2';
-                    yLIM = [0 37];
-                    yticSS = [0 18 36];
-                    [r3,p3] = corr(allpdss,medOffset);
-                    titlEE = 'Correlation LFP and PDSS2';
-
 
 
             end
