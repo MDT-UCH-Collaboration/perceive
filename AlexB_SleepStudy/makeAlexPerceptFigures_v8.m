@@ -1057,8 +1057,8 @@ switch figureNUM
         medASs = medianAS(mdPwrI);
         hemiSor = hemiLab(mdPwrI);
         subSor = subLab(mdPwrI);
-        yAXtk1 = 1:3:height(lhPkSlfpAS)*3;
-        yAXtk3 = 3:3:height(lhPkSlfpAS)*3;
+        yAXtk1 = 1:7:height(lhPkSlfpAS)*7;
+        yAXtk3 = 3:7:height(lhPkSlfpAS)*7;
 
 
         %%%% ADD STATS
@@ -1118,9 +1118,10 @@ switch figureNUM
         xticks([0 0.5 1])
         xlabel('Scaled LFP')
         ylabel('All subjects and hemipsheres')
-        yticks(2:3:height(lhPkSlfpAS)*3)
+        yticks(2:7:height(lhPkSlfpAS)*7)
         subHemiLabs = cellfun(@(x,y) [x , y], subSor , hemiSor, 'UniformOutput',false);
         yticklabels(subHemiLabs)
+        ylim([-2 (height(lhPkSlfpAS)*7)])
 
         xBCAsleep = medASs;
         yBCAsleep = yAXtk1;
