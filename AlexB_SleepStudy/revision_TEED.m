@@ -1,7 +1,8 @@
 monoTab = js.Impedance.Hemisphere.SessionImpedance.Monopolar;
 
 % Electrode2 = get number that was used for stimulation
-
+% ohn, could we double check the JSON file for this to make sure we're right? It's subject #6
+% PW, Frequency, amplitude
 
 finGroup = js.Groups.Final;
 settINGS = finGroup.ProgramSettings;
