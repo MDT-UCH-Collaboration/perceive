@@ -484,23 +484,23 @@ switch figureNUM
             wSTDd = transpose(wMean - (wSTD));
 
             lp1 = plot(gMean,'LineWidth',2.5);
-            lp1.Color = lightCM;
+            lp1.Color = darkCM;
             hold on
 
             pch1 = patch([1:length(gMean) fliplr(1:length(gMean))],...
                 [gSTDd fliplr(gSTDu)],'k');
 
-            pch1.FaceColor = lightCM;
+            pch1.FaceColor = darkCM;
             pch1.FaceAlpha = 0.3;
             pch1.EdgeColor = 'none';
 
             lp2 = plot(wMean,'LineWidth',2.5); % Get into bed
-            lp2.Color = darkCM;
+            lp2.Color = lightCM;
 
             pch2 = patch([1:length(wMean) fliplr(1:length(wMean))],...
                 [wSTDd fliplr(wSTDu)],'k');
 
-            pch2.FaceColor = darkCM;
+            pch2.FaceColor = lightCM;
             pch2.FaceAlpha = 0.3;
             pch2.EdgeColor = 'none';
 
@@ -571,8 +571,8 @@ switch figureNUM
             xVALSoff = ylinOFF2 + offSET1;
             hold on
             % PLOT 1
-            plot(xVALS,gbTheta + xVALSoff(1),'Color',lightCM,'LineWidth',2)
-            plot(xVALS,wuTheta + xVALSoff(1),'Color',darkCM,'LineWidth',2)
+            plot(xVALS,gbTheta + xVALSoff(1),'Color',darkCM,'LineWidth',2)
+            plot(xVALS,wuTheta + xVALSoff(1),'Color',lightCM,'LineWidth',2)
             yline(ylinES(1),'-','theta','LabelVerticalAlignment','bottom')
             % Stat
             pVALt = tbl.("P-value")(matches(tbl.("Group A"),'BAND=T,ToD=GO') &...
@@ -585,8 +585,8 @@ switch figureNUM
             end
             text(0.58,ylinES(1)-3.5,ptextT)
             % PLOT 2
-            plot(xVALS,gbAlpha + xVALSoff(2),'Color',lightCM,'LineWidth',2)
-            plot(xVALS,wuAlpha + xVALSoff(2),'Color',darkCM,'LineWidth',2)
+            plot(xVALS,gbAlpha + xVALSoff(2),'Color',darkCM,'LineWidth',2)
+            plot(xVALS,wuAlpha + xVALSoff(2),'Color',lightCM,'LineWidth',2)
             yline(ylinES(2),'-','alpha','LabelVerticalAlignment','bottom')
             % Stat
             pVALa = tbl.("P-value")(matches(tbl.("Group A"),'BAND=A,ToD=GO') &...
@@ -599,8 +599,8 @@ switch figureNUM
             end
             text(0.58,ylinES(2)-3.5,ptextA)
             % PLOT 3
-            plot(xVALS,gbBeta + xVALSoff(3),'Color',lightCM,'LineWidth',2)
-            plot(xVALS,wuBeta + xVALSoff(3),'Color',darkCM,'LineWidth',2)
+            plot(xVALS,gbBeta + xVALSoff(3),'Color',darkCM,'LineWidth',2)
+            plot(xVALS,wuBeta + xVALSoff(3),'Color',lightCM,'LineWidth',2)
             yline(ylinES(3),'-','beta','LabelVerticalAlignment','bottom')
             % Stat
             pVALb = tbl.("P-value")(matches(tbl.("Group A"),'BAND=B,ToD=GO') &...
@@ -613,8 +613,8 @@ switch figureNUM
             end
             text(0.58,ylinES(3)-3.5,ptextB)
             % PLOT 4
-            plot(xVALS,gbGamma + xVALSoff(4),'Color',lightCM,'LineWidth',2)
-            plot(xVALS,wuGamma + xVALSoff(4),'Color',darkCM,'LineWidth',2)
+            plot(xVALS,gbGamma + xVALSoff(4),'Color',darkCM,'LineWidth',2)
+            plot(xVALS,wuGamma + xVALSoff(4),'Color',lightCM,'LineWidth',2)
             yline(ylinES(4),'-','gamma','LabelVerticalAlignment','bottom')
             % Stat
             pVALg = tbl.("P-value")(matches(tbl.("Group A"),'BAND=G,ToD=GO') &...
@@ -932,6 +932,7 @@ switch figureNUM
         ylabel('Scaled LFP Power')
         xticklabels({'Theta','Alpha','Beta','Gamma'})
         ylim([0 5])
+        legend('Going-to-bed','Getting-out-of-bed')
 
 
         axis square

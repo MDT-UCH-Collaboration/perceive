@@ -31,6 +31,12 @@ switch computerName
         load('PatParms.mat','patParams')
         mainDIR = 'C:\Users\johna\Dropbox\Publications_Meta\InProgress\ABaumgartner_Percept2020';
 
+    case 'DESKTOP-I5CPDO7'
+
+        cd('D:\Dropbox\Publications_Meta\InProgress\ABaumgartner_Percept2020')
+        load('PatParms.mat','patParams')
+        mainDIR = 'D:\Dropbox\Publications_Meta\InProgress\ABaumgartner_Percept2020';
+
     otherwise
 
         cd('E:\Dropbox\Publications_Meta\InProgress\ABaumgartner_Percept2020')
