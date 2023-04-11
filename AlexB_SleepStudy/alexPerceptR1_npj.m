@@ -102,7 +102,7 @@ switch plotID
         xlabel('Scaled LFP')
         ylabel('All subjects and hemipsheres')
         yticks(2:3:height(lhPkSlfpAS)*3)
-        ylim([2 height(lhPkSlfpAS)*3])
+        ylim([0 height(lhPkSlfpAS)*3])
         title('Non-artifact events')
         yticks(yAXtk1(logical(rostER.eventUSE)))
         yticklabels(nartLabs)
@@ -113,7 +113,7 @@ switch plotID
         xlabel('Scaled LFP')
         ylabel('All subjects and hemipsheres')
         yticks(2:3:height(lhPkSlfpAS)*3)
-        ylim([2 height(lhPkSlfpAS)*3])
+        ylim([0 height(lhPkSlfpAS)*3])
         title('Artifact events')
         yticks(yAXtk1(~rostER.eventUSE))
         yticklabels(artLabs)
@@ -193,10 +193,25 @@ switch plotID
         load("NewFigureSwarm.mat","lhPkSlfpAS","lhPkSlfpAW","yAXtk1",...
             "yAXtk3","subSor","hemiSor","medASs","medAWs","lfpPEak")
 
+        rostER.lfpPEAK = lfpPEak;
+
+        newTAB = table(subSor, hemiSor);
+        for si = 1:height(newTAB)
+
+            tmpSUB = newTAB.subSor{si};
+            tmpHEM = newTAB.hemiSor{si};
+
+            rowINDEX = ismember(rostER.subID,str2double(tmpSUB)) &...
+                ismember(rostER.hemI,lower(tmpHEM));
+
+            newTAB.LFPpeak(si) = rostER.lfpPEAK(rowINDEX);
+
+        end
+
         %%%%%% HORIZONTAL SWARM CHART
         for spI = 1:height(lhPkSlfpAS)
 
-            if lfpPEak(spI) < 13
+            if newTAB.LFPpeak(spI) < 13
                 subplot(1,3,1)
 
                 aSLeepX = lhPkSlfpAS{spI};
@@ -246,8 +261,8 @@ switch plotID
         end
 
         subHemiLabs = cellfun(@(x,y) [x , y], subSor , hemiSor, 'UniformOutput',false);
-        alLabs = subHemiLabs(lfpPEak < 13);
-        beLabs = subHemiLabs(lfpPEak > 13);
+        alLabs = subHemiLabs(newTAB.LFPpeak < 13);
+        beLabs = subHemiLabs(newTAB.LFPpeak > 13);
 
         subplot(1,3,1)
         axis square
@@ -257,7 +272,7 @@ switch plotID
         yticks(2:3:height(lhPkSlfpAS)*3)
         ylim([0 height(lhPkSlfpAS)*3])
         title('Alpha peaks')
-        yticks(yAXtk1(lfpPEak < 13))
+        yticks(yAXtk1(newTAB.LFPpeak < 13))
         yticklabels(alLabs)
 
         subplot(1,3,2)
@@ -268,22 +283,22 @@ switch plotID
         yticks(2:3:height(lhPkSlfpAS)*3)
         ylim([0 height(lhPkSlfpAS)*3])
         title('Beta peaks')
-        yticks(yAXtk1(lfpPEak > 13))
+        yticks(yAXtk1(newTAB.LFPpeak > 13))
         yticklabels(beLabs)
 
 
 
-        xBCAsleepA = medASs(lfpPEak < 13);
-        yBCAsleepA = yAXtk1(lfpPEak < 13);
+        xBCAsleepA = medASs(newTAB.LFPpeak < 13);
+        yBCAsleepA = yAXtk1(newTAB.LFPpeak < 13);
 
-        xBCAsleepB = medASs(lfpPEak > 13);
-        yBCAsleepB = yAXtk1(lfpPEak > 13);
+        xBCAsleepB = medASs(newTAB.LFPpeak > 13);
+        yBCAsleepB = yAXtk1(newTAB.LFPpeak > 13);
 
-        xBCAwakeA = medAWs(lfpPEak < 13);
-        yBCAwakeA = yAXtk3(lfpPEak < 13);
+        xBCAwakeA = medAWs(newTAB.LFPpeak < 13);
+        yBCAwakeA = yAXtk3(newTAB.LFPpeak < 13);
 
-        xBCAwakeB = medAWs(lfpPEak > 13);
-        yBCAwakeB = yAXtk3(lfpPEak > 13);
+        xBCAwakeB = medAWs(newTAB.LFPpeak > 13);
+        yBCAwakeB = yAXtk3(newTAB.LFPpeak > 13);
 
         subplot(1,3,1)
         line(transpose([xBCAsleepA xBCAwakeA]), [yBCAsleepA ; yBCAwakeA],'Color','k')
