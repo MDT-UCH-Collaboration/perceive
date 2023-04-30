@@ -11,7 +11,8 @@ function [] = ocd_dbs_group(trialN , hemisphere)
 % trialN = 1 or 2
 % hemisphere = 'L' or 'R'
 
-cd('D:\Dropbox\OCD_DBS_JSON')
+% cd('D:\Dropbox\OCD_DBS_JSON')
+cd('C:\Users\johna\Dropbox\OCD_DBS_JSON')
 
 
 [jsonFnameTab] = getJSONofInt(trialN , hemisphere);
@@ -76,6 +77,11 @@ end
 titleUSE = [hemisphere , ' trial ' num2str(trialN)];
 
 plotFUN(tmpHzTRx , diffComps , beforeEP , titleUSE)
+
+
+% STATS
+allPs = freqSTATS(tmpHzTRx , beforeLFP , afterLFP , beforeEP)
+
 
 
 end
@@ -255,3 +261,49 @@ title(titleUSE)
 
 
 end
+
+
+
+
+
+
+function [allps] = freqSTATS(tmpHzTRx , beforeLFP , afterLFP , contactPairsBef)
+
+
+freqS = [1 4;...
+         4 8;...
+         8 13;...
+         13 30;...
+         30 50];
+allps = zeros(6*5,1);
+countS = 1;
+for ci = 1:6
+    for fi = 1:height(freqS)
+
+        beforeTlfp = beforeLFP(ci,tmpHzTRx > freqS(fi,1) & tmpHzTRx < freqS(fi, 2));
+        afterTlfp = afterLFP(ci,tmpHzTRx > freqS(fi,1) & tmpHzTRx < freqS(fi, 2));
+
+
+        [a,~,~] = ttest2(beforeTlfp , afterTlfp);
+
+        if a
+            allps(countS) = 1;
+            countS = countS + 1;
+        end
+
+
+
+    end
+
+end
+
+
+
+
+
+
+
+end
+
+
+

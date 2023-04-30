@@ -11,8 +11,9 @@ function [] = ocd_dbs_group(trialN , hemisphere)
 % trialN = 1 or 2
 % hemisphere = 'L' or 'R'
 
-cd('D:\Dropbox\OCD_DBS_JSON')
-close all
+% cd('D:\Dropbox\OCD_DBS_JSON')
+cd('C:\Users\johna\Dropbox\OCD_DBS_JSON')
+
 
 [jsonFnameTab] = getJSONofInt(trialN , hemisphere);
 
@@ -73,20 +74,13 @@ for fi = 1:6
 
 end
 
+titleUSE = [hemisphere , ' trial ' num2str(trialN)];
+
+plotFUN(tmpHzTRx , diffComps , beforeEP , titleUSE)
 
 
-
-
-
-
-
-
-
-
-
-
-
-
+% STATS
+freqSTATS(tmpHzTRx , beforeLFP , afterLFP , beforeEP)
 
 
 end
@@ -220,14 +214,14 @@ end
 
 
 
-function [] = plotFUN(tmpHzTRx , repack ,  )
+function [] = plotFUN(freqXax , LFPin , legendLabs , titleUSE )
 
-
+figure;
 % Reorder to max peak
-averagePOWER = mean(repack,2);
+averagePOWER = mean(LFPin,2);
 [~ , high2low] = sort(averagePOWER , 'descend');
 
-normSlfp = repack(high2low,:);
+normSlfp = LFPin(high2low,:);
 
 coloRS = [191, 15, 255;...
           194, 75, 210;...
@@ -246,26 +240,63 @@ for lfpi = 1:width(normSlfpLt)
 
     hold on
     lalph = lineAlphas(lfpi);
-    plot(tmpHzTRx,normSlfpLt(:,lfpi),'Color',[coloRSrgb(lfpi,:) lalph],...
+    plot(freqXax,normSlfpLt(:,lfpi),'Color',[coloRSrgb(lfpi,:) lalph],...
         'LineWidth',lineWidths(lfpi))
-
-
-
-
 
 end
 hold off
 
-senseELallS = senseELall(high2low,:);
-senseELall2 = transpose(join(senseELallS,'-'));
 
+ylim([-0.25 0.5])
 xticks([0 35 70])
 yticks([0 0.5 1])
-ylabel('Normalized LFP magnitude')
+ylabel('Normalized LFP magnitude [difference between before/after]')
 xlabel('Frequency (Hz)')
-legend(senseELall2)
+legend(legendLabs)
+title(titleUSE)
+
 
 
 
 
 end
+
+
+
+
+
+
+function [] = freqSTATS(tmpHzTRx , beforeLFP , afterLFP , contactPairsBef)
+
+
+freqS = [1 4;...
+         4 8;...
+         8 13;...
+         13 30;...
+         30 50];
+
+for ci = 1:6
+    for fi = 1:height(freqS)
+
+        beforeTlfp = beforeLFP(ci,tmpHzTRx > freqS(fi,1) & tmpHzTRx < freqS(fi, 2));
+        afterTlfp = afterLFP(ci,tmpHzTRx > freqS(fi,1) & tmpHzTRx < freqS(fi, 2));
+
+
+        [a,b,c] = ttest2(beforeTlfp , afterTlfp);
+
+
+
+    end
+
+end
+
+
+
+
+
+
+
+end
+
+
+
