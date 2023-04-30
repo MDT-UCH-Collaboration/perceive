@@ -80,7 +80,7 @@ plotFUN(tmpHzTRx , diffComps , beforeEP , titleUSE)
 
 
 % STATS
-allPs = freqSTATS(tmpHzTRx , beforeLFP , afterLFP , beforeEP)
+outTable = freqSTATS(tmpHzTRx , beforeLFP , afterLFP , beforeEP)
 
 
 
@@ -267,7 +267,7 @@ end
 
 
 
-function [allps] = freqSTATS(tmpHzTRx , beforeLFP , afterLFP , contactPairsBef)
+function [outTable] = freqSTATS(tmpHzTRx , beforeLFP , afterLFP , contactPairsBef)
 
 
 freqS = [1 4;...
@@ -276,6 +276,8 @@ freqS = [1 4;...
          13 30;...
          30 50];
 allps = zeros(6*5,1);
+allfreqs = cell(6*5,1);
+contactP = cell(6*5,1);
 countS = 1;
 for ci = 1:6
     for fi = 1:height(freqS)
@@ -288,6 +290,19 @@ for ci = 1:6
 
         if a
             allps(countS) = 1;
+            contactP{countS} = contactPairsBef{ci};
+            switch fi
+                case 1
+                    allfreqs{countS} = 'd';
+                case 2
+                    allfreqs{countS} = 't';
+                case 3
+                    allfreqs{countS} = 'a';
+                case 4
+                    allfreqs{countS} = 'b';
+                case 5
+                    allfreqs{countS} = 'g';
+            end
             countS = countS + 1;
         end
 
@@ -296,6 +311,8 @@ for ci = 1:6
     end
 
 end
+
+outTable = table(allps, allfreqs, contactP, 'VariableNames',{'Pvalues','Freqs','Contacts'});
 
 
 
