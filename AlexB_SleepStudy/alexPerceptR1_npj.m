@@ -16,6 +16,9 @@ switch dirPRE
 
 end
 
+%%% FOR NEW FIGURE 2 to depict alpha vs beta
+%%% COMBINE 2 and 4
+
 % makeAlexPerceptFigures_v6(3,'3','L',1,3)
 rostLOC = [dPrefix,'Publications_Meta\InProgress\ABaumgartner_Percept2020'];
 cd(rostLOC)
@@ -536,6 +539,122 @@ switch plotID
             'STD','Min','Max'})
 
         table(timeLIn,allDAyS,'VariableNames',{'Subject_Hemi','Days'})
+
+    case 6
+
+
+        mainFig = figure;
+        set(mainFig,'Position', [1485 311 1128 863]);
+        tiledlayout(4,4,"Padding","tight");
+        % Load data
+        % GOOD SUBJECt
+        % subjectID = '3';
+        % hemisphere = 'L';
+
+
+        % ARTIFACT 1
+        % subjectID = '9';
+        % hemisphere = 'L';
+
+        % ARTIFACT 2
+        % subjectID = '3';
+        % hemisphere = 'L';
+
+        % Non-ARTIFACT 1
+        % subjectID = '8';
+        % hemisphere = 'L';
+
+        % Non-ARTIFACT 2
+        % subjectID = '4';
+        % hemisphere = 'R';
+
+        subjectID = {'7','9','6','1'};
+        hemisphere = {'L','L','R','R'};
+        titlEE = {'8.8 Hz','8.8 Hz','12.7 Hz','10.7 Hz'};
+        for ii = 1:4
+
+
+            [tmData] = getPatDat(subjectID{ii} , hemisphere{ii} , 'TimeLine');
+
+            nLFP = tmData.LFP;
+            unfurlLFP = nLFP(:);
+            raw_LFP = unfurlLFP - (min(unfurlLFP));
+            clean_LFP = raw_LFP;
+            clean_LFP(clean_LFP > 2.2999e+09) = nan;
+            % clean_LFP(clean_LFP < 50) = nan;
+            mSunful = normalize(clean_LFP, 'range');
+            smSunful = smoothdata(mSunful,'rloess',10,'omitnan');
+
+            % Clean and prettified
+            nexttile([1 4])
+            cMAP = cividis;
+            [reMAP] = reMapCmap(tmData,cMAP,smSunful,1,'timeBased');
+            scatter(1:length(smSunful),smSunful,[],reMAP,'filled')
+
+            maxVale = max(smSunful);
+            ylim([0 round(maxVale + 0.1,1)])
+            yticks([0 round((maxVale + 0.1)/2,2) round(maxVale + 0.1,1)])
+            yticklabels([0 round((maxVale + 0.1)/2,2) round(maxVale + 0.1,1)])
+            ylabel('Scaled power')
+            dayStarts = round(linspace(1,length(smSunful)-144,length(smSunful)/144));
+            xticks(dayStarts);
+            xticklabels(1:length(smSunful)/144)
+            xlim([1, length(smSunful)])
+            xlabel('Days of recording')
+            set(gca,'TickLength',[0 .001])
+            title([subjectID{ii},'  ',hemisphere{ii}, '   ' titlEE{ii}])
+
+
+        end
+
+
+    case 7
+
+
+        % mainFig = figure;
+        % set(mainFig,'Position', [1485 311 1128 863]);
+        % tiledlayout(4,4,"Padding","tight");
+
+        % TABLE - MIN / MAX / Median / RAW
+        % TABLE - MIN / MAX / Median / Normalized [range]
+
+        subjectID = {'7','9','6','1'};
+        hemisphere = {'L','L','R','R'};
+        titlEE = {'8.8 Hz','8.8 Hz','12.7 Hz','10.7 Hz'};
+        for ii = 1:4
+
+            [tmData] = getPatDat(subjectID{ii} , hemisphere{ii} , 'TimeLine');
+
+            nLFP = tmData.LFP;
+            unfurlLFP = nLFP(:);
+            raw_LFP = unfurlLFP - (min(unfurlLFP));
+            clean_LFP = raw_LFP;
+            clean_LFP(clean_LFP > 2.2999e+09) = nan;
+            % clean_LFP(clean_LFP < 50) = nan;
+            mSunful = normalize(clean_LFP, 'range');
+            % smSunful = smoothdata(mSunful,'rloess',10,'omitnan');
+
+            % % Clean and prettified
+            % nexttile([1 4])
+            % cMAP = cividis;
+            % [reMAP] = reMapCmap(tmData,cMAP,smSunful,1,'timeBased');
+            % scatter(1:length(smSunful),smSunful,[],reMAP,'filled')
+            % 
+            % maxVale = max(smSunful);
+            % ylim([0 round(maxVale + 0.1,1)])
+            % yticks([0 round((maxVale + 0.1)/2,2) round(maxVale + 0.1,1)])
+            % yticklabels([0 round((maxVale + 0.1)/2,2) round(maxVale + 0.1,1)])
+            % ylabel('Scaled power')
+            % dayStarts = round(linspace(1,length(smSunful)-144,length(smSunful)/144));
+            % xticks(dayStarts);
+            % xticklabels(1:length(smSunful)/144)
+            % xlim([1, length(smSunful)])
+            % xlabel('Days of recording')
+            % set(gca,'TickLength',[0 .001])
+            % title([subjectID{ii},'  ',hemisphere{ii}, '   ' titlEE{ii}])
+
+
+        end
 
 end
 
