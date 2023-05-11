@@ -618,40 +618,99 @@ switch plotID
         % TABLE - MIN / MAX / Median / RAW
         % TABLE - MIN / MAX / Median / Normalized [range]
 
-        subjectID = {'7','9','6','1'};
-        hemisphere = {'L','L','R','R'};
-        titlEE = {'8.8 Hz','8.8 Hz','12.7 Hz','10.7 Hz'};
-        for ii = 1:4
+        hemiID = zeros(height(rostER),1);
+        hemiLab = cell(height(rostER),1);
+        subLab = cell(height(rostER),1);
+        subID = zeros(height(rostER),1);
+        lfpPEak = zeros(height(rostER),1);
+        allrawDat = cell(height(rostER),1);
 
-            [tmData] = getPatDat(subjectID{ii} , hemisphere{ii} , 'TimeLine');
+
+        for ri = 1:height(rostER)
+
+            tmpSUB = num2str(rostER.subID(ri));
+            tmpHEMI = upper(rostER.hemI{ri});
+            hemiLab{ri} = tmpHEMI;
+            subLab{ri} = tmpSUB;
+            [tmData] = getPatDat(tmpSUB , tmpHEMI , 'TimeLine');
+
+            [apData] = getPatDat(tmpSUB , tmpHEMI , 'ActALL');
+            [cleanApT] = trim144Apdata(tmData , apData);
+
+            lfpPEak(ri) = tmData.senseFreq;
 
             nLFP = tmData.LFP;
             unfurlLFP = nLFP(:);
-            raw_LFP = unfurlLFP - (min(unfurlLFP));
-            clean_LFP = raw_LFP;
-            clean_LFP(clean_LFP > 2.2999e+09) = nan;
-            % clean_LFP(clean_LFP < 50) = nan;
-            mSunful = normalize(clean_LFP, 'range');
+            mSunful = unfurlLFP - (min(unfurlLFP));
+            mSunful(mSunful > 2.2999e+09) = nan;
+            mSunful = normalize(mSunful, 'range');
+            smSunful = smoothdata(mSunful,'rloess',10,'omitnan');
+            allrawDat{ri} = smSunful;
+
+        end
+
+        % Unpack, normalize, and repack
+        allDATA = [];
+        allpat = [];
+
+        for spI = 1:height(allrawDat)
+
+            % awake
+            allDATA = [allDATA ; allrawDat{spI}];
+            allpat = [allpat ; repmat(spI,size(allrawDat{spI}))];
+
+ 
+
+        end
+        allDATAnorm = normalize(allDATA, 'range');
+
+        % repack
+        awakeLFP2 = cell(height(allrawDat),1);
+        medianAW = zeros(height(allrawDat),1);
+        iqrAW = zeros(height(allrawDat),1);
+
+        for spI2 = 1:height(allrawDat)
+            awakeTmp = ismember(allpat,spI2);
+
+            awakeLFP2{spI2} = allDATAnorm(awakeTmp);
+            medianAW(spI2) = median(awakeLFP2{spI2},'omitnan');
+            iqrAW(spI2) = iqr(awakeLFP2{spI2});
+
+        end
+
+
+        % rostERrow = [ 7 10 6 1];
+        % subjectID = {'7','9','6','1'};
+        % hemisphere = {'L','L','R','R'};
+        % titlEE = {'8.8 Hz','8.8 Hz','12.7 Hz','10.7 Hz'};
+        rostERrow = [10 6];
+        subjectID = {'9','6'};
+        hemisphere = {'L','R'};
+        titlEE = {'8.8 Hz','12.7 Hz'};
+        for ii = 1:4
+
+            [tmData] = getPatDat(subjectID{ii} , hemisphere{ii} , 'TimeLine');
+            tmpDatau = awakeLFP2{rostERrow(ii)};
             % smSunful = smoothdata(mSunful,'rloess',10,'omitnan');
 
             % % Clean and prettified
-            % nexttile([1 4])
-            % cMAP = cividis;
-            % [reMAP] = reMapCmap(tmData,cMAP,smSunful,1,'timeBased');
-            % scatter(1:length(smSunful),smSunful,[],reMAP,'filled')
-            % 
-            % maxVale = max(smSunful);
-            % ylim([0 round(maxVale + 0.1,1)])
-            % yticks([0 round((maxVale + 0.1)/2,2) round(maxVale + 0.1,1)])
-            % yticklabels([0 round((maxVale + 0.1)/2,2) round(maxVale + 0.1,1)])
-            % ylabel('Scaled power')
-            % dayStarts = round(linspace(1,length(smSunful)-144,length(smSunful)/144));
-            % xticks(dayStarts);
-            % xticklabels(1:length(smSunful)/144)
-            % xlim([1, length(smSunful)])
-            % xlabel('Days of recording')
-            % set(gca,'TickLength',[0 .001])
-            % title([subjectID{ii},'  ',hemisphere{ii}, '   ' titlEE{ii}])
+            nexttile([1 4])
+            cMAP = cividis;
+            [reMAP] = reMapCmap(tmData,cMAP,tmpDatau,1,'timeBased');
+            scatter(1:length(tmpDatau),tmpDatau,[],reMAP,'filled')
+
+            maxVale = max(tmpDatau);
+            ylim([0 round(maxVale + 0.1,1)])
+            yticks([0 round((maxVale + 0.1)/2,2) round(maxVale + 0.1,1)])
+            yticklabels([0 round((maxVale + 0.1)/2,2) round(maxVale + 0.1,1)])
+            ylabel('Scaled power')
+            dayStarts = round(linspace(1,length(tmpDatau)-144,length(tmpDatau)/144));
+            xticks(dayStarts);
+            xticklabels(1:length(tmpDatau)/144)
+            xlim([1, length(tmpDatau)])
+            xlabel('Days of recording')
+            set(gca,'TickLength',[0 .001])
+            title([subjectID{ii},'  ',hemisphere{ii}, '   ' titlEE{ii}])
 
 
         end
