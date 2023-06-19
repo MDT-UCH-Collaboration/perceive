@@ -12,7 +12,8 @@ function [] = ocd_dbs_group(trialN , hemisphere)
 % hemisphere = 'L' or 'R'
 
 % cd('D:\Dropbox\OCD_DBS_JSON')
-cd('D:\Dropbox\OCD_DBS_JSON\MP_CaseReport_2023')
+% cd('D:\Dropbox\OCD_DBS_JSON\MP_CaseReport_2023')
+cd('C:\Users\johna\Dropbox\OCD_DBS_JSON\MP_CaseReport_2023')
 
 
 [jsonFnameTab] = getJSONofInt(trialN , hemisphere);
@@ -57,6 +58,65 @@ beforeEP = exposureIDtn.E_Pairs{beforeIND};
 beforeLFP = exposureIDtn.LFPdata{beforeIND};
 afterEP = exposureIDtn.E_Pairs{~beforeIND};
 afterLFP = exposureIDtn.LFPdata{~beforeIND};
+
+
+% Extract max peak uVp and Hz 
+% after
+bandsti = [1 , 4, 8, 13, 31];
+bandsto = [3 , 7, 12, 30 50];
+maxuvp = [0, 0, 0, 0, 0];
+maxfreq = [0, 0, 0, 0, 0];
+for i = 1:6
+
+    for bi = 1:length(bandsti)
+
+        bandINDEX = tmpHzTRx >= bandsti(bi) & tmpHzTRx <= bandsto(bi);
+        tmpROWb = afterLFP(bandINDEX);
+
+
+%         tmpROWb = afterLFP(i,bandsti(bi):bandsto(bi));
+        tmpFREQ = tmpHzTRx(bandINDEX);
+        [maxuvpT , maxLOC] = max(tmpROWb);
+
+        if maxuvpT > maxuvp(bi)
+            maxuvp(bi) = maxuvpT;
+            maxfreq(bi) = tmpFREQ(maxLOC);
+
+        end
+
+    end
+end
+
+
+
+bandsti = [1 , 4, 8, 13, 31];
+bandsto = [3 , 7, 12, 30 50];
+maxuvp = [0, 0, 0, 0, 0];
+maxfreq = [0, 0, 0, 0, 0];
+for i = 1:6
+
+    for bi = 1:length(bandsti)
+
+        bandINDEX = tmpHzTRx >= bandsti(bi) & tmpHzTRx <= bandsto(bi);
+        tmpROWb = beforeLFP(bandINDEX);
+
+
+%         tmpROWb = afterLFP(i,bandsti(bi):bandsto(bi));
+        tmpFREQ = tmpHzTRx(bandINDEX);
+        [maxuvpT , maxLOC] = max(tmpROWb);
+
+        if maxuvpT > maxuvp(bi)
+            maxuvp(bi) = maxuvpT;
+            maxfreq(bi) = tmpFREQ(maxLOC);
+
+        end
+
+    end
+end
+
+
+
+
 
 diffComps = zeros(6,72);
 
