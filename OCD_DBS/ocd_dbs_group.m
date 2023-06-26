@@ -129,6 +129,7 @@ for fi = 1:6
     comLFPdata = afterLFP(comLFPcLoc,:);
 
     subDIFF = comLFPdata - refLFPdata; % post - pre
+    % subDIFF = refLFPdata - comLFPdata;
 
     diffComps(fi,:) = subDIFF;
 
@@ -136,11 +137,11 @@ end
 
 titleUSE = [hemisphere , ' trial ' num2str(trialN)];
 
-plotFUN(tmpHzTRx , diffComps , beforeEP , titleUSE)
+plotFUN(tmpHzTRx , diffComps , beforeEP , titleUSE , trialN)
 
 
 % STATS
-outTable = freqSTATS(tmpHzTRx , beforeLFP , afterLFP , beforeEP)
+outTable = freqSTATS(tmpHzTRx , beforeLFP , afterLFP , beforeEP);
 
 
 
@@ -275,11 +276,18 @@ end
 
 
 
-function [] = plotFUN(freqXax , LFPin , legendLabs , titleUSE )
+function [] = plotFUN(freqXax , LFPin , legendLabs , titleUSE , trialNUM)
 
 figure;
 % Reorder to max peak
-averagePOWER = mean(LFPin,2);
+minShiftVs = min(LFPin,[],2);
+
+minShift = zeros(size(LFPin));
+for minV = 1:6
+    minShift(minV,:) =  LFPin(minV,:) - minShiftVs(minV); 
+end
+
+averagePOWER = mean(minShift,2);
 [~ , high2low] = sort(averagePOWER , 'descend');
 
 normSlfp = LFPin(high2low,:);
@@ -307,14 +315,21 @@ for lfpi = 1:width(normSlfpLt)
 end
 hold off
 
+if trialNUM == 1
+    ylim([-0.15 0.15])
+    yticks([-0.15 0 0.15])
+else
+    ylim([-0.3 0.15])
+    yticks([-0.3 -0.15 0 0.15])
+end
 
-ylim([-0.25 0.5])
+
 xlim([0 60])
 xticks([0 10 20 30 40 50 60])
-yticks([-0.25 0 0.25 0.5 0.75 1])
+
 ylabel('Normalized LFP magnitude POST - PRE')
 xlabel('Frequency (Hz)')
-legend(legendLabs)
+legend(legendLabs(high2low))
 title(titleUSE)
 
 
