@@ -60,7 +60,7 @@ afterEP = exposureIDtn.E_Pairs{~beforeIND};
 afterLFP = exposureIDtn.LFPdata{~beforeIND};
 
 
-% Extract max peak uVp and Hz 
+% Extract max peak uVp and Hz
 % after
 bandsti = [1 , 4, 8, 13, 31];
 bandsto = [3 , 7, 12, 30 50];
@@ -74,7 +74,7 @@ for i = 1:6
         tmpROWb = afterLFP(bandINDEX);
 
 
-%         tmpROWb = afterLFP(i,bandsti(bi):bandsto(bi));
+        %         tmpROWb = afterLFP(i,bandsti(bi):bandsto(bi));
         tmpFREQ = tmpHzTRx(bandINDEX);
         [maxuvpT , maxLOC] = max(tmpROWb);
 
